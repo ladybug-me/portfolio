@@ -54,8 +54,7 @@ export function SphericalPet() {
 
   // Mouse & interaction states
   const targetCursor = useRef(new THREE.Vector3(0, 0, 0))
-  const hintPos = useRef<THREE.Vector3 | null>(null)
-  const hintTimer = useRef(0)
+  const clickPulseTimer = useRef(0)
   const hopCooldown = useRef(0.8)
 
   // Ecosystem life cycles
@@ -90,19 +89,18 @@ export function SphericalPet() {
       const nx = (e.clientX / window.innerWidth) * 2 - 1
       const ny = -(e.clientY / window.innerHeight) * 2 + 1
 
-      // Click is treated as a gentle curiosity hint
-      const clickWorld = new THREE.Vector3(
+      // Update cursor position immediately
+      targetCursor.current.set(
         nx * (viewport.width / 2) * 0.9,
         ny * (viewport.height / 2) * 0.85,
         0
       )
-      hintPos.current = clickWorld
-      hintTimer.current = 2.4
+      clickPulseTimer.current = 0.6
 
-      // Gentle inquisitive hop towards the hint, strictly bounded
-      const dx = clickWorld.x - pos.current.x
+      // Gentle inquisitive hop towards the clicked location without hijacking gaze
+      const dx = targetCursor.current.x - pos.current.x
       vel.current.x = THREE.MathUtils.clamp(dx * 0.9, -1.2, 1.2)
-      vel.current.y = THREE.MathUtils.clamp(1.4 + Math.max(0, clickWorld.y - pos.current.y) * 0.6, 1.2, 2.4)
+      vel.current.y = THREE.MathUtils.clamp(1.4 + Math.max(0, targetCursor.current.y - pos.current.y) * 0.6, 1.2, 2.4)
       vel.current.z = THREE.MathUtils.clamp((0.2 - pos.current.z) * 0.8, -0.15, 0.3)
       squash.current.set(0.88, 1.18, 0.88)
     }
@@ -119,7 +117,6 @@ export function SphericalPet() {
   useFrame((state, delta) => {
     const dt = Math.min(delta, 0.05)
     const time = state.clock.elapsedTime
-    // Reduced radius: 0.18 (compact, sleek cybernetic scale)
     const petRadius = 0.18
     const floorY = -viewport.height / 2 + petRadius + 0.12
     const maxVisibleY = viewport.height / 2 - petRadius - 0.2
@@ -131,23 +128,20 @@ export function SphericalPet() {
       blinkState.current = 0.08
       blinkTimer.current = 3.0 + Math.random() * 3.5
     } else {
-      blinkState.current = THREE.MathUtils.damp(blinkState.current, 1.0, 16, dt)
+      blinkState.current = THREE.MathUtils.damp(blinkState.current, 1.0, 18, dt)
     }
     if (leftEyeGroupRef.current && rightEyeGroupRef.current) {
       leftEyeGroupRef.current.scale.y = blinkState.current
       rightEyeGroupRef.current.scale.y = blinkState.current
     }
 
-    // 2. Click hint countdown
-    if (hintTimer.current > 0) {
-      hintTimer.current -= dt
-      if (hintTimer.current <= 0) {
-        hintPos.current = null
-      }
+    // 2. Click pulse decay
+    if (clickPulseTimer.current > 0) {
+      clickPulseTimer.current -= dt
     }
 
-    // Active gaze focus: hint if active, else cursor
-    const activeFocus = hintPos.current || targetCursor.current
+    // Gaze ALWAYS directly tracks the live cursor position with zero delay!
+    const activeFocus = targetCursor.current
 
     // 3. Static Platform Spawning (Anchored to world coordinates when spawned, NEVER following cursor)
     platformCooldown.current -= dt
@@ -271,9 +265,7 @@ export function SphericalPet() {
 
     if (isOnSurface && hopCooldown.current <= 0) {
       let desiredX = pos.current.x
-      if (hintPos.current) {
-        desiredX = hintPos.current.x
-      } else if (Math.abs(targetCursor.current.x - pos.current.x) > 0.5) {
+      if (Math.abs(targetCursor.current.x - pos.current.x) > 0.45) {
         desiredX = targetCursor.current.x
       } else if (idleWanderTimer.current <= 0) {
         wanderTargetX.current = (Math.random() - 0.5) * maxBoundX * 1.4
@@ -301,7 +293,7 @@ export function SphericalPet() {
     // 7. Organic breathing idle pulse
     const breath = 1.0 + Math.sin(time * 2.8) * 0.025
 
-    // 8. Apply transforms & Horizontal Rotation to Pet
+    // 8. Apply transforms & Real-Time Horizontal Rotation to Pet
     if (petRootRef.current) {
       petRootRef.current.position.copy(pos.current)
     }
@@ -312,30 +304,30 @@ export function SphericalPet() {
         squash.current.z * breath
       )
 
-      // Horizontal Yaw & Pitch towards active focus (full horizontal rotation)
+      // Direct, real-time horizontal Yaw & Pitch towards cursor with ZERO delay
       const dx = activeFocus.x - pos.current.x
       const dz = Math.max(0.35, activeFocus.z + 1.2 - pos.current.z)
       const targetYaw = Math.atan2(dx, dz)
       const targetPitch = -Math.atan2(activeFocus.y - pos.current.y, dz) * 0.45
-      const targetRoll = -vel.current.x * 0.16 // Banking tilt into horizontal movement
+      const targetRoll = -vel.current.x * 0.16
 
-      // Smooth horizontal rotation (yaw) and 3D tilts
+      // Snappy real-time rotation without sluggish lag
       bodyRef.current.rotation.y = THREE.MathUtils.damp(
         bodyRef.current.rotation.y,
         targetYaw,
-        7.5,
+        18,
         dt
       )
       bodyRef.current.rotation.x = THREE.MathUtils.damp(
         bodyRef.current.rotation.x,
-        targetPitch + (hintPos.current ? -0.12 : 0),
-        7.5,
+        targetPitch,
+        18,
         dt
       )
       bodyRef.current.rotation.z = THREE.MathUtils.damp(
         bodyRef.current.rotation.z,
         targetRoll,
-        9,
+        14,
         dt
       )
     }
@@ -353,7 +345,7 @@ export function SphericalPet() {
       innerCoreRef.current.scale.set(coreScale, coreScale, coreScale)
     }
 
-    // 10. Continuous Ocular Pupil Tracking
+    // 10. Instantaneous Ocular Pupil Tracking - Locks directly onto cursor in real time
     const eyeWorld = new THREE.Vector3()
     if (bodyRef.current && leftPupilRef.current && rightPupilRef.current) {
       bodyRef.current.getWorldPosition(eyeWorld)
@@ -365,8 +357,9 @@ export function SphericalPet() {
       leftPupilRef.current.position.set(pupilX, pupilY, 0.028)
       rightPupilRef.current.position.set(pupilX, pupilY, 0.028)
 
-      // Pupil glow intensity
-      const pulseEmissive = hintPos.current ? 2.5 + Math.sin(time * 10) * 0.5 : 1.7
+      // Pupil glow intensity (subtle pulse on click without freezing gaze)
+      const isPulsing = clickPulseTimer.current > 0
+      const pulseEmissive = isPulsing ? 2.6 + Math.sin(time * 12) * 0.5 : 1.7
       ;(leftPupilRef.current.material as THREE.MeshStandardMaterial).emissiveIntensity = pulseEmissive
       ;(rightPupilRef.current.material as THREE.MeshStandardMaterial).emissiveIntensity = pulseEmissive
     }
