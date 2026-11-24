@@ -13,11 +13,7 @@ interface SkillCategory {
   domain: string
   subtitle: string
   stat: string
-  statLabel: string
   skills: string[]
-  color: string
-  badgeBorder: string
-  statBg: string
 }
 
 const categories: SkillCategory[] = [
@@ -27,11 +23,7 @@ const categories: SkillCategory[] = [
     domain: 'NATIVE RUNTIMES',
     subtitle: 'Native Wayland compositors, lock-free sockets, and strict memory layouts.',
     stat: '<5ms IPC LATENCY',
-    statLabel: 'Direct C++ & QML Event Loops',
     skills: ['C++', 'C', 'QML', 'Wayland', 'D-Bus', 'POSIX Threads', 'Valgrind'],
-    color: 'text-cyan-400 border-cyan-400/40',
-    badgeBorder: 'border-cyan-400/30 bg-cyan-500/10 text-cyan-300',
-    statBg: 'bg-cyan-950/40 border-cyan-400/30 text-cyan-300',
   },
   {
     number: '02',
@@ -39,23 +31,15 @@ const categories: SkillCategory[] = [
     domain: 'HARDWARE COMPUTE',
     subtitle: 'Custom CUDA kernels and TensorRT engines built to saturate device memory bandwidth.',
     stat: 'BANDWIDTH BOUND',
-    statLabel: 'Shared Memory & SIMD Execution',
     skills: ['CUDA', 'TensorRT', 'cuBLAS', 'SIMD', 'PTX', 'Nsight Compute'],
-    color: 'text-emerald-400 border-emerald-400/40',
-    badgeBorder: 'border-emerald-400/30 bg-emerald-500/10 text-emerald-300',
-    statBg: 'bg-emerald-950/40 border-emerald-400/30 text-emerald-300',
   },
   {
     number: '03',
     title: 'EDGE COMPUTER VISION',
     domain: 'EMBEDDED INFERENCE',
     subtitle: 'Real-time thermal defect segmentation holding frame rate on Jetson and Raspberry Pi.',
-    stat: 'HARDWARE VALIDATED',
-    statLabel: "ICRTAC'26 Research Paper",
+    stat: "9th ICRTAC'26",
     skills: ['YOLOv11-seg', 'Ultralytics', 'PyTorch', 'OpenCV', 'Jetson Nano', 'Raspberry Pi'],
-    color: 'text-teal-400 border-teal-400/40',
-    badgeBorder: 'border-teal-400/30 bg-teal-500/10 text-teal-300',
-    statBg: 'bg-teal-950/40 border-teal-400/30 text-teal-300',
   },
   {
     number: '04',
@@ -63,11 +47,7 @@ const categories: SkillCategory[] = [
     domain: 'SEMANTIC RETRIEVAL',
     subtitle: 'Sub-100ms vector lookups across 44,441 records with local model orchestration.',
     stat: '44,441 VECTORS',
-    statLabel: 'SQLite & FAISS Pipeline',
     skills: ['FAISS', 'FastAPI', 'Ollama', 'SentenceTransformers', 'SQLite', 'asyncio'],
-    color: 'text-sky-400 border-sky-400/40',
-    badgeBorder: 'border-sky-400/30 bg-sky-500/10 text-sky-300',
-    statBg: 'bg-sky-950/40 border-sky-400/30 text-sky-300',
   },
   {
     number: '05',
@@ -75,11 +55,7 @@ const categories: SkillCategory[] = [
     domain: 'SYSTEM RELIABILITY',
     subtitle: 'Kernel configuration, reproducible containers, and automated memory leak audits.',
     stat: 'ZERO LEAK POLICY',
-    statLabel: 'Valgrind & GDB Audits',
     skills: ['Linux Kernel', 'CMake', 'Docker', 'Git', 'GDB', 'Valgrind', 'Bash'],
-    color: 'text-purple-400 border-purple-400/40',
-    badgeBorder: 'border-purple-400/30 bg-purple-500/10 text-purple-300',
-    statBg: 'bg-purple-950/40 border-purple-400/30 text-purple-300',
   },
 ]
 
@@ -187,16 +163,16 @@ export function SkillsMatrix() {
       {/* Editorial Header & Live Stack Indicator */}
       <div className="max-w-5xl mx-auto w-full mb-8">
         <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-3 font-mono text-cyan-400 text-xs">
+          <div className="flex items-center gap-3 font-mono text-cyan-400 text-sm sm:text-base">
             <span className="w-12 h-[1px] bg-cyan-400" />
             <ScrambleText text="02 • TOOLING MATRIX" />
             <span className="w-12 h-[1px] bg-cyan-400" />
           </div>
 
           {/* Active Card Pill Indicator */}
-          <div className="flex items-center gap-2 font-mono text-xs">
+          <div className="flex items-center gap-2 font-mono text-sm sm:text-base">
             <span className="text-slate-400 hidden sm:inline">STACK STAGE</span>
-            <span className="px-2.5 py-0.5 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 font-bold">
+            <span className="px-3 py-0.5 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 font-bold">
               0{activeIdx + 1} / 0{categories.length}
             </span>
           </div>
@@ -217,81 +193,53 @@ export function SkillsMatrix() {
         </div>
       </div>
 
-      {/* Horizontal Stack Stage (Zoomed-in focal deck) */}
+      {/* Horizontal Stack Stage (Minimalist Glassmorphic Deck) */}
       <div
         ref={stackWrapperRef}
-        className="relative max-w-5xl w-full mx-auto h-[560px] sm:h-[480px] lg:h-[430px] max-h-[70vh]"
+        className="relative max-w-5xl w-full mx-auto h-[500px] sm:h-[440px] lg:h-[420px] max-h-[75vh]"
       >
         {categories.map((cat, idx) => (
           <article
             key={idx}
-            className="horizontal-stack-card absolute inset-0 w-full h-full rounded-2xl sm:rounded-3xl glass-panel p-5 sm:p-8 lg:p-10 border border-white/10 shadow-[-25px_0_50px_rgba(0,0,0,0.85)] backdrop-blur-2xl will-change-transform flex flex-col justify-between overflow-hidden group hover:border-cyan-400/40 transition-colors"
+            className="horizontal-stack-card absolute inset-0 w-full h-full rounded-2xl sm:rounded-3xl glass-panel bg-[#050b14]/55 p-6 sm:p-10 lg:p-12 border border-white/15 shadow-[-25px_0_50px_rgba(0,0,0,0.75),inset_0_1px_1px_rgba(255,255,255,0.12)] backdrop-blur-3xl will-change-transform flex items-center overflow-hidden group hover:border-cyan-400/40 transition-colors duration-300"
           >
-            {/* Top Row: Domain Badge & Status */}
-            <div className="flex items-center justify-between pb-3 sm:pb-4 border-b border-white/10">
-              <div className="flex items-center gap-3">
-                <span className={`px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full text-[11px] sm:text-xs font-mono border ${cat.badgeBorder}`}>
-                  {cat.domain}
-                </span>
-                <span className="text-[10px] sm:text-xs font-mono text-slate-500 uppercase tracking-widest hidden sm:inline">
-                  HARDWARE VALIDATED
-                </span>
-              </div>
-
-              <span className={`px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-lg text-[11px] sm:text-xs font-mono border ${cat.statBg}`}>
-                {cat.stat}
-              </span>
-            </div>
-
-            {/* Middle Grid: Massive Index, Stat Label & Narrative */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6 items-center my-auto py-1 sm:py-2">
-              {/* Left Column: Number & Stat Context */}
-              <div className="lg:col-span-4 flex lg:flex-col items-center lg:items-start justify-between">
-                <span className="text-4xl sm:text-6xl lg:text-7xl font-black font-mono text-cyan-500/25 group-hover:text-cyan-400/40 transition-colors">
+            <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10 items-start lg:items-center">
+              {/* Left Column: Minimalist Index & Metric */}
+              <div className="lg:col-span-4 flex lg:flex-col items-baseline lg:items-start justify-between gap-2">
+                <span className="text-5xl sm:text-7xl lg:text-8xl font-black font-mono tracking-tighter text-cyan-400/25 group-hover:text-cyan-400/45 transition-colors duration-300 leading-none">
                   {cat.number}
                 </span>
-                <div className="mt-1 sm:mt-2 text-right lg:text-left">
-                  <span className="text-[9px] sm:text-[10px] font-mono uppercase tracking-widest text-slate-500 block">
-                    BENCHMARK SPEC
-                  </span>
-                  <span className="text-xs sm:text-sm font-mono text-slate-300 font-semibold">
-                    {cat.statLabel}
-                  </span>
-                </div>
+                <span className="text-sm sm:text-base font-mono font-semibold uppercase tracking-widest text-cyan-300/90 lg:mt-4">
+                  {cat.stat}
+                </span>
               </div>
 
-              {/* Right Column: Title, Subtitle & Skill Badges */}
+              {/* Right Column: Bold Typographic Hierarchy & Container Chips */}
               <div className="lg:col-span-8">
-                <h3 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-white mb-2 sm:mb-3 group-hover:text-cyan-300 transition-colors leading-tight">
+                <span className="block text-sm sm:text-base font-mono font-semibold uppercase tracking-[0.2em] text-slate-400 mb-2 sm:mb-3">
+                  {cat.domain}
+                </span>
+
+                <h3 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white tracking-tight mb-3 sm:mb-4 group-hover:text-cyan-300 transition-colors duration-300 leading-tight">
                   {cat.title}
                 </h3>
-                <p className="text-xs sm:text-sm lg:text-base text-slate-300 font-light leading-relaxed mb-4 sm:mb-6">
+
+                <p className="text-base sm:text-lg text-slate-300 leading-relaxed max-w-2xl mb-6">
                   {cat.subtitle}
                 </p>
 
-                {/* Skill Pills */}
-                <div className="flex flex-wrap gap-1.5 sm:gap-2">
+                {/* Minimalist Glass Containers for Tooling & Languages */}
+                <div className="pt-4 sm:pt-5 border-t border-white/10 flex flex-wrap items-center gap-2.5 sm:gap-3">
                   {cat.skills.map((skill, sIdx) => (
                     <span
                       key={sIdx}
-                      className="px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg text-[11px] sm:text-xs font-mono bg-white/5 text-slate-200 border border-white/10 group-hover:border-cyan-500/30 transition-colors"
+                      className="px-3.5 py-1.5 rounded-lg text-sm sm:text-base font-mono font-medium bg-white/[0.05] text-slate-100 border border-white/15 backdrop-blur-md group-hover:border-cyan-400/35 hover:border-cyan-300 hover:text-cyan-300 transition-colors duration-200"
                     >
                       {skill}
                     </span>
                   ))}
                 </div>
               </div>
-            </div>
-
-            {/* Card Footer Stamp */}
-            <div className="pt-3 sm:pt-4 border-t border-white/5 flex items-center justify-between text-[11px] sm:text-xs font-mono text-slate-500">
-              <span className="flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
-                <span>SYSTEM DISCIPLINE • PRODUCTION TESTED</span>
-              </span>
-              <span className="text-cyan-400">
-                STACK 0{idx + 1} OF 0{categories.length} ➔
-              </span>
             </div>
           </article>
         ))}
