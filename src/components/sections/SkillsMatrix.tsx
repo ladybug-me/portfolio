@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useRef } from 'react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useGSAP } from '@gsap/react'
@@ -62,8 +62,6 @@ const categories: SkillCategory[] = [
 export function SkillsMatrix() {
   const sectionRef = useRef<HTMLElement>(null)
   const stackWrapperRef = useRef<HTMLDivElement>(null)
-  const [activeIdx, setActiveIdx] = useState<number>(0)
-  const [stackProgress, setStackProgress] = useState<number>(0)
 
   useGSAP(
     () => {
@@ -85,14 +83,6 @@ export function SkillsMatrix() {
           scrub: 0.6,
           anticipatePin: 1,
           invalidateOnRefresh: true,
-          onUpdate: (self) => {
-            setStackProgress(self.progress)
-            const newIndex = Math.min(
-              Math.floor(self.progress * cards.length),
-              cards.length - 1
-            )
-            setActiveIdx(newIndex)
-          },
         },
       })
 
@@ -159,37 +149,17 @@ export function SkillsMatrix() {
       id="skills"
       className="relative min-h-screen py-20 px-4 sm:px-8 border-t border-white/5 flex flex-col justify-center overflow-hidden"
     >
-      {/* Editorial Header & Live Stack Indicator */}
+      {/* Editorial Header */}
       <div className="max-w-5xl mx-auto w-full mb-8">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-3 font-mono text-cyan-400 text-sm sm:text-base">
-            <span className="w-12 h-[1px] bg-cyan-400" />
-            <ScrambleText text="02 • TOOLING MATRIX" />
-            <span className="w-12 h-[1px] bg-cyan-400" />
-          </div>
-
-          {/* Active Card Pill Indicator */}
-          <div className="flex items-center gap-2 font-mono text-sm sm:text-base">
-            <span className="text-slate-400 hidden sm:inline">STACK STAGE</span>
-            <span className="px-3 py-0.5 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 font-bold">
-              0{activeIdx + 1} / 0{categories.length}
-            </span>
-          </div>
+        <div className="flex items-center gap-3 font-mono text-cyan-400 text-sm sm:text-base mb-4">
+          <span className="w-12 h-[1px] bg-cyan-400" />
+          <ScrambleText text="02 • TOOLING MATRIX" />
+          <span className="w-12 h-[1px] bg-cyan-400" />
         </div>
 
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
-          <h2 className="text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tight text-white">
-            <MaskedText text="SYSTEM TOOLING" wordClassName="skills-title-word" />
-          </h2>
-
-          {/* Segmented Deck Progress Bar */}
-          <div className="flex items-center gap-1.5 w-36 sm:w-48 h-1.5 bg-white/10 rounded-full overflow-hidden self-start sm:self-end mb-2">
-            <div
-              className="h-full bg-gradient-to-r from-cyan-400 to-emerald-400 transition-all duration-150"
-              style={{ width: `${Math.max(15, stackProgress * 100)}%` }}
-            />
-          </div>
-        </div>
+        <h2 className="text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tight text-white">
+          <MaskedText text="SYSTEM TOOLING" wordClassName="skills-title-word" />
+        </h2>
       </div>
 
       {/* Horizontal Stack Stage (Minimalist Glassmorphic Deck) */}
