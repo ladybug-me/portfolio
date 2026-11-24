@@ -8,18 +8,19 @@ export function PetCanvas() {
       <Suspense fallback={null}>
         <Canvas
           camera={{ position: [0, 0, 5], fov: 45 }}
-          dpr={[1, 2]}
+          dpr={[1, 1.5]}
           gl={{
             antialias: true,
             alpha: true,
             powerPreference: 'high-performance',
+            stencil: false,
+            depth: true,
           }}
           className="w-full h-full pointer-events-none"
         >
-          <ambientLight intensity={0.7} />
-          <directionalLight position={[5, 8, 5]} intensity={1.8} color="#ffffff" />
-          <pointLight position={[-6, -4, 3]} intensity={1.2} color="#00f2fe" />
-          <pointLight position={[6, 4, 2]} intensity={0.8} color="#00ffa3" />
+          <ambientLight intensity={0.8} />
+          <directionalLight position={[5, 8, 5]} intensity={1.5} color="#ffffff" />
+          <pointLight position={[-4, 4, 3]} intensity={0.9} color="#00f2fe" />
           <SphericalPet />
         </Canvas>
       </Suspense>

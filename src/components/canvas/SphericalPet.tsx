@@ -12,7 +12,7 @@ interface PlatformData {
   scaleX: number
 }
 
-// 6 compact orbital bio-digital energy motes scaled to the pet's smaller radius
+// 6 compact orbital bio-digital energy motes
 const MOTE_OFFSETS = [
   { speed: 1.8, rX: 0.32, rY: 0.20, rZ: 0.26, phase: 0.0, color: '#00f2fe' },
   { speed: -1.4, rX: 0.35, rY: 0.24, rZ: 0.28, phase: 1.2, color: '#00ffa3' },
@@ -57,7 +57,7 @@ export function SphericalPet() {
   const clickPulseTimer = useRef(0)
   const hopCooldown = useRef(0.8)
 
-  // Following state: DOES NOT follow on initial entry!
+  // Following state: DOES NOT follow on initial entry
   const isFollowing = useRef(false)
   const lastEmptyClickTime = useRef(0)
 
@@ -71,6 +71,10 @@ export function SphericalPet() {
     { x: 0, y: 0.1, z: 0, active: false, life: 0, opacity: 0, scaleX: 0 },
   ])
   const platformCooldown = useRef(1.0)
+
+  // Pre-allocated vectors to eliminate garbage collection inside 60fps useFrame loop
+  const tempEyeWorld = useRef(new THREE.Vector3())
+  const tempDirToTarget = useRef(new THREE.Vector3())
 
   // Track global pointer events across entire window
   useEffect(() => {
@@ -91,25 +95,21 @@ export function SphericalPet() {
       const nx = (e.clientX / window.innerWidth) * 2 - 1
       const ny = -(e.clientY / window.innerHeight) * 2 + 1
 
-      // Project click coordinate to 3D world space
       const clickWorldX = nx * (viewport.width / 2) * 0.9
       const clickWorldY = ny * (viewport.height / 2) * 0.85
 
       targetCursor.current.set(clickWorldX, clickWorldY, 0)
-
-      // Distance from click point to the pet in 3D world space
       const distToPet = Math.hypot(clickWorldX - pos.current.x, clickWorldY - pos.current.y)
 
       if (distToPet < 0.38) {
-        // 1. User clicked DIRECTLY ON THE PET -> Stop following the cursor!
+        // Click directly on pet: stop following
         isFollowing.current = false
         vel.current.x = 0
-        // Settle down squish
         squash.current.set(1.24, 0.76, 1.24)
         clickPulseTimer.current = 0.8
         lastEmptyClickTime.current = 0
       } else {
-        // 2. Clicked on EMPTY SPACE -> Single click immediately triggers the jump!
+        // Click on empty space: single click jump
         const dx = clickWorldX - pos.current.x
         vel.current.x = THREE.MathUtils.clamp(dx * 0.9, -1.2, 1.2)
         vel.current.y = THREE.MathUtils.clamp(1.5 + Math.max(0, clickWorldY - pos.current.y) * 0.6, 1.3, 2.4)
@@ -117,7 +117,7 @@ export function SphericalPet() {
         squash.current.set(0.88, 1.18, 0.88)
         clickPulseTimer.current = 0.6
 
-        // Check for double-click to also enable continuous following mode
+        // Double-click on empty space: enable following
         const now = performance.now()
         if (now - lastEmptyClickTime.current < 340) {
           isFollowing.current = true
@@ -140,17 +140,16 @@ export function SphericalPet() {
 
       const distToPet = Math.hypot(clickWorldX - pos.current.x, clickWorldY - pos.current.y)
       if (distToPet >= 0.38) {
-        // Double-click on empty space: start following
         isFollowing.current = true
-        vel.current.y = 2.1
+        vel.current.y = 2.2
         squash.current.set(0.85, 1.25, 0.85)
         clickPulseTimer.current = 1.0
       }
     }
 
-    window.addEventListener('pointermove', handlePointerMove)
-    window.addEventListener('pointerdown', handlePointerDown)
-    window.addEventListener('dblclick', handleDblClick)
+    window.addEventListener('pointermove', handlePointerMove, { passive: true })
+    window.addEventListener('pointerdown', handlePointerDown, { passive: true })
+    window.addEventListener('dblclick', handleDblClick, { passive: true })
 
     return () => {
       window.removeEventListener('pointermove', handlePointerMove)
@@ -160,7 +159,8 @@ export function SphericalPet() {
   }, [viewport.width, viewport.height])
 
   useFrame((state, delta) => {
-    const dt = Math.min(delta, 0.05)
+    // Lock delta to prevent jitter on high refresh rate or brief frame pauses
+    const dt = Math.min(delta, 0.033)
     const time = state.clock.elapsedTime
     const petRadius = 0.18
     const floorY = -viewport.height / 2 + petRadius + 0.12
@@ -173,7 +173,7 @@ export function SphericalPet() {
       blinkState.current = 0.08
       blinkTimer.current = 3.0 + Math.random() * 3.5
     } else {
-      blinkState.current = THREE.MathUtils.damp(blinkState.current, 1.0, 18, dt)
+      blinkState.current = THREE.MathUtils.damp(blinkState.current, 1.0, 20, dt)
     }
     if (leftEyeGroupRef.current && rightEyeGroupRef.current) {
       leftEyeGroupRef.current.scale.y = blinkState.current
@@ -185,7 +185,7 @@ export function SphericalPet() {
       clickPulseTimer.current -= dt
     }
 
-    // Gaze ALWAYS directly tracks the live cursor position in 100% real-time!
+    // Gaze ALWAYS directly tracks the live cursor in 60fps real-time
     const activeFocus = targetCursor.current
 
     // 3. Static Platform Spawning (Only when following and target is elevated)
@@ -210,7 +210,6 @@ export function SphericalPet() {
           maxBoundX - 0.4
         )
 
-        // Lock in static world coordinates
         freePlat.x = stepX
         freePlat.y = stepY
         freePlat.z = 0
@@ -230,8 +229,8 @@ export function SphericalPet() {
       }
       const targetOp = p.active ? 0.92 : 0
       const targetScale = p.active ? 1.0 : 0
-      p.opacity = THREE.MathUtils.damp(p.opacity, targetOp, 6, dt)
-      p.scaleX = THREE.MathUtils.damp(p.scaleX, targetScale, 8, dt)
+      p.opacity = THREE.MathUtils.damp(p.opacity, targetOp, 8, dt)
+      p.scaleX = THREE.MathUtils.damp(p.scaleX, targetScale, 10, dt)
     })
 
     // Update Platform 1 in scene
@@ -300,12 +299,11 @@ export function SphericalPet() {
     pos.current.y = THREE.MathUtils.clamp(pos.current.y, floorY, maxVisibleY)
     pos.current.z = THREE.MathUtils.clamp(pos.current.z, -0.2, 0.45)
 
-    // Smooth return of Z to comfortable resting depth
     if (Math.abs(pos.current.z) > 0.03) {
-      pos.current.z = THREE.MathUtils.damp(pos.current.z, 0, 3.5, dt)
+      pos.current.z = THREE.MathUtils.damp(pos.current.z, 0, 4, dt)
     }
 
-    // 5. Following Locomotion: ONLY when isFollowing is active!
+    // 5. Following Locomotion: ONLY when isFollowing is active
     const isOnSurface = Math.abs(pos.current.y - currentFloor) < 0.05
     hopCooldown.current -= dt
 
@@ -341,30 +339,29 @@ export function SphericalPet() {
         squash.current.z * breath
       )
 
-      // Direct, real-time horizontal Yaw & Pitch towards cursor (EYES AND HEAD KEEP FOLLOWING!)
+      // Horizontal Yaw & Pitch towards cursor with high responsiveness
       const dx = activeFocus.x - pos.current.x
       const dz = Math.max(0.35, activeFocus.z + 1.2 - pos.current.z)
       const targetYaw = Math.atan2(dx, dz)
       const targetPitch = -Math.atan2(activeFocus.y - pos.current.y, dz) * 0.45
       const targetRoll = -vel.current.x * 0.16
 
-      // Snappy real-time rotation without sluggish lag
       bodyRef.current.rotation.y = THREE.MathUtils.damp(
         bodyRef.current.rotation.y,
         targetYaw,
-        18,
+        20,
         dt
       )
       bodyRef.current.rotation.x = THREE.MathUtils.damp(
         bodyRef.current.rotation.x,
         targetPitch,
-        18,
+        20,
         dt
       )
       bodyRef.current.rotation.z = THREE.MathUtils.damp(
         bodyRef.current.rotation.z,
         targetRoll,
-        14,
+        16,
         dt
       )
     }
@@ -382,19 +379,17 @@ export function SphericalPet() {
       innerCoreRef.current.scale.set(coreScale, coreScale, coreScale)
     }
 
-    // 10. Instantaneous Ocular Pupil Tracking - Always tracks cursor
-    const eyeWorld = new THREE.Vector3()
+    // 10. Instantaneous Ocular Pupil Tracking (Zero garbage allocation)
     if (bodyRef.current && leftPupilRef.current && rightPupilRef.current) {
-      bodyRef.current.getWorldPosition(eyeWorld)
-      const dirToTarget = activeFocus.clone().sub(eyeWorld).normalize()
+      bodyRef.current.getWorldPosition(tempEyeWorld.current)
+      tempDirToTarget.current.copy(activeFocus).sub(tempEyeWorld.current).normalize()
 
-      const pupilX = THREE.MathUtils.clamp(dirToTarget.x * 0.035, -0.016, 0.016)
-      const pupilY = THREE.MathUtils.clamp(dirToTarget.y * 0.035, -0.016, 0.016)
+      const pupilX = THREE.MathUtils.clamp(tempDirToTarget.current.x * 0.035, -0.016, 0.016)
+      const pupilY = THREE.MathUtils.clamp(tempDirToTarget.current.y * 0.035, -0.016, 0.016)
 
       leftPupilRef.current.position.set(pupilX, pupilY, 0.028)
       rightPupilRef.current.position.set(pupilX, pupilY, 0.028)
 
-      // Pupil glow intensity
       const isPulsing = clickPulseTimer.current > 0
       const pulseEmissive = isPulsing ? 2.6 + Math.sin(time * 12) * 0.5 : 1.7
       ;(leftPupilRef.current.material as THREE.MeshStandardMaterial).emissiveIntensity = pulseEmissive
@@ -404,16 +399,15 @@ export function SphericalPet() {
     // 11. Micro-Ecosystem: Orbiting bio-digital energy motes
     if (motesGroupRef.current) {
       const motes = motesGroupRef.current.children
-      MOTE_OFFSETS.forEach((mote, i) => {
-        if (motes[i]) {
-          const t = time * mote.speed + mote.phase
-          motes[i].position.set(
-            Math.cos(t) * mote.rX,
-            Math.sin(t * 1.2) * mote.rY,
-            Math.sin(t) * mote.rZ
-          )
-        }
-      })
+      for (let i = 0; i < motes.length; i++) {
+        const mote = MOTE_OFFSETS[i]
+        const t = time * mote.speed + mote.phase
+        motes[i].position.set(
+          Math.cos(t) * mote.rX,
+          Math.sin(t * 1.2) * mote.rY,
+          Math.sin(t) * mote.rZ
+        )
+      }
     }
 
     // 12. Dynamic Contact Shadow on active surface
@@ -422,8 +416,6 @@ export function SphericalPet() {
       const heightAbove = Math.max(0, pos.current.y - currentFloor)
       const shadowScale = THREE.MathUtils.clamp(1.0 - heightAbove * 0.4, 0.25, 1.0)
       shadowRef.current.scale.set(shadowScale, shadowScale, shadowScale)
-      const shadowOpacity = THREE.MathUtils.clamp(0.6 - heightAbove * 0.5, 0.05, 0.6)
-      ;(shadowRef.current.material as THREE.MeshBasicMaterial).opacity = shadowOpacity
     }
   })
 
@@ -485,8 +477,8 @@ export function SphericalPet() {
 
       {/* Dynamic Contact Shadow Plane */}
       <mesh ref={shadowRef} rotation={[-Math.PI / 2, 0, 0]}>
-        <circleGeometry args={[0.2, 32]} />
-        <meshBasicMaterial color="#000000" transparent opacity={0.55} depthWrite={false} />
+        <circleGeometry args={[0.2, 24]} />
+        <meshBasicMaterial color="#000000" transparent opacity={0.5} depthWrite={false} />
       </mesh>
 
       {/* Main Pet Hierarchical Group (Radius: 0.18) */}
@@ -494,7 +486,7 @@ export function SphericalPet() {
         <group ref={bodyRef}>
           {/* Inner Glowing Bio-Energy Core with Horizontal Rotation */}
           <mesh ref={innerCoreRef}>
-            <sphereGeometry args={[0.12, 24, 24]} />
+            <sphereGeometry args={[0.12, 20, 20]} />
             <meshStandardMaterial
               color="#00ffa3"
               emissive="#00f2fe"
@@ -503,25 +495,23 @@ export function SphericalPet() {
             />
           </mesh>
 
-          {/* Translucent Frosted Glass Outer Shell (Compact radius 0.18) */}
+          {/* High-Performance Translucent Frosted Glass Outer Shell (Zero transmission overhead) */}
           <mesh castShadow receiveShadow>
-            <sphereGeometry args={[0.18, 32, 32]} />
-            <meshPhysicalMaterial
+            <sphereGeometry args={[0.18, 28, 28]} />
+            <meshStandardMaterial
               color="#061c28"
               emissive="#00f2fe"
               emissiveIntensity={0.25}
-              roughness={0.12}
-              metalness={0.2}
-              transmission={0.65}
+              roughness={0.14}
+              metalness={0.25}
               transparent
-              opacity={0.88}
-              ior={1.45}
+              opacity={0.86}
             />
           </mesh>
 
           {/* Glowing Equatorial Energy Band with Horizontal Spin */}
           <mesh ref={primaryBandRef} rotation={[Math.PI / 2, 0, 0]}>
-            <torusGeometry args={[0.182, 0.008, 16, 48]} />
+            <torusGeometry args={[0.182, 0.008, 12, 36]} />
             <meshStandardMaterial
               color="#00f2fe"
               emissive="#00f2fe"
@@ -532,7 +522,7 @@ export function SphericalPet() {
 
           {/* Secondary Emerald Rim Ring with Counter-Spin */}
           <mesh ref={secondaryBandRef} rotation={[0, 0, Math.PI / 4]}>
-            <torusGeometry args={[0.181, 0.004, 16, 48]} />
+            <torusGeometry args={[0.181, 0.004, 12, 36]} />
             <meshStandardMaterial
               color="#00ffa3"
               emissive="#00ffa3"
@@ -545,13 +535,13 @@ export function SphericalPet() {
           {/* Compact Top Antenna */}
           <group position={[0, 0.18, 0]}>
             <mesh position={[0, 0.03, 0]}>
-              <cylinderGeometry args={[0.005, 0.007, 0.06, 12]} />
+              <cylinderGeometry args={[0.005, 0.007, 0.06, 8]} />
               <meshStandardMaterial color="#00f2fe" metalness={0.8} roughness={0.2} />
             </mesh>
 
             {/* Cyan Primary Beacon */}
             <mesh position={[0, 0.07, 0]}>
-              <sphereGeometry args={[0.016, 16, 16]} />
+              <sphereGeometry args={[0.016, 12, 12]} />
               <meshStandardMaterial
                 color="#00f2fe"
                 emissive="#00f2fe"
@@ -562,26 +552,24 @@ export function SphericalPet() {
 
             {/* Emerald Satellite Mini-Bead */}
             <mesh position={[0.024, 0.08, 0]}>
-              <sphereGeometry args={[0.008, 12, 12]} />
+              <sphereGeometry args={[0.008, 8, 8]} />
               <meshStandardMaterial
                 color="#00ffa3"
                 emissive="#00ffa3"
                 emissiveIntensity={2.2}
               />
             </mesh>
-
-            <pointLight position={[0, 0.07, 0]} color="#00f2fe" intensity={0.8} distance={2.0} />
           </group>
 
           {/* Left Eye Assembly */}
           <group ref={leftEyeGroupRef} position={[-0.06, 0.042, 0.155]}>
             <mesh>
-              <sphereGeometry args={[0.042, 18, 18]} />
+              <sphereGeometry args={[0.042, 14, 14]} />
               <meshStandardMaterial color="#020813" metalness={0.6} roughness={0.12} />
             </mesh>
 
             <mesh ref={leftPupilRef} position={[0, 0, 0.028]}>
-              <sphereGeometry args={[0.022, 16, 16]} />
+              <sphereGeometry args={[0.022, 12, 12]} />
               <meshStandardMaterial
                 color="#00ffa3"
                 emissive="#00f2fe"
@@ -594,12 +582,12 @@ export function SphericalPet() {
           {/* Right Eye Assembly */}
           <group ref={rightEyeGroupRef} position={[0.06, 0.042, 0.155]}>
             <mesh>
-              <sphereGeometry args={[0.042, 18, 18]} />
+              <sphereGeometry args={[0.042, 14, 14]} />
               <meshStandardMaterial color="#020813" metalness={0.6} roughness={0.12} />
             </mesh>
 
             <mesh ref={rightPupilRef} position={[0, 0, 0.028]}>
-              <sphereGeometry args={[0.022, 16, 16]} />
+              <sphereGeometry args={[0.022, 12, 12]} />
               <meshStandardMaterial
                 color="#00ffa3"
                 emissive="#00f2fe"
@@ -609,11 +597,11 @@ export function SphericalPet() {
             </mesh>
           </group>
 
-          {/* Micro-Ecosystem: Swarm of 6 bio-digital energy motes orbiting the pet */}
+          {/* Micro-Ecosystem: Swarm of 6 bio-digital energy motes */}
           <group ref={motesGroupRef}>
             {MOTE_OFFSETS.map((mote, i) => (
               <mesh key={i}>
-                <sphereGeometry args={[0.011, 12, 12]} />
+                <sphereGeometry args={[0.011, 8, 8]} />
                 <meshStandardMaterial
                   color={mote.color}
                   emissive={mote.color}

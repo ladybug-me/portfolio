@@ -9,11 +9,12 @@ export function HeroCanvas() {
       <Suspense fallback={null}>
         <Canvas
           camera={{ position: [0, 0, 5], fov: 45 }}
-          dpr={[1, 2]}
+          dpr={[1, 1.5]}
           gl={{
             antialias: true,
             alpha: true,
             powerPreference: 'high-performance',
+            stencil: false,
           }}
           className="w-full h-full"
         >

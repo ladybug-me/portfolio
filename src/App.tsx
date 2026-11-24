@@ -41,7 +41,7 @@ export function App() {
     }
 
     gsap.ticker.add(updateTicker)
-    gsap.ticker.lagSmoothing(0)
+    gsap.ticker.lagSmoothing(500, 33)
 
     const handleResize = () => {
       lenis.resize()
