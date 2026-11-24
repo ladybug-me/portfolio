@@ -5,13 +5,11 @@ interface NavItem {
   label: string
 }
 
-// Beautiful prose single-word section taxonomy forming a balanced architectural silhouette:
-// 6 - 5 - 7 - 7 - 7 - 7 - 6
 const SECTIONS: NavItem[] = [
-  { id: 'hero', label: 'ORIGIN' },
-  { id: 'statement', label: 'ETHOS' },
-  { id: 'pipeline', label: 'LEXICON' },
-  { id: 'projects', label: 'SYSTEMS' },
+  { id: 'hero', label: 'HOME' },
+  { id: 'statement', label: 'QUOTE' },
+  { id: 'pipeline', label: 'STACK' },
+  { id: 'projects', label: 'PROJECTS' },
   { id: 'skills', label: 'TOOLING' },
   { id: 'faq', label: 'QUERIES' },
   { id: 'contact', label: 'CONTACT' },
@@ -214,41 +212,27 @@ export function SectionNavigator() {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       aria-label="Section Navigator"
-      className={`fixed right-4 sm:right-7 top-1/2 -translate-y-1/2 z-50 pointer-events-auto select-none outline-none transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform ${
-        isVisible
-          ? 'translate-x-0 opacity-100'
-          : 'translate-x-2 sm:translate-x-3 opacity-30 hover:opacity-100'
-      }`}
+      className={`fixed right-4 sm:right-7 top-1/2 -translate-y-1/2 z-50 pointer-events-auto select-none outline-none transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform ${isVisible
+        ? 'translate-x-0 opacity-100'
+        : 'translate-x-2 sm:translate-x-3 opacity-30 hover:opacity-100'
+        }`}
     >
       {/* Pure Floating Typography - Zero background containers */}
       <div className="flex flex-col items-end gap-8 sm:gap-10 py-4">
         {SECTIONS.map((sec, idx) => {
           const isActive = activeIdx === idx
-          const dist = Math.abs(idx - activeIdx)
 
-          // Only the currently active section receives magnification and cyan highlight
-          let textSize = 'text-xs sm:text-sm font-medium tracking-wider'
-          let textTranslate = 'translate-x-0'
-          let textOpacity = 'opacity-20 hover:opacity-75'
-          let textColor = 'text-slate-500 hover:text-slate-200'
-          let textGlow = ''
-          let zIndex = 'z-0'
-
-          if (isActive) {
-            textSize = 'text-2xl sm:text-4xl font-black tracking-tight'
-            textTranslate = '-translate-x-5 sm:-translate-x-7'
-            textOpacity = 'opacity-100'
-            textColor = 'text-cyan-300'
-            textGlow =
-              '[text-shadow:0_0_16px_rgba(0,242,254,0.95),0_0_35px_rgba(0,242,254,0.45)]'
-            zIndex = 'z-20'
-          } else if (dist === 1) {
-            textSize = 'text-sm sm:text-base font-semibold tracking-normal'
-            textTranslate = '-translate-x-1.5'
-            textOpacity = 'opacity-50 hover:opacity-85'
-            textColor = 'text-slate-400 hover:text-slate-200'
-            zIndex = 'z-10'
-          }
+          // All inactive sections share uniform alpha and sizing; only active magnifies
+          const textSize = isActive
+            ? 'text-2xl sm:text-4xl font-black tracking-tight'
+            : 'text-xs sm:text-sm font-medium tracking-wider'
+          const textTranslate = isActive ? '-translate-x-5 sm:-translate-x-7' : 'translate-x-0'
+          const textOpacity = isActive ? 'opacity-100' : 'opacity-35 hover:opacity-85'
+          const textColor = isActive ? 'text-cyan-300' : 'text-slate-400 hover:text-slate-200'
+          const textGlow = isActive
+            ? '[text-shadow:0_0_16px_rgba(0,242,254,0.95),0_0_35px_rgba(0,242,254,0.45)]'
+            : ''
+          const zIndex = isActive ? 'z-20' : 'z-0'
 
           return (
             <button
