@@ -8,6 +8,8 @@ import { HeroCanvas } from './components/canvas/HeroCanvas'
 import { CustomCursor } from './components/ui/CustomCursor'
 import { Navbar } from './components/ui/Navbar'
 import { HeroSection } from './components/sections/HeroSection'
+import { MarqueeTicker } from './components/ui/MarqueeTicker'
+import { KineticTextScrub } from './components/ui/KineticTextScrub'
 import { ProjectsSection } from './components/sections/ProjectsSection'
 import { SkillsMatrix } from './components/sections/SkillsMatrix'
 import { Footer } from './components/sections/Footer'
@@ -45,39 +47,95 @@ export function App() {
 
   useGSAP(
     () => {
-      // 1. Hero Entrance Sequence
-      gsap.from('.hero-fade', {
-        y: 40,
-        opacity: 0,
-        duration: 1.0,
-        stagger: 0.12,
-        ease: 'power3.out',
-        delay: 0.2,
-      })
+      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      if (prefersReducedMotion) return
 
-      // 2. Project Cards ScrollTrigger Stagger
-      gsap.from('#projects article', {
+      // 1. Hero 3D Masked Word Roll-Up Entrance Timeline
+      const heroTl = gsap.timeline({ delay: 0.15 })
+
+      heroTl
+        .from('.hero-word', {
+          y: '130%',
+          rotateX: -45,
+          opacity: 0,
+          duration: 1.15,
+          stagger: 0.06,
+          ease: 'power4.out',
+        })
+        .from(
+          '.hero-sub',
+          {
+            y: 28,
+            opacity: 0,
+            duration: 0.85,
+            ease: 'power3.out',
+          },
+          '-=0.6'
+        )
+        .from(
+          '.hero-meta, .hero-cta',
+          {
+            y: 20,
+            opacity: 0,
+            duration: 0.7,
+            stagger: 0.1,
+            ease: 'power3.out',
+          },
+          '-=0.5'
+        )
+
+      // 2. Projects Section Title Masked Reveal
+      gsap.from('.projects-title-word', {
         scrollTrigger: {
-          trigger: '#projects',
-          start: 'top 75%',
+          trigger: '#projects h2',
+          start: 'top 85%',
         },
-        y: 50,
+        y: '125%',
+        rotateX: -40,
         opacity: 0,
-        duration: 0.85,
-        stagger: 0.16,
-        ease: 'power3.out',
+        duration: 0.95,
+        stagger: 0.08,
+        ease: 'power4.out',
       })
 
-      // 3. Technical Matrix Cards Reveal
-      gsap.from('#skills > div > div', {
+      // 3. Sequential Project Items Reveal with Staggered Elements
+      gsap.utils.toArray<HTMLElement>('.project-item').forEach((item) => {
+        gsap.from(item, {
+          scrollTrigger: {
+            trigger: item,
+            start: 'top 80%',
+          },
+          y: 60,
+          opacity: 0,
+          duration: 0.9,
+          ease: 'power3.out',
+        })
+      })
+
+      // 4. Skills Section Title Masked Reveal
+      gsap.from('.skills-title-word', {
+        scrollTrigger: {
+          trigger: '#skills h2',
+          start: 'top 85%',
+        },
+        y: '125%',
+        rotateX: -40,
+        opacity: 0,
+        duration: 0.95,
+        stagger: 0.08,
+        ease: 'power4.out',
+      })
+
+      // 5. Technical Matrix Cards Reveal
+      gsap.from('.skill-card', {
         scrollTrigger: {
           trigger: '#skills',
           start: 'top 75%',
         },
-        y: 40,
+        y: 45,
         opacity: 0,
-        duration: 0.75,
-        stagger: 0.14,
+        duration: 0.8,
+        stagger: 0.15,
         ease: 'power3.out',
       })
     },
@@ -85,18 +143,31 @@ export function App() {
   )
 
   return (
-    <div ref={containerRef} className="relative min-h-screen bg-[#07090e] text-[#f0f6fc] selection:bg-cyan-400 selection:text-black">
+    <div
+      ref={containerRef}
+      className="relative min-h-screen bg-[#07090e] text-[#f0f6fc] selection:bg-cyan-400 selection:text-black"
+    >
       {/* Interactive Cybernetic Mouse Follower */}
       <CustomCursor />
 
-      {/* Fullscreen 3D Shader Background with GSAP-Scrubbed Camera Orbit */}
+      {/* Fullscreen 3D Shader Background with GSAP-Scrubbed Orbit */}
       <HeroCanvas />
 
       {/* Foreground Content Layers */}
       <Navbar />
       <main className="relative z-10">
         <HeroSection />
+
+        {/* Infinite Kinetic Ticker */}
+        <MarqueeTicker />
+
+        {/* Scroll-Linked Word Illumination Statement */}
+        <KineticTextScrub text="ARCHITECTING LOW-OVERHEAD LINUX RUNTIMES, HIGH-THROUGHPUT C++ COMPOSITORS, AND ACCELERATED REAL-TIME EDGE INFERENCE." />
+
+        {/* Spacious Showcase Work */}
         <ProjectsSection />
+
+        {/* Technical Capabilities Matrix */}
         <SkillsMatrix />
       </main>
       <div className="relative z-10">

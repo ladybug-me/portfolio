@@ -1,63 +1,72 @@
+import { MaskedText } from '../ui/MaskedText'
+import { ScrambleText } from '../ui/ScrambleText'
+
 export function HeroSection() {
   return (
-    <section id="hero" className="relative min-h-screen flex flex-col justify-center px-4 sm:px-8 pt-28 pb-16 overflow-hidden">
+    <section id="hero" className="relative min-h-[92vh] flex flex-col justify-center px-4 sm:px-8 pt-32 pb-20 overflow-hidden">
       <div className="max-w-7xl mx-auto w-full">
         
-        {/* Semantic narrative & identity */}
-        <div className="max-w-3xl flex flex-col items-start z-10">
-          {/* Status Badge */}
-          <div className="hero-fade inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-mono text-xs mb-6 backdrop-blur-md">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-            <span>VIT VELLORE '29 • CGPA: 8.83 • OPEN FOR RESEARCH</span>
-          </div>
+        {/* Top Status Capsule */}
+        <div className="hero-meta inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-mono text-xs mb-10 backdrop-blur-md">
+          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+          <ScrambleText text="VIT VELLORE '29 • CGPA 8.83 • SYSTEMS & RESEARCH" delay={150} />
+        </div>
 
-          {/* Primary Headline */}
-          <h1 className="hero-fade text-4xl sm:text-6xl xl:text-7xl font-bold tracking-tight text-white mb-6 leading-[1.08]">
-            ENGINEERING <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-teal-300 to-emerald-400">
-              SYSTEMS & EDGE AI
+        {/* Massive Editorial Headline */}
+        <div className="max-w-6xl mb-10">
+          <h1 className="text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-extrabold tracking-tighter text-white leading-[0.95] select-none">
+            <span className="block mb-2">
+              <MaskedText text="ENGINEERING" wordClassName="hero-word" />
+            </span>
+            <span className="block text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-teal-300 to-emerald-400">
+              <MaskedText text="SYSTEMS & AI" wordClassName="hero-word" />
             </span>
           </h1>
+        </div>
 
-          {/* Secondary Subtitle */}
-          <p className="hero-fade text-base sm:text-lg text-slate-300 max-w-2xl mb-8 leading-relaxed font-normal">
-            Hi, I'm <strong className="text-white font-semibold">Rajveer Singh</strong>. I architect edge computing architectures, high-throughput C++/CUDA pipelines, and fluid Linux desktop environments.
-          </p>
+        {/* Minimalist Narrative Statement */}
+        <p className="hero-sub text-lg sm:text-2xl text-slate-300 max-w-3xl mb-12 font-light leading-relaxed">
+          I'm <strong className="text-white font-medium">Rajveer Singh</strong>. Specializing in low-overhead C++ Linux compositor engines, CUDA edge compute, and high-volume vector search.
+        </p>
 
-          {/* Technical metric pills */}
-          <div className="hero-fade grid grid-cols-2 sm:grid-cols-3 gap-3 w-full max-w-lg mb-8 font-mono">
-            <div className="glass-panel p-3.5 rounded-lg border border-white/5">
-              <span className="text-cyan-400 text-xs block mb-1">CONFERENCE</span>
-              <span className="text-white font-medium text-xs">9th ICRTAC'26</span>
-            </div>
-            <div className="glass-panel p-3.5 rounded-lg border border-white/5">
-              <span className="text-cyan-400 text-xs block mb-1">LINUX SHELL</span>
-              <span className="text-white font-medium text-xs">Caelestia KDE</span>
-            </div>
-            <div className="glass-panel p-3.5 rounded-lg border border-white/5 col-span-2 sm:col-span-1">
-              <span className="text-cyan-400 text-xs block mb-1">RETRIEVAL</span>
-              <span className="text-white font-medium text-xs">44K+ FAISS</span>
-            </div>
+        {/* Spaced Stat Horizon */}
+        <div className="hero-meta grid grid-cols-3 gap-6 sm:gap-12 max-w-2xl mb-12 py-6 border-y border-white/10 font-mono">
+          <div>
+            <span className="text-2xl sm:text-4xl font-bold text-white block mb-1">ICRTAC'26</span>
+            <span className="text-xs text-cyan-400 uppercase tracking-wider">Conference Author</span>
           </div>
-
-          {/* Call to Actions */}
-          <div className="hero-fade flex flex-wrap items-center gap-4">
-            <a
-              href="#projects"
-              className="px-6 py-3 rounded-lg bg-gradient-to-r from-cyan-500 to-teal-500 text-black font-semibold text-sm hover:opacity-95 transition-all shadow-[0_0_20px_rgba(0,242,254,0.3)] flex items-center gap-2"
-            >
-              <span>Explore Projects</span>
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-              </svg>
-            </a>
-            <a
-              href="#contact"
-              className="px-6 py-3 rounded-lg border border-white/15 hover:border-cyan-400 text-slate-200 font-mono text-sm hover:text-white transition-all glass-panel"
-            >
-              // Get In Touch
-            </a>
+          <div>
+            <span className="text-2xl sm:text-4xl font-bold text-white block mb-1">&lt;5ms</span>
+            <span className="text-xs text-cyan-400 uppercase tracking-wider">Caelestia IPC</span>
           </div>
+          <div>
+            <span className="text-2xl sm:text-4xl font-bold text-white block mb-1">44,441</span>
+            <span className="text-xs text-cyan-400 uppercase tracking-wider">FAISS Vectors</span>
+          </div>
+        </div>
+
+        {/* Clear Action Horizon */}
+        <div className="hero-cta flex flex-wrap items-center gap-5">
+          <a
+            href="#projects"
+            className="px-8 py-4 rounded-xl bg-gradient-to-r from-cyan-400 to-teal-400 text-black font-semibold text-sm hover:opacity-95 transition-all shadow-[0_0_25px_rgba(0,242,254,0.35)] flex items-center gap-2 group"
+          >
+            <span>Explore Authored Systems</span>
+            <svg
+              className="w-4 h-4 group-hover:translate-y-0.5 transition-transform"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </a>
+          <a
+            href="#contact"
+            className="px-8 py-4 rounded-xl border border-white/15 hover:border-cyan-400 text-slate-200 font-mono text-sm hover:text-white transition-all glass-panel"
+          >
+            // Get In Touch
+          </a>
         </div>
 
       </div>
