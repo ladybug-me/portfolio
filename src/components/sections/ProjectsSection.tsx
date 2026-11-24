@@ -100,37 +100,37 @@ export function ProjectsSection() {
   )
 
   return (
-    <section ref={containerRef} id="projects" className="py-32 px-4 sm:px-8 max-w-7xl mx-auto">
+    <section ref={containerRef} id="projects" className="py-20 sm:py-28 lg:py-32 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
       {/* Editorial Section Headline */}
-      <div className="mb-20">
+      <div className="mb-12 sm:mb-16 lg:mb-20">
         <div className="flex items-center gap-3 font-mono text-cyan-400 text-xs mb-4">
           <span className="w-12 h-[1px] bg-cyan-400" />
           <ScrambleText text="01 // AUTHORED SYSTEMS & RESEARCH" />
         </div>
-        <h2 className="text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tight text-white">
+        <h2 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight text-white">
           <MaskedText text="SELECTED WORK" wordClassName="projects-title-word" />
         </h2>
       </div>
 
       {/* Sticky Stacking Cards (Deck Presentation) */}
-      <div className="relative space-y-12 pb-24">
+      <div className="relative space-y-8 sm:space-y-12 pb-24">
         {showcaseProjects.map((proj, idx) => (
           <article
             key={proj.id}
-            style={{ top: `${110 + idx * 24}px` }}
-            className="stacked-project-card sticky glass-panel p-8 sm:p-12 rounded-3xl border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.6)] backdrop-blur-2xl will-change-transform grid grid-cols-1 lg:grid-cols-12 gap-8 items-start group"
+            style={{ top: `calc(max(60px, min(85px, 9vh)) + ${idx * 16}px)` }}
+            className="stacked-project-card sticky glass-panel p-6 sm:p-8 lg:p-12 rounded-2xl sm:rounded-3xl border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.6)] backdrop-blur-2xl will-change-transform grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start group"
           >
             {/* Left: Project Index & Big Stat Callout */}
-            <div className="lg:col-span-4 flex flex-col justify-between">
-              <span className="text-5xl sm:text-7xl font-extrabold font-mono text-cyan-500/30 group-hover:text-cyan-400 transition-colors block mb-6">
+            <div className="lg:col-span-4 flex flex-row lg:flex-col justify-between items-center lg:items-start">
+              <span className="text-4xl sm:text-6xl lg:text-7xl font-extrabold font-mono text-cyan-500/30 group-hover:text-cyan-400 transition-colors block mb-0 lg:mb-6">
                 {proj.number}
               </span>
 
-              <div className="p-4 rounded-xl bg-slate-900/80 border border-white/10 w-fit">
-                <span className="text-2xl sm:text-3xl font-bold font-mono text-white block mb-0.5">
+              <div className="p-3 sm:p-4 rounded-xl bg-slate-900/80 border border-white/10 w-fit">
+                <span className="text-xl sm:text-2xl lg:text-3xl font-bold font-mono text-white block mb-0.5">
                   {proj.stat}
                 </span>
-                <span className="text-xs text-cyan-400 font-mono tracking-wider uppercase">
+                <span className="text-[10px] sm:text-xs text-cyan-400 font-mono tracking-wider uppercase">
                   {proj.statLabel}
                 </span>
               </div>
@@ -139,26 +139,26 @@ export function ProjectsSection() {
             {/* Right: Title, Narrative & Meta */}
             <div className="lg:col-span-8 flex flex-col justify-between">
               <div>
-                <span className="inline-block px-3 py-1 rounded-full text-xs font-mono bg-cyan-500/10 text-cyan-300 border border-cyan-500/20 mb-4">
+                <span className="inline-block px-3 py-1 rounded-full text-xs font-mono bg-cyan-500/10 text-cyan-300 border border-cyan-500/20 mb-3 sm:mb-4">
                   {proj.badge}
                 </span>
 
-                <h3 className="text-2xl sm:text-4xl lg:text-5xl font-bold text-white mb-6 group-hover:text-cyan-400 transition-colors leading-tight">
+                <h3 className="text-xl sm:text-3xl lg:text-4xl font-bold text-white mb-4 sm:mb-6 group-hover:text-cyan-400 transition-colors leading-tight">
                   <MaskedText text={proj.title} wordClassName="project-card-title" />
                 </h3>
 
-                <p className="text-base sm:text-xl text-slate-300 font-light leading-relaxed mb-8 max-w-2xl">
+                <p className="text-sm sm:text-base lg:text-lg text-slate-300 font-light leading-relaxed mb-6 sm:mb-8 max-w-2xl">
                   {proj.summary}
                 </p>
               </div>
 
               {/* Tags & Action Link */}
-              <div className="flex flex-wrap items-center justify-between gap-4 pt-6 border-t border-white/5">
-                <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap items-center justify-between gap-4 pt-4 sm:pt-6 border-t border-white/5">
+                <div className="flex flex-wrap gap-1.5 sm:gap-2">
                   {proj.tags.map((tag, tIdx) => (
                     <span
                       key={tIdx}
-                      className="px-3 py-1 rounded text-xs font-mono bg-white/5 text-slate-300 border border-white/5"
+                      className="px-2.5 py-0.5 sm:px-3 sm:py-1 rounded text-[11px] sm:text-xs font-mono bg-white/5 text-slate-300 border border-white/5"
                     >
                       {tag}
                     </span>

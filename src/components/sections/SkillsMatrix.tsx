@@ -102,14 +102,14 @@ export function SkillsMatrix() {
       const cards = gsap.utils.toArray<HTMLElement>('.horizontal-stack-card')
       if (cards.length <= 1) return
 
-      // Pin duration: 750px per card step
-      const scrollDistance = (cards.length - 1) * 750
+      // Dynamic scroll distance tailored to window height
+      const getScrollDistance = () => (cards.length - 1) * Math.min(window.innerHeight * 0.85, 700)
 
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: sectionRef.current,
           start: 'top top',
-          end: `+=${scrollDistance}`,
+          end: () => `+=${getScrollDistance()}`,
           pin: true,
           scrub: 0.6,
           anticipatePin: 1,
@@ -224,38 +224,38 @@ export function SkillsMatrix() {
       {/* Horizontal Stack Stage (Zoomed-in focal deck) */}
       <div
         ref={stackWrapperRef}
-        className="relative max-w-5xl w-full mx-auto h-[540px] sm:h-[480px] lg:h-[450px]"
+        className="relative max-w-5xl w-full mx-auto h-[560px] sm:h-[480px] lg:h-[430px] max-h-[70vh]"
       >
         {categories.map((cat, idx) => (
           <article
             key={idx}
-            className="horizontal-stack-card absolute inset-0 w-full h-full rounded-3xl glass-panel p-6 sm:p-10 lg:p-12 border border-white/10 shadow-[-25px_0_50px_rgba(0,0,0,0.85)] backdrop-blur-2xl will-change-transform flex flex-col justify-between overflow-hidden group hover:border-cyan-400/40 transition-colors"
+            className="horizontal-stack-card absolute inset-0 w-full h-full rounded-2xl sm:rounded-3xl glass-panel p-5 sm:p-8 lg:p-10 border border-white/10 shadow-[-25px_0_50px_rgba(0,0,0,0.85)] backdrop-blur-2xl will-change-transform flex flex-col justify-between overflow-hidden group hover:border-cyan-400/40 transition-colors"
           >
             {/* Top Row: Domain Badge & Status */}
-            <div className="flex items-center justify-between pb-4 border-b border-white/10">
+            <div className="flex items-center justify-between pb-3 sm:pb-4 border-b border-white/10">
               <div className="flex items-center gap-3">
-                <span className={`px-3 py-1 rounded-full text-xs font-mono border ${cat.badgeBorder}`}>
+                <span className={`px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full text-[11px] sm:text-xs font-mono border ${cat.badgeBorder}`}>
                   {cat.domain}
                 </span>
-                <span className="text-xs font-mono text-slate-500 uppercase tracking-widest hidden sm:inline">
+                <span className="text-[10px] sm:text-xs font-mono text-slate-500 uppercase tracking-widest hidden sm:inline">
                   HARDWARE VALIDATED
                 </span>
               </div>
 
-              <span className={`px-3 py-1 rounded-lg text-xs font-mono border ${cat.statBg}`}>
+              <span className={`px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-lg text-[11px] sm:text-xs font-mono border ${cat.statBg}`}>
                 {cat.stat}
               </span>
             </div>
 
             {/* Middle Grid: Massive Index, Stat Label & Narrative */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center my-auto py-2">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6 items-center my-auto py-1 sm:py-2">
               {/* Left Column: Number & Stat Context */}
               <div className="lg:col-span-4 flex lg:flex-col items-center lg:items-start justify-between">
-                <span className="text-5xl sm:text-7xl lg:text-8xl font-black font-mono text-cyan-500/25 group-hover:text-cyan-400/40 transition-colors">
+                <span className="text-4xl sm:text-6xl lg:text-7xl font-black font-mono text-cyan-500/25 group-hover:text-cyan-400/40 transition-colors">
                   {cat.number}
                 </span>
-                <div className="mt-2 text-right lg:text-left">
-                  <span className="text-[10px] font-mono uppercase tracking-widest text-slate-500 block">
+                <div className="mt-1 sm:mt-2 text-right lg:text-left">
+                  <span className="text-[9px] sm:text-[10px] font-mono uppercase tracking-widest text-slate-500 block">
                     BENCHMARK SPEC
                   </span>
                   <span className="text-xs sm:text-sm font-mono text-slate-300 font-semibold">
@@ -266,19 +266,19 @@ export function SkillsMatrix() {
 
               {/* Right Column: Title, Subtitle & Skill Badges */}
               <div className="lg:col-span-8">
-                <h3 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white mb-3 group-hover:text-cyan-300 transition-colors leading-tight">
+                <h3 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-white mb-2 sm:mb-3 group-hover:text-cyan-300 transition-colors leading-tight">
                   {cat.title}
                 </h3>
-                <p className="text-sm sm:text-base text-slate-300 font-light leading-relaxed mb-6">
+                <p className="text-xs sm:text-sm lg:text-base text-slate-300 font-light leading-relaxed mb-4 sm:mb-6">
                   {cat.subtitle}
                 </p>
 
                 {/* Skill Pills */}
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-1.5 sm:gap-2">
                   {cat.skills.map((skill, sIdx) => (
                     <span
                       key={sIdx}
-                      className="px-3 py-1.5 rounded-lg text-xs font-mono bg-white/5 text-slate-200 border border-white/10 group-hover:border-cyan-500/30 transition-colors"
+                      className="px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg text-[11px] sm:text-xs font-mono bg-white/5 text-slate-200 border border-white/10 group-hover:border-cyan-500/30 transition-colors"
                     >
                       {skill}
                     </span>
@@ -288,7 +288,7 @@ export function SkillsMatrix() {
             </div>
 
             {/* Card Footer Stamp */}
-            <div className="pt-4 border-t border-white/5 flex items-center justify-between text-xs font-mono text-slate-500">
+            <div className="pt-3 sm:pt-4 border-t border-white/5 flex items-center justify-between text-[11px] sm:text-xs font-mono text-slate-500">
               <span className="flex items-center gap-2">
                 <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
                 <span>SYSTEM DISCIPLINE // PRODUCTION TESTED</span>

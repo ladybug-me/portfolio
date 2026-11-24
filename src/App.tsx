@@ -42,7 +42,15 @@ export function App() {
     gsap.ticker.add(updateTicker)
     gsap.ticker.lagSmoothing(0)
 
+    const handleResize = () => {
+      lenis.resize()
+      ScrollTrigger.refresh()
+    }
+
+    window.addEventListener('resize', handleResize)
+
     return () => {
+      window.removeEventListener('resize', handleResize)
       gsap.ticker.remove(updateTicker)
       lenis.destroy()
     }

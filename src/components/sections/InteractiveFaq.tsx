@@ -56,15 +56,16 @@ export function InteractiveFaq() {
       if (prefersReducedMotion || !sectionRef.current) return
 
       const totalItems = faqs.length
-      const scrollDistancePerItem = 450
+      const getScrollDistance = () => totalItems * Math.min(window.innerHeight * 0.55, 450)
 
       ScrollTrigger.create({
         trigger: sectionRef.current,
         start: 'top top',
-        end: `+=${totalItems * scrollDistancePerItem}`,
+        end: () => `+=${getScrollDistance()}`,
         pin: true,
         scrub: 0.6,
         anticipatePin: 1,
+        invalidateOnRefresh: true,
         onUpdate: (self) => {
           setScrollProgress(self.progress)
           const newIdx = Math.min(Math.floor(self.progress * totalItems), totalItems - 1)

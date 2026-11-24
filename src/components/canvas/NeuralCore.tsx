@@ -287,10 +287,33 @@ export function NeuralCore() {
     particleUniforms.uPointer.value.copy(coreUniforms.uPointer.value)
 
     if (groupRef.current) {
+      // Responsive viewport scaling
+      const aspect = state.viewport.aspect
+      const isMobile = aspect < 0.85
+      const isTablet = aspect >= 0.85 && aspect < 1.25
+
+      // Compute base scale relative to viewport width
+      const responsiveScale = isMobile
+        ? Math.min(0.62, state.viewport.width / 5.2)
+        : isTablet
+        ? Math.min(0.85, state.viewport.width / 6.5)
+        : Math.min(1.2, Math.max(0.85, state.viewport.width / 7.2))
+
+      const currentScale = scrollData.current.scale * responsiveScale
+
+      // Responsive X offset: centered on mobile, offset to right on desktop
+      const responsivePosX = isMobile
+        ? scrollData.current.posX * 0.2
+        : scrollData.current.posX
+
+      const responsivePosY = isMobile
+        ? scrollData.current.posY + 0.1
+        : scrollData.current.posY
+
       // Integrate GSAP scroll-scrubbed position with mouse inertia
-      groupRef.current.position.x = scrollData.current.posX + coreUniforms.uPointer.value.x * 0.35
-      groupRef.current.position.y = scrollData.current.posY + coreUniforms.uPointer.value.y * 0.25
-      groupRef.current.scale.setScalar(scrollData.current.scale)
+      groupRef.current.position.x = responsivePosX + coreUniforms.uPointer.value.x * (isMobile ? 0.15 : 0.35)
+      groupRef.current.position.y = responsivePosY + coreUniforms.uPointer.value.y * (isMobile ? 0.12 : 0.25)
+      groupRef.current.scale.setScalar(currentScale)
       groupRef.current.rotation.y = scrollData.current.rotY + state.clock.elapsedTime * 0.08
       groupRef.current.rotation.x = scrollData.current.rotX + Math.sin(state.clock.elapsedTime * 0.15) * 0.06
     }

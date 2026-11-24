@@ -49,80 +49,91 @@ export function HeroSection() {
     <section
       ref={heroRef}
       id="hero"
-      className="relative min-h-[95vh] flex flex-col justify-center px-4 sm:px-8 pt-32 pb-20 overflow-hidden"
+      className="relative min-h-[90vh] lg:min-h-screen flex flex-col justify-center px-4 sm:px-6 lg:px-8 pt-24 sm:pt-28 lg:pt-36 pb-12 sm:pb-16 lg:pb-24 overflow-hidden"
     >
       <div className="max-w-7xl mx-auto w-full relative">
 
         {/* Top Status Capsule & Telemetry */}
-        <div className="hero-meta flex flex-wrap items-center gap-3 mb-10">
-          <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-mono text-xs backdrop-blur-md">
+        <div className="hero-meta flex flex-wrap items-center gap-3 mb-6 sm:mb-10">
+          <div className="inline-flex items-center gap-2.5 px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-mono text-[11px] sm:text-xs backdrop-blur-md">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
             <ScrambleText text="VIT VELLORE • B.TECH CSE (CORE) • CGPA 8.83" delay={150} />
           </div>
 
-          <div className="hidden sm:inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/[0.03] border border-white/10 text-slate-400 font-mono text-xs backdrop-blur-md">
+          <div className="hidden sm:inline-flex items-center gap-2 px-3 py-1 sm:py-1.5 rounded-full bg-white/[0.03] border border-white/10 text-slate-400 font-mono text-[11px] sm:text-xs backdrop-blur-md">
             <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
             <span>9TH ICRTAC'26 ACCEPTED AUTHOR</span>
           </div>
         </div>
 
-        {/* Massive Editorial Headline with Overlapping Tilted Badge Capsules */}
-        <div className="max-w-6xl mb-12 relative">
-          {/* Tilted Floating Badge 1 */}
-          <div className="tilted-badge-1 absolute -top-5 left-1/4 sm:left-1/3 z-20 hidden sm:inline-block px-4 py-1.5 rounded-full bg-slate-900/90 border border-cyan-400/40 text-cyan-300 font-mono text-xs font-semibold shadow-[0_4px_20px_rgba(0,242,254,0.2)] -rotate-6 backdrop-blur-md select-none">
+        {/* Responsive Badge Strip for Mobile / Tablet (< xl) */}
+        <div className="flex flex-wrap items-center gap-2 mb-4 xl:hidden">
+          <span className="px-3 py-1 rounded-full bg-slate-900/90 border border-cyan-400/40 text-cyan-300 font-mono text-[11px] font-semibold backdrop-blur-md">
             ⚡ Caelestia KDE Maintainer
+          </span>
+          <span className="px-3 py-1 rounded-full bg-slate-900/90 border border-emerald-400/40 text-emerald-300 font-mono text-[11px] font-semibold backdrop-blur-md">
+            ★ 9th ICRTAC'26 Paper Author
+          </span>
+          <span className="px-3 py-1 rounded-full bg-slate-900/90 border border-white/20 text-slate-200 font-mono text-[11px] font-semibold backdrop-blur-md">
+            ◈ DevSoc'26 Top 15 Team
+          </span>
+        </div>
+
+        {/* Massive Editorial Headline with Overlapping Tilted Floating Badges on Desktop */}
+        <div className="max-w-6xl mb-8 sm:mb-12 relative">
+          {/* Floating Badges (Desktop xl+) */}
+          <div className="hidden xl:block">
+            <div className="tilted-badge-1 absolute -top-6 left-1/3 z-20 px-4 py-1.5 rounded-full bg-slate-900/90 border border-cyan-400/40 text-cyan-300 font-mono text-xs font-semibold shadow-[0_4px_20px_rgba(0,242,254,0.2)] -rotate-6 backdrop-blur-md select-none pointer-events-none">
+              ⚡ Caelestia KDE Maintainer
+            </div>
+            <div className="tilted-badge-2 absolute top-1/2 -right-4 z-20 px-4 py-1.5 rounded-full bg-slate-900/90 border border-emerald-400/40 text-emerald-300 font-mono text-xs font-semibold shadow-[0_4px_20px_rgba(0,255,163,0.2)] rotate-4 backdrop-blur-md select-none pointer-events-none">
+              ★ 9th ICRTAC'26 Paper Author
+            </div>
+            <div className="tilted-badge-3 absolute -bottom-5 left-1/2 z-20 px-4 py-1.5 rounded-full bg-slate-900/90 border border-white/20 text-slate-200 font-mono text-xs font-semibold shadow-lg -rotate-3 backdrop-blur-md select-none pointer-events-none">
+              ◈ DevSoc'26 Top 15 Team
+            </div>
           </div>
 
-          <h1 className="text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-extrabold tracking-tighter text-white leading-[0.95] select-none">
-            <span className="block mb-2">
+          <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-extrabold tracking-tight sm:tracking-tighter text-white leading-[0.96] select-none break-words">
+            <span className="block mb-2 sm:mb-3">
               <MaskedText text="RAJVEER SINGH" wordClassName="hero-word" />
             </span>
-            <span className="block text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-teal-300 to-emerald-400">
+            <span className="block text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-teal-300 to-emerald-400 text-2xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl">
               <MaskedText text="LINUX RUNTIMES & EDGE COMPUTE" wordClassName="hero-word" />
             </span>
           </h1>
-
-          {/* Tilted Floating Badge 2 */}
-          <div className="tilted-badge-2 absolute top-1/2 right-4 sm:right-16 z-20 hidden md:inline-block px-4 py-1.5 rounded-full bg-slate-900/90 border border-emerald-400/40 text-emerald-300 font-mono text-xs font-semibold shadow-[0_4px_20px_rgba(0,255,163,0.2)] rotate-4 backdrop-blur-md select-none">
-            ★ 9th ICRTAC'26 Paper Author
-          </div>
-
-          {/* Tilted Floating Badge 3 */}
-          <div className="tilted-badge-3 absolute -bottom-4 left-1/3 sm:left-1/2 z-20 hidden sm:inline-block px-4 py-1.5 rounded-full bg-slate-900/90 border border-white/20 text-slate-200 font-mono text-xs font-semibold shadow-lg -rotate-3 backdrop-blur-md select-none">
-            ◈ DevSoc'26 Top 15 Team
-          </div>
         </div>
 
         {/* Minimalist Narrative Statement */}
-        <p className="hero-sub text-lg sm:text-2xl text-slate-300 max-w-3xl mb-12 font-light leading-relaxed">
+        <p className="hero-sub text-base sm:text-lg md:text-xl lg:text-2xl text-slate-300 max-w-3xl mb-8 sm:mb-12 font-light leading-relaxed">
           I build software where latency and memory are hard constraints. My work spans native Linux desktop architectures, accelerated vision on low-power chips, and fast local retrieval engines.
         </p>
 
         {/* 4-Metric Stat Horizon */}
-        <div className="hero-meta grid grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8 max-w-4xl mb-12 py-6 border-y border-white/10 font-mono">
+        <div className="hero-meta grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 max-w-4xl mb-8 sm:mb-12 py-4 sm:py-6 border-y border-white/10 font-mono">
           <div>
-            <span className="text-2xl sm:text-4xl font-bold text-white block mb-1">ICRTAC'26</span>
-            <span className="text-xs text-cyan-400 uppercase tracking-wider">Accepted Paper</span>
+            <span className="text-xl sm:text-3xl lg:text-4xl font-bold text-white block mb-0.5 sm:mb-1">ICRTAC'26</span>
+            <span className="text-[10px] sm:text-xs text-cyan-400 uppercase tracking-wider">Accepted Paper</span>
           </div>
           <div>
-            <span className="text-2xl sm:text-4xl font-bold text-white block mb-1">8.83</span>
-            <span className="text-xs text-cyan-400 uppercase tracking-wider">VIT Vellore CGPA</span>
+            <span className="text-xl sm:text-3xl lg:text-4xl font-bold text-white block mb-0.5 sm:mb-1">8.83</span>
+            <span className="text-[10px] sm:text-xs text-cyan-400 uppercase tracking-wider">VIT Vellore CGPA</span>
           </div>
           <div>
-            <span className="text-2xl sm:text-4xl font-bold text-white block mb-1">&lt;5ms</span>
-            <span className="text-xs text-cyan-400 uppercase tracking-wider">Native C++ IPC</span>
+            <span className="text-xl sm:text-3xl lg:text-4xl font-bold text-white block mb-0.5 sm:mb-1">&lt;5ms</span>
+            <span className="text-[10px] sm:text-xs text-cyan-400 uppercase tracking-wider">Native C++ IPC</span>
           </div>
           <div>
-            <span className="text-2xl sm:text-4xl font-bold text-white block mb-1">44,441</span>
-            <span className="text-xs text-cyan-400 uppercase tracking-wider">FAISS Vectors</span>
+            <span className="text-xl sm:text-3xl lg:text-4xl font-bold text-white block mb-0.5 sm:mb-1">44,441</span>
+            <span className="text-[10px] sm:text-xs text-cyan-400 uppercase tracking-wider">FAISS Vectors</span>
           </div>
         </div>
 
         {/* Clear Action Horizon with Direct Social Anchors */}
-        <div className="hero-cta flex flex-wrap items-center gap-5">
+        <div className="hero-cta flex flex-wrap items-center gap-4 sm:gap-5">
           <a
             href="#projects"
-            className="px-8 py-4 rounded-xl bg-gradient-to-r from-cyan-400 to-teal-400 text-black font-semibold text-sm hover:opacity-95 transition-all shadow-[0_0_25px_rgba(0,242,254,0.35)] flex items-center gap-2 group"
+            className="px-6 py-3.5 sm:px-8 sm:py-4 rounded-xl bg-gradient-to-r from-cyan-400 to-teal-400 text-black font-semibold text-xs sm:text-sm hover:opacity-95 transition-all shadow-[0_0_25px_rgba(0,242,254,0.35)] flex items-center gap-2 group"
           >
             <span>Explore Authored Work</span>
             <svg
@@ -136,7 +147,7 @@ export function HeroSection() {
           </a>
           <a
             href="#contact"
-            className="px-8 py-4 rounded-xl border border-white/15 hover:border-cyan-400 text-slate-200 font-mono text-sm hover:text-white transition-all glass-panel"
+            className="px-6 py-3.5 sm:px-8 sm:py-4 rounded-xl border border-white/15 hover:border-cyan-400 text-slate-200 font-mono text-xs sm:text-sm hover:text-white transition-all glass-panel"
           >
             // Contact Rajveer
           </a>

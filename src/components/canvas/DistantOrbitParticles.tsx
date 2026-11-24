@@ -176,8 +176,15 @@ export function DistantOrbitParticles() {
     uniforms.uPointer.value.x += (targetX - uniforms.uPointer.value.x) * 0.05
     uniforms.uPointer.value.y += (targetY - uniforms.uPointer.value.y) * 0.05
 
-    // Steady orbital field rotation
+    // Steady orbital field rotation & responsive space scaling
     if (groupRef.current) {
+      const aspect = state.viewport.aspect
+      const isMobile = aspect < 0.85
+      const responsiveScale = isMobile
+        ? Math.min(0.7, state.viewport.width / 5.0)
+        : Math.min(1.15, Math.max(0.85, state.viewport.width / 7.2))
+
+      groupRef.current.scale.setScalar(responsiveScale)
       groupRef.current.rotation.y += delta * 0.012
     }
   })
