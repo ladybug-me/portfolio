@@ -9,7 +9,7 @@ export function PetCanvas() {
         <Canvas
           shadows="percentage"
           camera={{ position: [0, 0, 5], fov: 45 }}
-          dpr={[1, 1.5]}
+          dpr={[1, 1.25]}
           gl={{
             antialias: true,
             alpha: true,
@@ -19,24 +19,23 @@ export function PetCanvas() {
           }}
           className="w-full h-full pointer-events-none"
         >
-          <ambientLight intensity={0.4} />
-          {/* Top-down directional light casting real GPU shadow maps */}
+          <ambientLight intensity={0.45} />
+          {/* Top-down directional light with lightweight 512x512 GPU shadow map */}
           <directionalLight
             position={[0, 8, 0.35]}
             intensity={2.4}
             color="#ffffff"
             castShadow
-            shadow-mapSize={[2048, 2048]}
-            shadow-camera-near={0.5}
-            shadow-camera-far={16}
-            shadow-camera-left={-6}
-            shadow-camera-right={6}
-            shadow-camera-top={6}
-            shadow-camera-bottom={-6}
+            shadow-mapSize={[512, 512]}
+            shadow-camera-near={1}
+            shadow-camera-far={14}
+            shadow-camera-left={-4.5}
+            shadow-camera-right={4.5}
+            shadow-camera-top={4.5}
+            shadow-camera-bottom={-4.5}
             shadow-bias={-0.0003}
             shadow-normalBias={0.015}
           />
-          <pointLight position={[-4, 4, 3]} intensity={0.7} color="#00f2fe" />
           <SphericalPet />
         </Canvas>
       </Suspense>

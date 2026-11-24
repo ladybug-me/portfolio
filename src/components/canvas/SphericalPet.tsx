@@ -49,8 +49,6 @@ export function SphericalPet() {
   const plat2RimRef = useRef<THREE.MeshBasicMaterial>(null)
   const plat1GlowMatRef = useRef<THREE.MeshBasicMaterial>(null)
   const plat2GlowMatRef = useRef<THREE.MeshBasicMaterial>(null)
-  const plat1LightRef = useRef<THREE.PointLight>(null)
-  const plat2LightRef = useRef<THREE.PointLight>(null)
 
   // Physics state
   const pos = useRef(new THREE.Vector3(0, -1.6, 0))
@@ -248,9 +246,6 @@ export function SphericalPet() {
       if (plat1GlowMatRef.current) {
         plat1GlowMatRef.current.opacity = plats[0].opacity * (0.42 + Math.sin(time * 3.5) * 0.1)
       }
-      if (plat1LightRef.current) {
-        plat1LightRef.current.intensity = plats[0].opacity * 2.2
-      }
     }
 
     // Update Platform 2 in scene
@@ -262,9 +257,6 @@ export function SphericalPet() {
       plat2RimRef.current.opacity = plats[1].opacity * 0.95
       if (plat2GlowMatRef.current) {
         plat2GlowMatRef.current.opacity = plats[1].opacity * (0.42 + Math.cos(time * 3.5) * 0.1)
-      }
-      if (plat2LightRef.current) {
-        plat2LightRef.current.intensity = plats[1].opacity * 2.2
       }
     }
 
@@ -443,7 +435,7 @@ export function SphericalPet() {
             ref={plat1MatRef}
             color="#003844"
             emissive="#00f2fe"
-            emissiveIntensity={0.8}
+            emissiveIntensity={1.0}
             roughness={0.2}
             metalness={0.6}
             transparent
@@ -471,7 +463,6 @@ export function SphericalPet() {
             depthWrite={false}
           />
         </mesh>
-        <pointLight ref={plat1LightRef} color="#00f2fe" intensity={0} distance={1.8} decay={2} />
       </group>
 
       {/* Static Cybernetic Platform Strip 2 (Glowing with Additive Bloom Corona) */}
@@ -482,7 +473,7 @@ export function SphericalPet() {
             ref={plat2MatRef}
             color="#003844"
             emissive="#00ffa3"
-            emissiveIntensity={0.8}
+            emissiveIntensity={1.0}
             roughness={0.2}
             metalness={0.6}
             transparent
@@ -510,16 +501,15 @@ export function SphericalPet() {
             depthWrite={false}
           />
         </mesh>
-        <pointLight ref={plat2LightRef} color="#00ffa3" intensity={0} distance={1.8} decay={2} />
       </group>
 
-      {/* Physically-based Three.js Shadow Receiving Floor Plane */}
+      {/* High-Performance Localized Shadow Receiving Floor Plane */}
       <mesh
         ref={floorReceiverRef}
         rotation={[-Math.PI / 2, 0, 0]}
         receiveShadow
       >
-        <planeGeometry args={[25, 12]} />
+        <planeGeometry args={[10, 2.2]} />
         <shadowMaterial transparent opacity={0.65} />
       </mesh>
 
@@ -528,7 +518,7 @@ export function SphericalPet() {
         <group ref={bodyRef}>
           {/* Inner Glowing Bio-Energy Core with Horizontal Rotation */}
           <mesh ref={innerCoreRef} castShadow>
-            <sphereGeometry args={[0.12, 20, 20]} />
+            <sphereGeometry args={[0.12, 14, 14]} />
             <meshStandardMaterial
               color="#00ffa3"
               emissive="#00f2fe"
@@ -539,7 +529,7 @@ export function SphericalPet() {
 
           {/* High-Performance Translucent Frosted Glass Outer Shell (Zero transmission overhead) */}
           <mesh castShadow receiveShadow>
-            <sphereGeometry args={[0.18, 28, 28]} />
+            <sphereGeometry args={[0.18, 18, 18]} />
             <meshStandardMaterial
               color="#061c28"
               emissive="#00f2fe"
@@ -553,7 +543,7 @@ export function SphericalPet() {
 
           {/* Glowing Equatorial Energy Band with Horizontal Spin */}
           <mesh ref={primaryBandRef} rotation={[Math.PI / 2, 0, 0]} castShadow>
-            <torusGeometry args={[0.182, 0.008, 12, 36]} />
+            <torusGeometry args={[0.182, 0.008, 8, 24]} />
             <meshStandardMaterial
               color="#00f2fe"
               emissive="#00f2fe"
@@ -564,7 +554,7 @@ export function SphericalPet() {
 
           {/* Secondary Emerald Rim Ring with Counter-Spin */}
           <mesh ref={secondaryBandRef} rotation={[0, 0, Math.PI / 4]}>
-            <torusGeometry args={[0.181, 0.004, 12, 36]} />
+            <torusGeometry args={[0.181, 0.004, 8, 24]} />
             <meshStandardMaterial
               color="#00ffa3"
               emissive="#00ffa3"
@@ -606,12 +596,12 @@ export function SphericalPet() {
           {/* Left Eye Assembly */}
           <group ref={leftEyeGroupRef} position={[-0.06, 0.042, 0.155]}>
             <mesh>
-              <sphereGeometry args={[0.042, 14, 14]} />
+              <sphereGeometry args={[0.042, 10, 10]} />
               <meshStandardMaterial color="#020813" metalness={0.6} roughness={0.12} />
             </mesh>
 
             <mesh ref={leftPupilRef} position={[0, 0, 0.028]}>
-              <sphereGeometry args={[0.022, 12, 12]} />
+              <sphereGeometry args={[0.022, 8, 8]} />
               <meshStandardMaterial
                 color="#00ffa3"
                 emissive="#00f2fe"
@@ -624,12 +614,12 @@ export function SphericalPet() {
           {/* Right Eye Assembly */}
           <group ref={rightEyeGroupRef} position={[0.06, 0.042, 0.155]}>
             <mesh>
-              <sphereGeometry args={[0.042, 14, 14]} />
+              <sphereGeometry args={[0.042, 10, 10]} />
               <meshStandardMaterial color="#020813" metalness={0.6} roughness={0.12} />
             </mesh>
 
             <mesh ref={rightPupilRef} position={[0, 0, 0.028]}>
-              <sphereGeometry args={[0.022, 12, 12]} />
+              <sphereGeometry args={[0.022, 8, 8]} />
               <meshStandardMaterial
                 color="#00ffa3"
                 emissive="#00f2fe"
