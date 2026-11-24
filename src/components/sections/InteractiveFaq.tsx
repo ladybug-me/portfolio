@@ -17,31 +17,31 @@ interface FaqItem {
 const faqs: FaqItem[] = [
   {
     number: '01',
-    question: 'How is Caelestia KDE optimized over standard Linux shells?',
+    question: 'Why replace Python and D-Bus in the desktop shell?',
     tag: 'LINUX IPC',
     answer:
-      'By replacing legacy Python and generic D-Bus layers with native C++ asynchronous event loops, inter-process communication latency is cut to sub-5ms, completely eliminating compositor stutter during fluid window morphing.',
+      'Python runtimes introduce garbage collection spikes and process marshaling overhead. Native C++ sockets tie directly into the compositor event loop, locking latency under 5 milliseconds.',
   },
   {
     number: '02',
-    question: 'How does your ICRTAC’26 model achieve real-time inference on a Jetson Nano?',
+    question: 'How does YOLOv11-seg run in real time on low-power edge hardware?',
     tag: 'EDGE CUDA',
     answer:
-      'The YOLOv11-seg architecture was custom-quantized and coupled with specialized C++/CUDA runtime layers, optimizing both memory bandwidth and tensor operations for constrained low-power edge GPUs.',
+      'We quantize weights, prune tensor layers, and run inference through custom C++ and CUDA memory buffers, keeping GPU memory bandwidth saturated on the Jetson Nano.',
   },
   {
     number: '03',
-    question: 'What is the architecture behind the 44K vector search pipeline?',
-    tag: 'FAISS / AI',
+    question: 'How is query latency kept under 100ms across 44,441 items?',
+    tag: 'VECTOR SEARCH',
     answer:
-      'It leverages local Ollama LLMs for multi-turn intent extraction and Sentence Transformers mapped into FAISS indexing structures, delivering sub-100ms similarity lookups across 44,441 catalog items.',
+      'Pre-computed Sentence Transformer vectors sit inside segmented FAISS indices. SQLite handles relational metadata, while asynchronous FastAPI workers serve local Ollama queries.',
   },
   {
     number: '04',
-    question: 'What engineering tracks and roles are you currently open to?',
-    tag: 'RESEARCH & ROLES',
+    question: 'What collaborations and roles are you targeting?',
+    tag: 'AVAILABILITY',
     answer:
-      'Currently pursuing CSE at VIT Vellore (CGPA 8.83). I am open to research collaborations, Linux systems engineering roles, and high-performance edge computing development.',
+      'Second-year Computer Science student at VIT Vellore with an 8.83 CGPA. Available for systems engineering roles, low-level Linux runtime development, and applied edge AI research.',
   },
 ]
 
@@ -88,15 +88,15 @@ export function InteractiveFaq() {
           <div>
             <div className="flex items-center gap-3 font-mono text-cyan-400 text-xs mb-4">
               <span className="w-12 h-[1px] bg-cyan-400" />
-              <ScrambleText text="03 // PINNED INQUIRIES" />
+              <ScrambleText text="03 // DIRECT INQUIRIES" />
             </div>
 
             <h2 className="text-4xl sm:text-6xl font-extrabold tracking-tight text-white mb-6 leading-tight">
-              <MaskedText text="THINGS YOU MIGHT ASK" wordClassName="faq-title-word" />
+              <MaskedText text="TECHNICAL BREAKDOWNS" wordClassName="faq-title-word" />
             </h2>
 
             <p className="text-sm sm:text-base text-slate-400 leading-relaxed font-light max-w-md mb-8">
-              Scroll through to cycle through technical inquiries on compositor IPC, CUDA edge layers, and FAISS benchmarks.
+              Direct answers on compositor IPC, edge inference on constrained silicon, and vector indexing benchmarks.
             </p>
           </div>
 

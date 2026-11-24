@@ -1,4 +1,6 @@
 
+const CURRENT_YEAR = new Date().getFullYear()
+
 export function Footer() {
   return (
     <footer id="contact" className="py-20 px-4 sm:px-8 border-t border-white/5 bg-[#05070a]">
@@ -7,13 +9,13 @@ export function Footer() {
         <div className="max-w-xl">
           <div className="font-mono text-cyan-400 text-xs mb-3 flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-cyan-400" />
-            <span>LET'S CONNECT</span>
+            <span>DIRECT CHANNEL</span>
           </div>
           <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-            Available for Research Collaboration & Systems Engineering
+            Available for Systems Engineering and Edge AI Research
           </h2>
           <p className="text-slate-400 text-sm leading-relaxed mb-6 font-normal">
-            Currently pursuing B.Tech in Computer Science at VIT Vellore (CGPA 8.83). Always eager to contribute to low-level Linux systems, edge computer vision pipelines, or distributed AI.
+            Pursuing a B.Tech in Computer Science at VIT Vellore (CGPA 8.83). Ready to contribute to Linux internals, embedded machine learning, and low-latency software.
           </p>
           <div className="font-mono text-sm text-cyan-300">
             <a
@@ -31,7 +33,7 @@ export function Footer() {
         {/* Links & Channels */}
         <div className="flex flex-col sm:flex-row lg:flex-col gap-4 font-mono text-xs w-full lg:w-auto">
           <a
-            href="https://github.com"
+            href="https://github.com/ladybug-me"
             target="_blank"
             rel="noopener noreferrer"
             className="p-4 rounded-xl glass-panel glass-panel-hover flex items-center justify-between gap-6 text-slate-300 hover:text-white"
@@ -40,7 +42,7 @@ export function Footer() {
             <span className="text-cyan-400">VIEW ↗</span>
           </a>
           <a
-            href="https://linkedin.com"
+            href="https://www.linkedin.com/in/rajveer-singh-2304402b6"
             target="_blank"
             rel="noopener noreferrer"
             className="p-4 rounded-xl glass-panel glass-panel-hover flex items-center justify-between gap-6 text-slate-300 hover:text-white"
@@ -62,7 +64,7 @@ export function Footer() {
 
       {/* Baseline Copyright & Tech note */}
       <div className="max-w-7xl mx-auto mt-16 pt-8 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-4 font-mono text-xs text-slate-600">
-        <div>© {new Date().getFullYear()} RAJVEER SINGH. ALL RIGHTS RESERVED.</div>
+        <div>© {CURRENT_YEAR} RAJVEER SINGH. ALL RIGHTS RESERVED.</div>
         <div>RENDERED WITH REACT 19 • THREE.JS • GSAP • LENIS</div>
       </div>
     </footer>

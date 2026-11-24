@@ -11,23 +11,23 @@ export function CircuitPipeline() {
 
   const milestones = [
     {
-      title: 'DATASET & LABELS',
-      desc: 'Thermal/RGB custom defect annotation',
+      title: 'THERMAL DATASETS',
+      desc: 'Defect classification and segmentation on custom solar imagery.',
       stat: 'YOLOv11-seg',
     },
     {
-      title: 'CUDA OPTIMIZATION',
-      desc: 'C++ runtime layers for edge GPU',
-      stat: 'Nvidia Jetson',
+      title: 'CUDA KERNELS',
+      desc: 'Memory bandwidth profiling and custom runtime layers for Nvidia Jetson.',
+      stat: 'TensorRT & C++',
     },
     {
-      title: 'EDGE DEPLOYMENT',
-      desc: 'Hardware integration & verification',
+      title: 'CONSTRAINED SILICON',
+      desc: 'Live defect quantification running under tight thermal budgets.',
       stat: 'Raspberry Pi',
     },
     {
-      title: 'NATIVE LINUX IPC',
-      desc: 'High-throughput D-Bus replacement',
+      title: 'NATIVE IPC',
+      desc: 'Replacing Python D-Bus bridges with asynchronous C++ event loops.',
       stat: '<5ms Latency',
     },
   ]
@@ -80,14 +80,14 @@ export function CircuitPipeline() {
   )
 
   return (
-    <section ref={containerRef} className="relative py-28 px-4 sm:px-8 max-w-7xl mx-auto">
+    <section ref={containerRef} id="pipeline" className="relative py-28 px-4 sm:px-8 max-w-7xl mx-auto">
       {/* Header */}
       <div className="mb-20 text-center">
         <span className="font-mono text-xs text-cyan-400 tracking-widest uppercase block mb-3">
           // ARCHITECTURE PIPELINE
         </span>
         <h2 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight">
-          FROM RAW SILICON TO COMPOSITOR
+          FROM RAW SILICON TO THE DISPLAY
         </h2>
       </div>
 

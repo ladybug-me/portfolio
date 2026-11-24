@@ -24,12 +24,12 @@ const showcaseProjects: ShowcaseProject[] = [
     id: 'solar-defect',
     number: '01',
     title: 'Edge-Based Solar Panel Inspection',
-    badge: "9th ICRTAC'26 Accepted Conference Paper",
-    stat: 'CUDA + YOLOv11',
-    statLabel: 'Jetson & Pi Edge Inference',
+    badge: "9th ICRTAC'26 Accepted Paper",
+    stat: 'YOLOv11-seg',
+    statLabel: 'Jetson & Pi Inference',
     summary:
-      'Instance segmentation pipeline trained on custom thermal datasets to detect defects and quantify solar panel efficiency losses in real-time on low-power edge hardware.',
-    tags: ['C++', 'CUDA', 'YOLOv11-seg', 'Jetson Nano', 'Raspberry Pi'],
+      'Trained instance segmentation networks on custom thermal imagery to isolate micro-cracks, dust, and hotspots. Deployed directly to Raspberry Pi and Nvidia Jetson Nano to calculate electrical efficiency loss in real time.',
+    tags: ['C++', 'CUDA', 'Python', 'YOLOv11-seg', 'Jetson Nano', 'Raspberry Pi'],
   },
   {
     id: 'caelestia-kde',
@@ -37,23 +37,35 @@ const showcaseProjects: ShowcaseProject[] = [
     title: 'Caelestia KDE Shell Architecture',
     badge: 'Owner & Maintainer',
     stat: '<5ms IPC',
-    statLabel: 'Native C++ IPC Layer',
+    statLabel: 'Direct C++ Event Loop',
     summary:
-      'Fluid, morphing shell for modern Linux desktops. Replaced legacy Python/D-Bus bridge layers with high-performance native C++ implementations to slash compositor overhead.',
-    tags: ['C++', 'QML', 'Linux Compositor', 'D-Bus IPC', 'Bash'],
-    link: 'https://github.com',
+      'A morphing desktop shell for modern Linux distributions. Replaced Python D-Bus layers with native C++ asynchronous sockets, removing compositor stutter and stabilizing window transitions under heavy load.',
+    tags: ['C++', 'QML', 'Wayland', 'D-Bus IPC', 'Bash', 'Linux Compositors'],
+    link: 'https://github.com/caelestia-kde',
   },
   {
     id: 'faiss-engine',
     number: '03',
     title: 'High-Volume FAISS Vector Pipeline',
-    badge: 'Open Source Engine',
+    badge: 'Psyduck Engine // Open Source',
     stat: '44,441 Items',
     statLabel: 'Sub-100ms Query Latency',
     summary:
-      'Asynchronous semantic retrieval architecture utilizing local Ollama LLMs and Sentence Transformers over an automated SQLite vector ingestion pipeline.',
-    tags: ['FAISS', 'FastAPI', 'Ollama', 'Sentence Transformers', 'Python'],
-    link: 'https://github.com',
+      'Local semantic retrieval pipeline. Combines Ollama models for intent extraction with Sentence Transformers and FAISS index partitions, querying structured catalog data over an automated SQLite pipeline.',
+    tags: ['FAISS', 'FastAPI', 'Ollama', 'Sentence Transformers', 'SQLite', 'Python'],
+    link: 'https://github.com/ladybug-me/psyduck',
+  },
+  {
+    id: 'grudge-art-online',
+    number: '04',
+    title: 'Grudge Art Online // AI Game Engine',
+    badge: "DevSoc'26 Top 15 Finalist",
+    stat: '48h Sprint',
+    statLabel: 'Conversational NPCs',
+    summary:
+      'Interactive game engine built during a 48-hour sprint. Linked Unity clients to local Flask backends and the Backboard API, driving real-time dialogues with autonomous game characters.',
+    tags: ['Unity', 'C#', 'Flask', 'Python', 'Backboard API', 'Game AI'],
+    link: 'https://github.com/ladybug-me',
   },
 ]
 
@@ -96,7 +108,7 @@ export function ProjectsSection() {
           <ScrambleText text="01 // AUTHORED SYSTEMS & RESEARCH" />
         </div>
         <h2 className="text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tight text-white">
-          <MaskedText text="FEATURED WORK" wordClassName="projects-title-word" />
+          <MaskedText text="SELECTED WORK" wordClassName="projects-title-word" />
         </h2>
       </div>
 

@@ -10,7 +10,7 @@ export function Navbar() {
             RAJVEER.DEV
           </span>
           <span className="hidden sm:inline-block font-mono text-[10px] px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
-            KERNEL_v2.6
+            KERNEL : LINUX & CUDA
           </span>
         </a>
 
@@ -18,13 +18,16 @@ export function Navbar() {
         <div className="flex items-center gap-6">
           <nav className="hidden md:flex items-center gap-6 text-xs font-mono text-slate-400">
             <a href="#projects" className="hover:text-cyan-400 transition-colors">
-              // PROJECTS
+              // WORK
+            </a>
+            <a href="#pipeline" className="hover:text-cyan-400 transition-colors">
+              // PIPELINE
             </a>
             <a href="#skills" className="hover:text-cyan-400 transition-colors">
-              // SYSTEM_STACK
+              // CAPABILITIES
             </a>
             <a href="#faq" className="hover:text-cyan-400 transition-colors">
-              // FAQ
+              // INQUIRIES
             </a>
             <a href="#contact" className="hover:text-cyan-400 transition-colors">
               // CONTACT
@@ -38,7 +41,7 @@ export function Navbar() {
             rel="noopener noreferrer"
             className="flex items-center gap-2 px-3.5 py-1.5 rounded-md text-xs font-mono font-medium text-cyan-300 bg-cyan-950/40 border border-cyan-500/30 hover:bg-cyan-500/20 hover:border-cyan-400 transition-all shadow-[0_0_15px_rgba(0,242,254,0.1)]"
           >
-            <span>RESUME.PDF</span>
+            <span>RESUME (PDF)</span>
             <svg
               className="w-3.5 h-3.5"
               fill="none"

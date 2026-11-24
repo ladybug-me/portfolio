@@ -6,13 +6,14 @@ export function MarqueeTicker() {
   const marqueeRef = useRef<HTMLDivElement>(null)
 
   const items = [
-    'HIGH-THROUGHPUT IPC',
-    'CUDA PARALLEL ACCELERATION',
-    'LINUX SHELL ARCHITECTURE',
-    'YOLOv11 EDGE INFERENCE',
-    'C++ RUNTIME OPTIMIZATION',
-    'FAISS VECTOR INDEXING',
-    'JETSON NANO & PI HARDWARE',
+    'NATIVE C++ RUNTIMES',
+    'SUB-5MS IPC',
+    'EMBEDDED CUDA',
+    'YOLOv11-SEG ON SILICON',
+    'JETSON NANO & PI',
+    'CAELESTIA LINUX SHELL',
+    'OLLAMA & FAISS SEARCH',
+    'ZERO MEMORY LEAKS',
   ]
 
   useGSAP(

@@ -26,23 +26,23 @@ const categories: SkillCategory[] = [
     title: 'LOW-LEVEL SYSTEMS & GRAPHICS',
     domain: 'SYSTEMS ARCHITECTURE',
     subtitle:
-      'High-throughput Linux compositor architectures, low-latency IPC bridges, and memory-safe native runtimes.',
+      'High-throughput compositor architectures, native event loops, and memory-safe runtimes.',
     stat: '<5ms IPC LATENCY',
-    statLabel: 'Direct C++ / QML Event Loops',
-    skills: ['C++', 'C', 'QML', 'Linux Compositors', 'D-Bus / IPC', 'Wayland', 'Memory Layout', 'GDB / Valgrind'],
+    statLabel: 'Direct C++ & QML Event Loops',
+    skills: ['C++', 'C', 'QML', 'Wayland', 'D-Bus IPC', 'Memory Layout', 'Valgrind'],
     color: 'text-cyan-400 border-cyan-400/40',
     badgeBorder: 'border-cyan-400/30 bg-cyan-500/10 text-cyan-300',
     statBg: 'bg-cyan-950/40 border-cyan-400/30 text-cyan-300',
   },
   {
     number: '02',
-    title: 'CUDA & PARALLEL ACCELERATION',
+    title: 'PARALLEL RUNTIMES & CUDA',
     domain: 'HARDWARE PARALLELISM',
     subtitle:
-      'Custom GPU kernels and TensorRT inference pipelines engineered for deterministic low-power edge compute.',
-    stat: 'PARALLEL KERNELS',
-    statLabel: 'Optimized Memory Bandwidth',
-    skills: ['CUDA', 'C++ Runtime', 'TensorRT', 'GPU Thread Scheduling', 'Memory Bandwidth', 'Shared Memory', 'SIMD'],
+      'Custom GPU kernels and TensorRT pipelines engineered for deterministic edge compute.',
+    stat: 'BANDWIDTH BOUND',
+    statLabel: 'Shared Memory & SIMD Execution',
+    skills: ['CUDA', 'C++ Runtime', 'TensorRT', 'GPU Thread Scheduling', 'Memory Bandwidth', 'SIMD'],
     color: 'text-emerald-400 border-emerald-400/40',
     badgeBorder: 'border-emerald-400/30 bg-emerald-500/10 text-emerald-300',
     statBg: 'bg-emerald-950/40 border-emerald-400/30 text-emerald-300',
@@ -52,22 +52,22 @@ const categories: SkillCategory[] = [
     title: 'EDGE COMPUTER VISION',
     domain: 'EMBEDDED INTELLIGENCE',
     subtitle:
-      'Real-time instance segmentation optimized for Jetson Nano, Raspberry Pi, and industrial thermal sensors.',
-    stat: 'JETSON & PI HARDWARE',
-    statLabel: '9th ICRTAC’26 Paper Author',
-    skills: ['YOLOv11-seg', 'Ultralytics', 'PyTorch', 'Thermal Imaging', 'Instance Masks', 'ONNX Runtime', 'Embedded Linux'],
+      'Real-time instance segmentation running on low-power Jetson and Raspberry Pi chips.',
+    stat: 'HARDWARE VALIDATED',
+    statLabel: "ICRTAC'26 Research Paper",
+    skills: ['YOLOv11-seg', 'Ultralytics', 'PyTorch', 'Thermal Imaging', 'Instance Masks', 'Embedded Linux'],
     color: 'text-teal-400 border-teal-400/40',
     badgeBorder: 'border-teal-400/30 bg-teal-500/10 text-teal-300',
     statBg: 'bg-teal-950/40 border-teal-400/30 text-teal-300',
   },
   {
     number: '04',
-    title: 'VECTOR SEARCH & LOCAL LLMS',
+    title: 'VECTOR ENGINES & LOCAL LLMS',
     domain: 'SEMANTIC RETRIEVAL',
     subtitle:
-      'Sub-100ms vector search indexing across 44,441 catalog items with Ollama local inference and embeddings.',
-    stat: '44,441 FAISS VECTORS',
-    statLabel: 'Sub-100ms Query Latency',
+      'Sub-100ms vector index lookups across 44,441 records with local LLM orchestration.',
+    stat: '44,441 VECTORS',
+    statLabel: 'Automated SQLite & FAISS Pipeline',
     skills: ['FAISS Indexing', 'FastAPI', 'Ollama LLMs', 'Sentence Transformers', 'SQLite Vectors', 'Async Python'],
     color: 'text-sky-400 border-sky-400/40',
     badgeBorder: 'border-sky-400/30 bg-sky-500/10 text-sky-300',
@@ -75,13 +75,13 @@ const categories: SkillCategory[] = [
   },
   {
     number: '05',
-    title: 'INFRASTRUCTURE & KERNEL TOOLING',
+    title: 'PLATFORMS & PLATFORM TOOLING',
     domain: 'RELIABILITY & PLATFORMS',
     subtitle:
-      'Reproducible containerization, Linux kernel configuration, and automated Valgrind leak detection pipelines.',
-    stat: 'ZERO LEAK STANDARD',
-    statLabel: 'Automated CI & Strict Valgrind Checks',
-    skills: ['Linux Kernel', 'Docker', 'Git / GitHub', 'Bash Automation', 'Valgrind / GDB', 'SQL / SQLite', 'CMake'],
+      'Kernel configurations, reproducible Docker builds, and strict memory audit pipelines.',
+    stat: 'ZERO LEAK POLICY',
+    statLabel: 'Automated Valgrind & GDB Checks',
+    skills: ['Linux Kernel', 'Docker', 'Git / GitHub', 'Bash Automation', 'Valgrind / GDB', 'CMake'],
     color: 'text-purple-400 border-purple-400/40',
     badgeBorder: 'border-purple-400/30 bg-purple-500/10 text-purple-300',
     statBg: 'bg-purple-950/40 border-purple-400/30 text-purple-300',
@@ -194,7 +194,7 @@ export function SkillsMatrix() {
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3 font-mono text-cyan-400 text-xs">
             <span className="w-12 h-[1px] bg-cyan-400" />
-            <ScrambleText text="02 // HORIZONTAL CAPABILITIES STACK" />
+            <ScrambleText text="02 // CAPABILITIES MATRIX" />
           </div>
 
           {/* Active Card Pill Indicator */}
@@ -208,7 +208,7 @@ export function SkillsMatrix() {
 
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
           <h2 className="text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tight text-white">
-            <MaskedText text="CORE CAPABILITIES" wordClassName="skills-title-word" />
+            <MaskedText text="SYSTEM DISCIPLINES" wordClassName="skills-title-word" />
           </h2>
 
           {/* Segmented Deck Progress Bar */}
@@ -291,7 +291,7 @@ export function SkillsMatrix() {
             <div className="pt-4 border-t border-white/5 flex items-center justify-between text-xs font-mono text-slate-500">
               <span className="flex items-center gap-2">
                 <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
-                <span>SYSTEM DISCIPLINE // PRODUCTION READY</span>
+                <span>SYSTEM DISCIPLINE // PRODUCTION TESTED</span>
               </span>
               <span className="text-cyan-400">
                 STACK 0{idx + 1} OF 0{categories.length} ➔

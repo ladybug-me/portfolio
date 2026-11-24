@@ -156,7 +156,7 @@ export function App() {
         <MarqueeTicker />
 
         {/* Scroll-Linked Word Illumination Statement */}
-        <KineticTextScrub text="ARCHITECTING LOW-OVERHEAD LINUX RUNTIMES, HIGH-THROUGHPUT C++ COMPOSITORS, AND ACCELERATED REAL-TIME EDGE INFERENCE." />
+        <KineticTextScrub text="WE STRIP DEAD ABSTRACTIONS OUT OF THE DESKTOP. WE RUN HARD INFERENCE ON COLD SILICON. LATENCY IS A DEFECT." />
 
         {/* Scroll-Drawn Circuit Pipeline */}
         <CircuitPipeline />
