@@ -198,8 +198,13 @@ export function HeroSection() {
           <div className="absolute inset-0 pointer-events-none z-20">
             {/* Badge 1: Top-Center */}
             <div className="tilted-badge-1-wrap absolute -top-4 sm:-top-8 left-6 sm:left-1/4 will-change-transform">
-              <div className="tilted-badge-1-inner px-3 sm:px-4 py-1 sm:py-1.5 rounded-full bg-slate-900/90 border border-cyan-400/50 text-cyan-300 font-mono text-[11px] sm:text-xs font-semibold shadow-[0_4px_24px_rgba(0,242,254,0.3)] -rotate-6 backdrop-blur-md">
-                ⚡ Caelestia KDE Maintainer
+              <div className="tilted-badge-1-inner px-3 sm:px-4 py-1 sm:py-1.5 rounded-full bg-slate-900/90 border border-cyan-400/50 text-cyan-300 font-mono text-[11px] sm:text-xs font-semibold shadow-[0_4px_24px_rgba(0,242,254,0.3)] -rotate-6 backdrop-blur-md flex items-center gap-2">
+                <img
+                  src="/assets/icons/caelestia.svg"
+                  alt=""
+                  className="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full object-contain"
+                />
+                <span>Caelestia KDE Maintainer</span>
               </div>
             </div>
 
@@ -212,8 +217,13 @@ export function HeroSection() {
 
             {/* Badge 3: Lower-Left */}
             <div className="tilted-badge-3-wrap absolute bottom-2 sm:bottom-4 left-1/3 sm:left-2/5 will-change-transform">
-              <div className="tilted-badge-3-inner px-3 sm:px-4 py-1 sm:py-1.5 rounded-full bg-slate-900/90 border border-white/25 text-slate-200 font-mono text-[11px] sm:text-xs font-semibold shadow-[0_4px_20px_rgba(255,255,255,0.15)] -rotate-3 backdrop-blur-md">
-                ◈ DevSoc'26 Top 15 Team
+              <div className="tilted-badge-3-inner px-3 sm:px-4 py-1 sm:py-1.5 rounded-full bg-slate-900/90 border border-white/25 text-slate-200 font-mono text-[11px] sm:text-xs font-semibold shadow-[0_4px_20px_rgba(255,255,255,0.15)] -rotate-3 backdrop-blur-md flex items-center gap-2">
+                <img
+                  src="/assets/icons/devsoc.jpg"
+                  alt=""
+                  className="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full object-cover"
+                />
+                <span>DevSoc'26 Top 15 Team</span>
               </div>
             </div>
           </div>

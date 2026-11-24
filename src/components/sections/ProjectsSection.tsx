@@ -17,6 +17,7 @@ interface ShowcaseProject {
   summary: string
   tags: string[]
   link?: string
+  icon?: string
 }
 
 const showcaseProjects: ShowcaseProject[] = [
@@ -36,8 +37,9 @@ const showcaseProjects: ShowcaseProject[] = [
     number: '02',
     title: 'Caelestia KDE Shell Architecture',
     badge: 'Owner & Maintainer',
+    icon: '/assets/icons/caelestia.svg',
     stat: '<5ms IPC',
-    statLabel: 'Direct C++ Event Loop',
+    statLabel: '<5ms IPC • Direct C++ Loop',
     summary:
       'A morphing desktop shell for modern Linux distributions. Replaced Python D-Bus layers with native C++ asynchronous sockets, removing compositor stutter and stabilizing window transitions under heavy load.',
     tags: ['C++', 'QML', 'Wayland', 'D-Bus IPC', 'Bash', 'Linux Compositors'],
@@ -60,8 +62,9 @@ const showcaseProjects: ShowcaseProject[] = [
     number: '04',
     title: 'Grudge Art Online • AI Game Engine',
     badge: "DevSoc'26 Top 15 Finalist",
+    icon: '/assets/icons/devsoc.jpg',
     stat: '48h Sprint',
-    statLabel: 'Conversational NPCs',
+    statLabel: '48h Sprint • Game AI',
     summary:
       'Interactive game engine built during a 48-hour sprint. Linked Unity clients to local Flask backends and the Backboard API, driving real-time dialogues with autonomous game characters.',
     tags: ['Unity', 'C#', 'Flask', 'Python', 'Backboard API', 'Game AI'],
@@ -127,11 +130,21 @@ export function ProjectsSection() {
                 {proj.number}
               </span>
 
-              <div className="p-3 sm:p-4 rounded-xl bg-slate-900/80 border border-white/10 w-fit">
-                <span className="text-xl sm:text-2xl lg:text-3xl font-bold font-mono text-white block mb-0.5">
-                  {proj.stat}
-                </span>
-                <span className="text-[10px] sm:text-xs text-cyan-400 font-mono tracking-wider uppercase">
+              <div className="p-3 sm:p-4 rounded-xl bg-slate-900/80 border border-white/10 w-fit min-w-[140px] flex flex-col justify-center">
+                {proj.icon ? (
+                  <div className="mb-2">
+                    <img
+                      src={proj.icon}
+                      alt={proj.title}
+                      className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl object-contain shadow-[0_0_15px_rgba(0,242,254,0.2)]"
+                    />
+                  </div>
+                ) : (
+                  <span className="text-xl sm:text-2xl lg:text-3xl font-bold font-mono text-white block mb-0.5">
+                    {proj.stat}
+                  </span>
+                )}
+                <span className="text-[10px] sm:text-xs text-cyan-400 font-mono tracking-wider uppercase block">
                   {proj.statLabel}
                 </span>
               </div>
