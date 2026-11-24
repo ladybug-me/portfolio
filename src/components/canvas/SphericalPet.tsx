@@ -50,6 +50,23 @@ export function SphericalPet() {
   const plat1GlowMatRef = useRef<THREE.MeshBasicMaterial>(null)
   const plat2GlowMatRef = useRef<THREE.MeshBasicMaterial>(null)
 
+  // Eyelids and happy 😊 expression references
+  const leftEyeBallRef = useRef<THREE.Mesh>(null)
+  const rightEyeBallRef = useRef<THREE.Mesh>(null)
+  const leftSmileLidRef = useRef<THREE.Mesh>(null)
+  const rightSmileLidRef = useRef<THREE.Mesh>(null)
+  const leftSmileGlowRef = useRef<THREE.Mesh>(null)
+  const rightSmileGlowRef = useRef<THREE.Mesh>(null)
+  const leftBlushRef = useRef<THREE.Mesh>(null)
+  const rightBlushRef = useRef<THREE.Mesh>(null)
+  const leftBlushMatRef = useRef<THREE.MeshStandardMaterial>(null)
+  const rightBlushMatRef = useRef<THREE.MeshStandardMaterial>(null)
+
+  // Autonomous Happy 😊 animation state (Completely random, not bound to any action)
+  const happyTimer = useRef(3.5)
+  const happyState = useRef(0)
+  const happyDuration = useRef(0)
+
   // Physics state
   const pos = useRef(new THREE.Vector3(0, -1.6, 0))
   const vel = useRef(new THREE.Vector3(0, 0, 0))
@@ -170,17 +187,90 @@ export function SphericalPet() {
     const maxVisibleY = viewport.height / 2 - petRadius - 0.2
     const maxBoundX = viewport.width / 2 - petRadius - 0.2
 
-    // 1. Ecosystem life: Blinking cycle
+    // 1. Autonomous Ecosystem life: Fully Random Blinking & Happy 😊 Expression cycle
+    // A. Regular Natural Blink (Purely random, not bound to any action)
     blinkTimer.current -= dt
     if (blinkTimer.current <= 0) {
-      blinkState.current = 0.08
-      blinkTimer.current = 3.0 + Math.random() * 3.5
+      blinkState.current = 0.0
+      blinkTimer.current = 2.6 + Math.random() * 3.4
     } else {
-      blinkState.current = THREE.MathUtils.damp(blinkState.current, 1.0, 20, dt)
+      blinkState.current = THREE.MathUtils.damp(blinkState.current, 1.0, 18, dt)
     }
+
+    // B. Periodic Happy 😊 Smile Occurrence (Completely random & independent)
+    happyTimer.current -= dt
+    if (happyTimer.current <= 0) {
+      happyDuration.current = 1.0 + Math.random() * 0.5 // Hold happy smile for ~1.0s - 1.5s
+      happyTimer.current = 4.5 + Math.random() * 5.5 // Triggers naturally every 4.5 - 10 seconds
+    }
+
+    if (happyDuration.current > 0) {
+      happyDuration.current -= dt
+      happyState.current = THREE.MathUtils.damp(happyState.current, 1.0, 10, dt)
+    } else {
+      happyState.current = THREE.MathUtils.damp(happyState.current, 0.0, 8, dt)
+    }
+
+    const blinkClose = Math.max(1.0 - blinkState.current, 0)
+    const happy = happyState.current
+
+    // Pupil closure & visibility (hidden when closed or smiling)
+    const pupilOpenFactor = THREE.MathUtils.clamp((1.0 - blinkClose) * (1.0 - happy), 0, 1)
+    if (leftPupilRef.current && rightPupilRef.current) {
+      leftPupilRef.current.scale.y = pupilOpenFactor
+      rightPupilRef.current.scale.y = pupilOpenFactor
+      leftPupilRef.current.visible = pupilOpenFactor > 0.08
+      rightPupilRef.current.visible = pupilOpenFactor > 0.08
+    }
+
+    // The whole black ball acts as the eyelid:
+    // On regular blink: squashes vertically into a closed eyelid slit
+    // On happy smile: morphs smoothly into the arched smiling eyelid (⌒ ⌒)
+    const ballSquashY = THREE.MathUtils.clamp((1.0 - blinkClose * 0.93) * (1.0 - happy), 0, 1)
+    const ballSquashX = THREE.MathUtils.lerp(1.0, 1.25, blinkClose)
+    const ballOffsetY = -0.006 * blinkClose
+
+    if (leftEyeBallRef.current && rightEyeBallRef.current) {
+      leftEyeBallRef.current.scale.set(ballSquashX, ballSquashY, 1.05)
+      rightEyeBallRef.current.scale.set(ballSquashX, ballSquashY, 1.05)
+      leftEyeBallRef.current.position.y = ballOffsetY
+      rightEyeBallRef.current.position.y = ballOffsetY
+      leftEyeBallRef.current.visible = ballSquashY > 0.02
+      rightEyeBallRef.current.visible = ballSquashY > 0.02
+    }
+
+    // Happy 😊 smiling black eyelids and cybernetic glowing crescents (⌒ ⌒)
+    const isSmiling = happy > 0.08
+    const smileScale = THREE.MathUtils.clamp(happy * 1.2, 0.001, 1.08)
+    if (leftSmileLidRef.current && rightSmileLidRef.current) {
+      leftSmileLidRef.current.visible = isSmiling
+      rightSmileLidRef.current.visible = isSmiling
+      leftSmileLidRef.current.scale.set(smileScale, smileScale, smileScale)
+      rightSmileLidRef.current.scale.set(smileScale, smileScale, smileScale)
+    }
+
+    if (leftSmileGlowRef.current && rightSmileGlowRef.current) {
+      leftSmileGlowRef.current.visible = isSmiling
+      rightSmileGlowRef.current.visible = isSmiling
+      leftSmileGlowRef.current.scale.set(smileScale, smileScale, smileScale)
+      rightSmileGlowRef.current.scale.set(smileScale, smileScale, smileScale)
+    }
+
+    // Cute anime outward slant for smiling eyes (\ and /)
     if (leftEyeGroupRef.current && rightEyeGroupRef.current) {
-      leftEyeGroupRef.current.scale.y = blinkState.current
-      rightEyeGroupRef.current.scale.y = blinkState.current
+      leftEyeGroupRef.current.rotation.z = -0.15 * happy
+      rightEyeGroupRef.current.rotation.z = 0.15 * happy
+    }
+
+    // Cute pink blush cheeks underneath the eyes
+    if (leftBlushRef.current && rightBlushRef.current) {
+      leftBlushRef.current.visible = isSmiling
+      rightBlushRef.current.visible = isSmiling
+      if (leftBlushMatRef.current && rightBlushMatRef.current) {
+        const blushOp = THREE.MathUtils.clamp(happy * 0.85, 0, 0.85)
+        leftBlushMatRef.current.opacity = blushOp
+        rightBlushMatRef.current.opacity = blushOp
+      }
     }
 
     // 2. Click pulse decay
@@ -593,41 +683,103 @@ export function SphericalPet() {
             </mesh>
           </group>
 
-          {/* Left Eye Assembly */}
+          {/* Left Eye Assembly: The entire black ball acts as articulated eyelids */}
           <group ref={leftEyeGroupRef} position={[-0.06, 0.042, 0.155]}>
-            <mesh>
-              <sphereGeometry args={[0.042, 10, 10]} />
-              <meshStandardMaterial color="#020813" metalness={0.6} roughness={0.12} />
+            {/* The Black Ball itself (Squashes into eyelid on blink, morphs into smile on 😊) */}
+            <mesh ref={leftEyeBallRef}>
+              <sphereGeometry args={[0.042, 16, 14]} />
+              <meshStandardMaterial color="#020813" metalness={0.65} roughness={0.12} />
             </mesh>
 
-            <mesh ref={leftPupilRef} position={[0, 0, 0.028]}>
-              <sphereGeometry args={[0.022, 8, 8]} />
+            {/* Inquisitive Glowing Round Pupil */}
+            <mesh ref={leftPupilRef} position={[0, 0, 0.024]}>
+              <sphereGeometry args={[0.022, 10, 10]} />
               <meshStandardMaterial
                 color="#00ffa3"
                 emissive="#00f2fe"
-                emissiveIntensity={1.8}
+                emissiveIntensity={2.0}
+                roughness={0.2}
+              />
+            </mesh>
+
+            {/* Happy 😊 Smiling Black Eyelid Arc (⌒) */}
+            <mesh ref={leftSmileLidRef} position={[0, -0.008, 0.026]} visible={false}>
+              <torusGeometry args={[0.0315, 0.0068, 10, 24, Math.PI]} />
+              <meshStandardMaterial color="#020813" metalness={0.65} roughness={0.12} />
+            </mesh>
+
+            {/* Glowing Cyber Accent Rim for the smile */}
+            <mesh ref={leftSmileGlowRef} position={[0, -0.0095, 0.028]} visible={false}>
+              <torusGeometry args={[0.031, 0.003, 8, 24, Math.PI]} />
+              <meshStandardMaterial
+                color="#00ffa3"
+                emissive="#00f2fe"
+                emissiveIntensity={2.8}
                 roughness={0.2}
               />
             </mesh>
           </group>
 
-          {/* Right Eye Assembly */}
+          {/* Right Eye Assembly: The entire black ball acts as articulated eyelids */}
           <group ref={rightEyeGroupRef} position={[0.06, 0.042, 0.155]}>
-            <mesh>
-              <sphereGeometry args={[0.042, 10, 10]} />
-              <meshStandardMaterial color="#020813" metalness={0.6} roughness={0.12} />
+            {/* The Black Ball itself (Squashes into eyelid on blink, morphs into smile on 😊) */}
+            <mesh ref={rightEyeBallRef}>
+              <sphereGeometry args={[0.042, 16, 14]} />
+              <meshStandardMaterial color="#020813" metalness={0.65} roughness={0.12} />
             </mesh>
 
-            <mesh ref={rightPupilRef} position={[0, 0, 0.028]}>
-              <sphereGeometry args={[0.022, 8, 8]} />
+            {/* Inquisitive Glowing Round Pupil */}
+            <mesh ref={rightPupilRef} position={[0, 0, 0.024]}>
+              <sphereGeometry args={[0.022, 10, 10]} />
               <meshStandardMaterial
                 color="#00ffa3"
                 emissive="#00f2fe"
-                emissiveIntensity={1.8}
+                emissiveIntensity={2.0}
+                roughness={0.2}
+              />
+            </mesh>
+
+            {/* Happy 😊 Smiling Black Eyelid Arc (⌒) */}
+            <mesh ref={rightSmileLidRef} position={[0, -0.008, 0.026]} visible={false}>
+              <torusGeometry args={[0.0315, 0.0068, 10, 24, Math.PI]} />
+              <meshStandardMaterial color="#020813" metalness={0.65} roughness={0.12} />
+            </mesh>
+
+            {/* Glowing Cyber Accent Rim for the smile */}
+            <mesh ref={rightSmileGlowRef} position={[0, -0.0095, 0.028]} visible={false}>
+              <torusGeometry args={[0.031, 0.003, 8, 24, Math.PI]} />
+              <meshStandardMaterial
+                color="#00ffa3"
+                emissive="#00f2fe"
+                emissiveIntensity={2.8}
                 roughness={0.2}
               />
             </mesh>
           </group>
+
+          {/* Adorable Cheerful Blush Spots (Illuminates during 😊 smile) */}
+          <mesh ref={leftBlushRef} position={[-0.072, 0.008, 0.16]} scale={[1.3, 0.75, 0.4]} visible={false}>
+            <sphereGeometry args={[0.016, 8, 8]} />
+            <meshStandardMaterial
+              ref={leftBlushMatRef}
+              color="#ff3b6c"
+              emissive="#ff3b6c"
+              emissiveIntensity={2.4}
+              transparent
+              opacity={0}
+            />
+          </mesh>
+          <mesh ref={rightBlushRef} position={[0.072, 0.008, 0.16]} scale={[1.3, 0.75, 0.4]} visible={false}>
+            <sphereGeometry args={[0.016, 8, 8]} />
+            <meshStandardMaterial
+              ref={rightBlushMatRef}
+              color="#ff3b6c"
+              emissive="#ff3b6c"
+              emissiveIntensity={2.4}
+              transparent
+              opacity={0}
+            />
+          </mesh>
 
           {/* Micro-Ecosystem: Swarm of 6 bio-digital energy motes */}
           <group ref={motesGroupRef}>
