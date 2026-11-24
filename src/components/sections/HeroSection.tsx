@@ -1,4 +1,5 @@
 import { useRef } from 'react'
+import { Icon } from '@iconify/react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useGSAP } from '@gsap/react'
@@ -215,8 +216,8 @@ export function HeroSection() {
               </div>
             </div>
 
-            {/* Badge 3: Lower-Left */}
-            <div className="tilted-badge-3-wrap absolute bottom-2 sm:bottom-4 left-1/3 sm:left-2/5 will-change-transform">
+            {/* Badge 3: Empty area to the left of SINGH */}
+            <div className="tilted-badge-3-wrap absolute top-[46%] sm:top-[52%] left-2 sm:left-8 will-change-transform">
               <div className="tilted-badge-3-inner px-3 sm:px-4 py-1 sm:py-1.5 rounded-full bg-slate-900/90 border border-white/25 text-slate-200 font-mono text-[11px] sm:text-xs font-semibold shadow-[0_4px_20px_rgba(255,255,255,0.15)] -rotate-3 backdrop-blur-md flex items-center gap-2">
                 <img
                   src="/assets/icons/devsoc.jpg"
@@ -253,12 +254,38 @@ export function HeroSection() {
           </h1>
         </div>
 
-        {/* Content Wrapper for Manifesto */}
-        <div className="hero-content-wrap will-change-transform">
-          {/* Minimalist Engineering Manifesto */}
-          <p className="hero-manifesto-inner text-base sm:text-lg md:text-xl lg:text-2xl text-white font-normal max-w-3xl leading-relaxed will-change-transform">
-            I build software where latency and memory are hard constraints. Native Linux desktop architectures, accelerated vision on low-power chips, and fast local retrieval engines.
-          </p>
+        {/* Content Wrapper for Magnified Minimalist Education (Subtext & Full Address on Hover) */}
+        <div className="hero-content-wrap will-change-transform pointer-events-auto relative z-20">
+          <div className="hero-manifesto-inner group pt-6 sm:pt-8 border-t border-white/15 max-w-6xl flex flex-col md:flex-row md:items-start justify-between gap-6 md:gap-12 cursor-default">
+            {/* Left: Institution + Hover-Revealed Degree & CGPA */}
+            <div>
+              <div className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white tracking-tight group-hover:text-cyan-300 transition-colors duration-300">
+                Vellore Institute of Technology
+              </div>
+              <div className="max-h-0 opacity-0 overflow-hidden group-hover:max-h-28 group-hover:opacity-100 group-hover:mt-3 transition-[max-height,opacity,margin-top] duration-300 ease-out">
+                <p className="text-base sm:text-lg lg:text-xl text-slate-200 font-medium leading-snug">
+                  B.Tech in Computer Science and Engineering, Core (2nd Year)
+                  <span className="text-cyan-300 font-mono font-bold ml-3">CGPA 8.83</span>
+                </p>
+              </div>
+            </div>
+
+            {/* Right: Location Icon + Hover-Revealed Full Address & Dates */}
+            <div className="md:text-right shrink-0">
+              <div className="inline-flex items-center gap-2 text-xl sm:text-2xl lg:text-3xl font-bold text-slate-200 group-hover:text-cyan-300 transition-colors duration-300">
+                <Icon
+                  icon="mdi:map-marker"
+                  className="w-6 h-6 sm:w-7 sm:h-7 text-cyan-400 shrink-0"
+                  aria-hidden="true"
+                />
+                <span>Vellore</span>
+              </div>
+              <div className="max-h-0 opacity-0 overflow-hidden group-hover:max-h-24 group-hover:opacity-100 group-hover:mt-3 transition-[max-height,opacity,margin-top] duration-300 ease-out font-mono text-sm sm:text-base lg:text-lg text-slate-300">
+                <div>Tamil Nadu, India</div>
+                <div className="text-cyan-400/90 mt-0.5">June 2025 – Present</div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </section>
