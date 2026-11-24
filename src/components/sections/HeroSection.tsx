@@ -6,13 +6,13 @@ export function HeroSection() {
         {/* Semantic narrative & identity */}
         <div className="max-w-3xl flex flex-col items-start z-10">
           {/* Status Badge */}
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-mono text-xs mb-6 backdrop-blur-md">
+          <div className="hero-fade inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-mono text-xs mb-6 backdrop-blur-md">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
             <span>VIT VELLORE '29 • CGPA: 8.83 • OPEN FOR RESEARCH</span>
           </div>
 
           {/* Primary Headline */}
-          <h1 className="text-4xl sm:text-6xl xl:text-7xl font-bold tracking-tight text-white mb-6 leading-[1.08]">
+          <h1 className="hero-fade text-4xl sm:text-6xl xl:text-7xl font-bold tracking-tight text-white mb-6 leading-[1.08]">
             ENGINEERING <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-teal-300 to-emerald-400">
               SYSTEMS & EDGE AI
@@ -20,12 +20,12 @@ export function HeroSection() {
           </h1>
 
           {/* Secondary Subtitle */}
-          <p className="text-base sm:text-lg text-slate-300 max-w-2xl mb-8 leading-relaxed font-normal">
+          <p className="hero-fade text-base sm:text-lg text-slate-300 max-w-2xl mb-8 leading-relaxed font-normal">
             Hi, I'm <strong className="text-white font-semibold">Rajveer Singh</strong>. I architect edge computing architectures, high-throughput C++/CUDA pipelines, and fluid Linux desktop environments.
           </p>
 
           {/* Technical metric pills */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 w-full max-w-lg mb-8 font-mono">
+          <div className="hero-fade grid grid-cols-2 sm:grid-cols-3 gap-3 w-full max-w-lg mb-8 font-mono">
             <div className="glass-panel p-3.5 rounded-lg border border-white/5">
               <span className="text-cyan-400 text-xs block mb-1">CONFERENCE</span>
               <span className="text-white font-medium text-xs">9th ICRTAC'26</span>
@@ -41,7 +41,7 @@ export function HeroSection() {
           </div>
 
           {/* Call to Actions */}
-          <div className="flex flex-wrap items-center gap-4">
+          <div className="hero-fade flex flex-wrap items-center gap-4">
             <a
               href="#projects"
               className="px-6 py-3 rounded-lg bg-gradient-to-r from-cyan-500 to-teal-500 text-black font-semibold text-sm hover:opacity-95 transition-all shadow-[0_0_20px_rgba(0,242,254,0.3)] flex items-center gap-2"

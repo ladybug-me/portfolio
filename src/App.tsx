@@ -45,27 +45,39 @@ export function App() {
 
   useGSAP(
     () => {
+      // 1. Hero Entrance Sequence
+      gsap.from('.hero-fade', {
+        y: 40,
+        opacity: 0,
+        duration: 1.0,
+        stagger: 0.12,
+        ease: 'power3.out',
+        delay: 0.2,
+      })
+
+      // 2. Project Cards ScrollTrigger Stagger
       gsap.from('#projects article', {
         scrollTrigger: {
           trigger: '#projects',
-          start: 'top 80%',
+          start: 'top 75%',
         },
-        y: 40,
+        y: 50,
         opacity: 0,
-        duration: 0.8,
-        stagger: 0.15,
+        duration: 0.85,
+        stagger: 0.16,
         ease: 'power3.out',
       })
 
+      // 3. Technical Matrix Cards Reveal
       gsap.from('#skills > div > div', {
         scrollTrigger: {
           trigger: '#skills',
-          start: 'top 80%',
+          start: 'top 75%',
         },
-        y: 30,
+        y: 40,
         opacity: 0,
-        duration: 0.7,
-        stagger: 0.12,
+        duration: 0.75,
+        stagger: 0.14,
         ease: 'power3.out',
       })
     },
@@ -77,7 +89,7 @@ export function App() {
       {/* Interactive Cybernetic Mouse Follower */}
       <CustomCursor />
 
-      {/* Fullscreen 3D Shader Background with Click-Reactive Particles */}
+      {/* Fullscreen 3D Shader Background with GSAP-Scrubbed Camera Orbit */}
       <HeroCanvas />
 
       {/* Foreground Content Layers */}

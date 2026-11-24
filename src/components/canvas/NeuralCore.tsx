@@ -1,6 +1,10 @@
 import { useRef, useMemo, useEffect } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
+import gsap from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
+
+gsap.registerPlugin(ScrollTrigger)
 
 // Shader for the central neural core
 const coreVertexShader = `
@@ -68,7 +72,6 @@ const coreVertexShader = `
     float distToPointer = length(uv - (uPointer * 0.5 + 0.5));
     float pointerInfluence = smoothstep(0.8, 0.0, distToPointer) * 0.18;
     
-    // Click pulse expansion
     float clickDeform = sin(uTime * 12.0) * uClickPulse * 0.25;
     
     float totalDisplacement = (noiseVal * 0.26) + pointerInfluence + clickDeform;
@@ -100,7 +103,6 @@ const coreFragmentShader = `
     float blendFactor = smoothstep(-0.25, 0.35, vDisplacement);
     vec3 coreColor = mix(colorBase, colorCyan * 0.35, blendFactor);
     
-    // Intensify luminance during mouse clicks
     vec3 finalColor = coreColor 
       + (colorCyan * (fresnel * 0.9 + uClickPulse * 0.5)) 
       + (colorJade * pow(fresnel, 4.5) * 0.7);
@@ -123,19 +125,16 @@ const particlesVertexShader = `
   void main() {
     vec3 pos = position;
     
-    // Ambient rotational float
     pos.x += sin(uTime * 0.6 + aRandom.x * 6.28) * 0.12;
     pos.y += cos(uTime * 0.5 + aRandom.y * 6.28) * 0.12;
     pos.z += sin(uTime * 0.7 + aRandom.z * 6.28) * 0.12;
     
-    // Interactive mouse click shockwave
     vec3 diff = pos - uClickPos;
     float dist = length(diff);
     float shockRadius = (1.0 - uClickPulse) * 4.5;
     float waveDist = abs(dist - shockRadius);
     float wave = smoothstep(1.2, 0.0, waveDist) * uClickPulse;
     
-    // Displace outward from click epicenter
     if (dist > 0.001) {
       pos += normalize(diff) * (wave * 1.6 + uClickPulse * (0.8 / (dist * 0.4 + 1.0)));
     }
@@ -170,6 +169,15 @@ export function NeuralCore() {
   const clickPulseVal = useRef(0)
   const clickPosVal = useRef(new THREE.Vector3(0.6, 0, 0))
 
+  // GSAP-scrubbed scroll coordinates
+  const scrollData = useRef({
+    posX: 0.6,
+    posY: 0,
+    rotY: 0,
+    rotX: 0,
+    scale: 1,
+  })
+
   const coreUniforms = useMemo(
     () => ({
       uTime: { value: 0 },
@@ -189,14 +197,12 @@ export function NeuralCore() {
     []
   )
 
-  // Generate 1,500 interactive particles surrounding the core
   const { particlePositions, particleRandoms } = useMemo(() => {
     const count = 1500
     const positions = new Float32Array(count * 3)
     const randoms = new Float32Array(count * 3)
 
     for (let i = 0; i < count; i++) {
-      // Golden spiral distribution across spherical shell
       const phi = Math.acos(1 - 2 * ((i + 0.5) / count))
       const theta = Math.PI * (1 + Math.sqrt(5)) * i
       const radius = 2.2 + Math.random() * 2.8
@@ -213,12 +219,49 @@ export function NeuralCore() {
     return { particlePositions: positions, particleRandoms: randoms }
   }, [])
 
-  // Listen to mouse clicks across the window to trigger particle impulse
+  // Bind GSAP ScrollTrigger to scrub 3D position and rotation across sections
+  useEffect(() => {
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (prefersReducedMotion) return
+
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: '#hero',
+        endTrigger: '#contact',
+        start: 'top top',
+        end: 'bottom bottom',
+        scrub: 1.2,
+      },
+    })
+
+    // Scrub across sections: orbit 360°, move left in projects, scale slightly in skills
+    tl.to(scrollData.current, {
+      posX: -0.85,
+      posY: -0.15,
+      rotY: Math.PI * 1.5,
+      rotX: 0.45,
+      scale: 1.15,
+      ease: 'power1.inOut',
+    })
+      .to(scrollData.current, {
+        posX: 0.0,
+        posY: 0.1,
+        rotY: Math.PI * 3.0,
+        rotX: -0.3,
+        scale: 1.05,
+        ease: 'power1.inOut',
+      })
+
+    return () => {
+      tl.scrollTrigger?.kill()
+      tl.kill()
+    }
+  }, [])
+
+  // Listen to mouse clicks across window to trigger particle impulse
   useEffect(() => {
     const handlePointerDown = (e: MouseEvent) => {
       clickPulseVal.current = 1.0
-
-      // Map click screen coordinates into approximate 3D world space (Z=0)
       const nx = (e.clientX / window.innerWidth) * 2 - 1
       const ny = -(e.clientY / window.innerHeight) * 2 + 1
       clickPosVal.current.set(nx * 4.0, ny * 2.5, 0)
@@ -232,33 +275,29 @@ export function NeuralCore() {
     coreUniforms.uTime.value += delta
     particleUniforms.uTime.value += delta
 
-    // Smoothly decay click shockwave pulse
     clickPulseVal.current = Math.max(0, clickPulseVal.current - delta * 1.5)
     coreUniforms.uClickPulse.value = clickPulseVal.current
     particleUniforms.uClickPulse.value = clickPulseVal.current
     particleUniforms.uClickPos.value.copy(clickPosVal.current)
 
-    // Inertial pointer movement
     const targetX = state.pointer.x * 0.7
     const targetY = state.pointer.y * 0.7
     coreUniforms.uPointer.value.x += (targetX - coreUniforms.uPointer.value.x) * 0.05
     coreUniforms.uPointer.value.y += (targetY - coreUniforms.uPointer.value.y) * 0.05
     particleUniforms.uPointer.value.copy(coreUniforms.uPointer.value)
 
-    // Drift group based on pointer and subtle breath
     if (groupRef.current) {
-      groupRef.current.position.x = 0.6 + coreUniforms.uPointer.value.x * 0.4
-      groupRef.current.position.y = coreUniforms.uPointer.value.y * 0.3
-    }
-
-    if (meshRef.current) {
-      meshRef.current.rotation.y += delta * (0.1 + clickPulseVal.current * 0.3)
-      meshRef.current.rotation.x = Math.sin(state.clock.elapsedTime * 0.15) * 0.08
+      // Integrate GSAP scroll-scrubbed position with mouse inertia
+      groupRef.current.position.x = scrollData.current.posX + coreUniforms.uPointer.value.x * 0.35
+      groupRef.current.position.y = scrollData.current.posY + coreUniforms.uPointer.value.y * 0.25
+      groupRef.current.scale.setScalar(scrollData.current.scale)
+      groupRef.current.rotation.y = scrollData.current.rotY + state.clock.elapsedTime * 0.08
+      groupRef.current.rotation.x = scrollData.current.rotX + Math.sin(state.clock.elapsedTime * 0.15) * 0.06
     }
 
     if (wireframeRef.current) {
-      wireframeRef.current.rotation.y -= delta * 0.06
-      wireframeRef.current.rotation.z += delta * 0.04
+      wireframeRef.current.rotation.y -= delta * 0.05
+      wireframeRef.current.rotation.z += delta * 0.03
     }
   })
 
