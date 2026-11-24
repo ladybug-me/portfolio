@@ -17,6 +17,7 @@ export function PetCanvas() {
             stencil: false,
             depth: true,
           }}
+          style={{ pointerEvents: 'none' }}
           className="w-full h-full pointer-events-none"
         >
           <ambientLight intensity={0.45} />

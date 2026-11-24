@@ -14,7 +14,7 @@ const SECTIONS: NavItem[] = [
   { id: 'projects', label: 'SYSTEMS' },
   { id: 'skills', label: 'TOOLING' },
   { id: 'faq', label: 'QUERIES' },
-  { id: 'contact', label: 'SOCKET' },
+  { id: 'contact', label: 'CONTACT' },
 ]
 
 export function SectionNavigator() {

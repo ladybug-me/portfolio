@@ -14,7 +14,7 @@ import { CircuitPipeline } from './components/ui/CircuitPipeline'
 import { ProjectsSection } from './components/sections/ProjectsSection'
 import { SkillsMatrix } from './components/sections/SkillsMatrix'
 import { InteractiveFaq } from './components/sections/InteractiveFaq'
-import { Footer } from './components/sections/Footer'
+import { ContactSection } from './components/sections/ContactSection'
 
 gsap.registerPlugin(ScrollTrigger, useGSAP)
 
@@ -144,8 +144,8 @@ export function App() {
         {/* Interactive Pill-Accordion Q&A */}
         <InteractiveFaq />
       </main>
-      <div className="relative z-10">
-        <Footer />
+      <div className="relative z-30">
+        <ContactSection />
       </div>
     </div>
   )
