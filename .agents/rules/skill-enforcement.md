@@ -1,3 +1,7 @@
+---
+trigger: always_on
+---
+
 # Skill Enforcement Rule
 
 You must strictly enforce mandatory skill loading and execution across all tasks.
