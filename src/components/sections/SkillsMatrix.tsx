@@ -120,6 +120,7 @@ export function SkillsMatrix() {
         const stepTime = (i - 1) * 1
 
         // All preceding cards scale down slightly and shift left to form the stack
+        // Avoid CSS `filter` on backdrop-blur elements (prevents black compositor artifact)
         for (let prev = 0; prev < i; prev++) {
           const depth = i - prev
           tl.to(
@@ -127,8 +128,7 @@ export function SkillsMatrix() {
             {
               xPercent: -4 * depth,
               scale: Math.max(0.86, 1 - depth * 0.035),
-              opacity: Math.max(0.48, 1 - depth * 0.12),
-              filter: `brightness(${Math.max(0.65, 1 - depth * 0.1)})`,
+              opacity: Math.max(0.45, 1 - depth * 0.16),
               ease: 'power2.inOut',
               duration: 1,
             },
@@ -143,7 +143,6 @@ export function SkillsMatrix() {
             xPercent: 0,
             scale: 1,
             opacity: 1,
-            filter: 'brightness(1)',
             ease: 'power2.out',
             duration: 1,
           },
@@ -201,7 +200,7 @@ export function SkillsMatrix() {
         {categories.map((cat, idx) => (
           <article
             key={idx}
-            className="horizontal-stack-card absolute inset-0 w-full h-full rounded-2xl sm:rounded-3xl glass-panel bg-[#050b14]/55 p-6 sm:p-10 lg:p-12 border border-white/15 shadow-[-25px_0_50px_rgba(0,0,0,0.75),inset_0_1px_1px_rgba(255,255,255,0.12)] backdrop-blur-3xl will-change-transform flex items-center overflow-hidden group hover:border-cyan-400/40 transition-colors duration-300"
+            className="horizontal-stack-card absolute inset-0 w-full h-full rounded-2xl sm:rounded-3xl bg-[#07101d]/60 p-6 sm:p-10 lg:p-12 border border-white/15 shadow-[-25px_0_50px_rgba(0,0,0,0.75),inset_0_1px_1px_rgba(255,255,255,0.14)] backdrop-blur-3xl will-change-transform flex items-center overflow-hidden group hover:border-cyan-400/40 transition-colors duration-300"
           >
             <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10 items-start lg:items-center">
               {/* Left Column: Minimalist Index & Metric */}
