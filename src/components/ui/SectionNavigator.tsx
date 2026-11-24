@@ -10,9 +10,9 @@ interface NavItem {
 const SECTIONS: NavItem[] = [
   { id: 'hero', label: 'ORIGIN' },
   { id: 'statement', label: 'ETHOS' },
-  { id: 'pipeline', label: 'CIRCUIT' },
+  { id: 'pipeline', label: 'LEXICON' },
   { id: 'projects', label: 'SYSTEMS' },
-  { id: 'skills', label: 'ARSENAL' },
+  { id: 'skills', label: 'TOOLING' },
   { id: 'faq', label: 'QUERIES' },
   { id: 'contact', label: 'SOCKET' },
 ]
