@@ -88,7 +88,8 @@ export function InteractiveFaq() {
           <div>
             <div className="flex items-center gap-3 font-mono text-cyan-400 text-xs mb-4">
               <span className="w-12 h-[1px] bg-cyan-400" />
-              <ScrambleText text="03 // DIRECT INQUIRIES" />
+              <ScrambleText text="03 • DIRECT INQUIRIES" />
+              <span className="w-12 h-[1px] bg-cyan-400" />
             </div>
 
             <h2 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white mb-6 leading-tight">
@@ -191,7 +192,7 @@ export function InteractiveFaq() {
                       }`}
                     >
                       <span className="text-cyan-400 font-bold block mb-1">
-                        // TECHNICAL RESPONSE:
+                        TECHNICAL RESPONSE:
                       </span>
                       {faq.answer}
                     </div>

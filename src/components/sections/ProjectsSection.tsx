@@ -47,7 +47,7 @@ const showcaseProjects: ShowcaseProject[] = [
     id: 'faiss-engine',
     number: '03',
     title: 'High-Volume FAISS Vector Pipeline',
-    badge: 'Psyduck Engine // Open Source',
+    badge: 'Psyduck Engine • Open Source',
     stat: '44,441 Items',
     statLabel: 'Sub-100ms Query Latency',
     summary:
@@ -58,7 +58,7 @@ const showcaseProjects: ShowcaseProject[] = [
   {
     id: 'grudge-art-online',
     number: '04',
-    title: 'Grudge Art Online // AI Game Engine',
+    title: 'Grudge Art Online • AI Game Engine',
     badge: "DevSoc'26 Top 15 Finalist",
     stat: '48h Sprint',
     statLabel: 'Conversational NPCs',
@@ -105,7 +105,8 @@ export function ProjectsSection() {
       <div className="mb-12 sm:mb-16 lg:mb-20">
         <div className="flex items-center gap-3 font-mono text-cyan-400 text-xs mb-4">
           <span className="w-12 h-[1px] bg-cyan-400" />
-          <ScrambleText text="01 // AUTHORED SYSTEMS & RESEARCH" />
+          <ScrambleText text="01 • AUTHORED SYSTEMS & RESEARCH" />
+          <span className="w-12 h-[1px] bg-cyan-400" />
         </div>
         <h2 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight text-white">
           <MaskedText text="SELECTED WORK" wordClassName="projects-title-word" />

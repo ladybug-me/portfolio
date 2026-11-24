@@ -87,7 +87,7 @@ export function CircuitPipeline() {
       {/* Header & Circuit Status Indicator */}
       <div className="mb-10 sm:mb-14 text-center max-w-4xl mx-auto w-full">
         <div className="flex items-center justify-between font-mono text-xs mb-3 text-cyan-400">
-          <span className="tracking-widest uppercase">// ARCHITECTURE PIPELINE</span>
+          <span className="tracking-widest uppercase">ARCHITECTURE PIPELINE</span>
           <div className="flex items-center gap-2 text-slate-400">
             <span>ACTIVE MILESTONES:</span>
             <span className="font-bold text-white px-2 py-0.5 rounded bg-cyan-500/10 border border-cyan-500/30 text-cyan-300">
@@ -219,7 +219,7 @@ export function CircuitPipeline() {
           }`}
         >
           {isComplete
-            ? 'CIRCUIT SYNCHRONIZED // PROCEEDING TO PROJECTS'
+            ? 'CIRCUIT SYNCHRONIZED • PROCEEDING TO PROJECTS'
             : 'SCROLL TO ENERGIZE PIPELINE STAGES'}
         </span>
       </div>

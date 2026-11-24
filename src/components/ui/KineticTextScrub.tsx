@@ -70,7 +70,7 @@ export function KineticTextScrub({ text, className = '' }: KineticTextScrubProps
       <div className="w-full max-w-4xl flex items-center justify-between font-mono text-xs mb-8 sm:mb-12">
         <div className="flex items-center gap-2.5 text-cyan-400">
           <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
-          <span className="tracking-widest uppercase">// RUNTIME PHILOSOPHY</span>
+          <span className="tracking-widest uppercase">RUNTIME PHILOSOPHY</span>
         </div>
 
         <div className="flex items-center gap-3 text-slate-400">
@@ -123,7 +123,7 @@ export function KineticTextScrub({ text, className = '' }: KineticTextScrubProps
               isCompleted ? 'text-emerald-400 font-bold' : 'text-slate-500'
             }`}
           >
-            {isCompleted ? 'STATEMENT COMPLETE // PROCEEDING' : 'SCROLL TO FILL STREAM'}
+            {isCompleted ? 'STATEMENT COMPLETE • PROCEEDING' : 'SCROLL TO FILL STREAM'}
           </span>
         </div>
       </div>

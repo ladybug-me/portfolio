@@ -194,7 +194,8 @@ export function SkillsMatrix() {
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3 font-mono text-cyan-400 text-xs">
             <span className="w-12 h-[1px] bg-cyan-400" />
-            <ScrambleText text="02 // CAPABILITIES MATRIX" />
+            <ScrambleText text="02 • CAPABILITIES MATRIX" />
+            <span className="w-12 h-[1px] bg-cyan-400" />
           </div>
 
           {/* Active Card Pill Indicator */}
@@ -291,7 +292,7 @@ export function SkillsMatrix() {
             <div className="pt-3 sm:pt-4 border-t border-white/5 flex items-center justify-between text-[11px] sm:text-xs font-mono text-slate-500">
               <span className="flex items-center gap-2">
                 <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
-                <span>SYSTEM DISCIPLINE // PRODUCTION TESTED</span>
+                <span>SYSTEM DISCIPLINE • PRODUCTION TESTED</span>
               </span>
               <span className="text-cyan-400">
                 STACK 0{idx + 1} OF 0{categories.length} ➔
