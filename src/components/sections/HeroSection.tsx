@@ -52,26 +52,33 @@ export function HeroSection() {
       className="relative min-h-[95vh] flex flex-col justify-center px-4 sm:px-8 pt-32 pb-20 overflow-hidden"
     >
       <div className="max-w-7xl mx-auto w-full relative">
-        
-        {/* Top Status Capsule */}
-        <div className="hero-meta inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-mono text-xs mb-10 backdrop-blur-md">
-          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-          <ScrambleText text="VIT VELLORE CSE • CGPA 8.83 • ICRTAC'26 RESEARCH AUTHOR" delay={150} />
+
+        {/* Top Status Capsule & Telemetry */}
+        <div className="hero-meta flex flex-wrap items-center gap-3 mb-10">
+          <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-mono text-xs backdrop-blur-md">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+            <ScrambleText text="VIT VELLORE • B.TECH CSE (CORE) • CGPA 8.83" delay={150} />
+          </div>
+
+          <div className="hidden sm:inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/[0.03] border border-white/10 text-slate-400 font-mono text-xs backdrop-blur-md">
+            <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
+            <span>9TH ICRTAC'26 ACCEPTED AUTHOR</span>
+          </div>
         </div>
 
         {/* Massive Editorial Headline with Overlapping Tilted Badge Capsules */}
         <div className="max-w-6xl mb-12 relative">
           {/* Tilted Floating Badge 1 */}
           <div className="tilted-badge-1 absolute -top-5 left-1/4 sm:left-1/3 z-20 hidden sm:inline-block px-4 py-1.5 rounded-full bg-slate-900/90 border border-cyan-400/40 text-cyan-300 font-mono text-xs font-semibold shadow-[0_4px_20px_rgba(0,242,254,0.2)] -rotate-6 backdrop-blur-md select-none">
-            ⚡ Linux Compositor & QML
+            ⚡ Caelestia KDE Maintainer
           </div>
 
           <h1 className="text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-extrabold tracking-tighter text-white leading-[0.95] select-none">
             <span className="block mb-2">
-              <MaskedText text="ENGINEERING" wordClassName="hero-word" />
+              <MaskedText text="RAJVEER SINGH" wordClassName="hero-word" />
             </span>
             <span className="block text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-teal-300 to-emerald-400">
-              <MaskedText text="REAL-TIME SYSTEMS" wordClassName="hero-word" />
+              <MaskedText text="LINUX RUNTIMES & EDGE COMPUTE" wordClassName="hero-word" />
             </span>
           </h1>
 
@@ -82,20 +89,24 @@ export function HeroSection() {
 
           {/* Tilted Floating Badge 3 */}
           <div className="tilted-badge-3 absolute -bottom-4 left-1/3 sm:left-1/2 z-20 hidden sm:inline-block px-4 py-1.5 rounded-full bg-slate-900/90 border border-white/20 text-slate-200 font-mono text-xs font-semibold shadow-lg -rotate-3 backdrop-blur-md select-none">
-            ◈ Sub-5ms IPC Latency
+            ◈ DevSoc'26 Top 15 Team
           </div>
         </div>
 
         {/* Minimalist Narrative Statement */}
         <p className="hero-sub text-lg sm:text-2xl text-slate-300 max-w-3xl mb-12 font-light leading-relaxed">
-          I'm <strong className="text-white font-medium">Rajveer Singh</strong>. I build low-latency Linux desktop compositors, deploy CUDA inference pipelines to constrained silicon, and structure high-volume vector search.
+          I build software where latency and memory are hard constraints. My work spans native Linux desktop architectures, accelerated vision on low-power chips, and fast local retrieval engines.
         </p>
 
-        {/* Spaced Stat Horizon */}
-        <div className="hero-meta grid grid-cols-3 gap-6 sm:gap-12 max-w-2xl mb-12 py-6 border-y border-white/10 font-mono">
+        {/* 4-Metric Stat Horizon */}
+        <div className="hero-meta grid grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8 max-w-4xl mb-12 py-6 border-y border-white/10 font-mono">
           <div>
             <span className="text-2xl sm:text-4xl font-bold text-white block mb-1">ICRTAC'26</span>
-            <span className="text-xs text-cyan-400 uppercase tracking-wider">Peer-Reviewed Author</span>
+            <span className="text-xs text-cyan-400 uppercase tracking-wider">Accepted Paper</span>
+          </div>
+          <div>
+            <span className="text-2xl sm:text-4xl font-bold text-white block mb-1">8.83</span>
+            <span className="text-xs text-cyan-400 uppercase tracking-wider">VIT Vellore CGPA</span>
           </div>
           <div>
             <span className="text-2xl sm:text-4xl font-bold text-white block mb-1">&lt;5ms</span>
@@ -107,13 +118,13 @@ export function HeroSection() {
           </div>
         </div>
 
-        {/* Clear Action Horizon */}
+        {/* Clear Action Horizon with Direct Social Anchors */}
         <div className="hero-cta flex flex-wrap items-center gap-5">
           <a
             href="#projects"
             className="px-8 py-4 rounded-xl bg-gradient-to-r from-cyan-400 to-teal-400 text-black font-semibold text-sm hover:opacity-95 transition-all shadow-[0_0_25px_rgba(0,242,254,0.35)] flex items-center gap-2 group"
           >
-            <span>Inspect Authored Work</span>
+            <span>Explore Authored Work</span>
             <svg
               className="w-4 h-4 group-hover:translate-y-0.5 transition-transform"
               fill="none"
@@ -127,8 +138,32 @@ export function HeroSection() {
             href="#contact"
             className="px-8 py-4 rounded-xl border border-white/15 hover:border-cyan-400 text-slate-200 font-mono text-sm hover:text-white transition-all glass-panel"
           >
-            // Direct Inquiry
+            // Contact Rajveer
           </a>
+
+          {/* Quick External Profiles */}
+          <div className="flex items-center gap-4 font-mono text-xs text-slate-400 sm:ml-4">
+            <span className="text-slate-700 hidden sm:inline">|</span>
+            <a
+              href="https://github.com/ladybug-me"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-cyan-400 transition-colors flex items-center gap-1"
+            >
+              <span>GitHub</span>
+              <span className="text-cyan-400">↗</span>
+            </a>
+            <span className="text-slate-700">•</span>
+            <a
+              href="https://www.linkedin.com/in/rajveer-singh-2304402b6"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-cyan-400 transition-colors flex items-center gap-1"
+            >
+              <span>LinkedIn</span>
+              <span className="text-cyan-400">↗</span>
+            </a>
+          </div>
         </div>
 
       </div>
