@@ -189,7 +189,7 @@ export function HeroSection() {
     <section
       ref={heroRef}
       id="hero"
-      className="relative min-h-screen flex flex-col justify-center px-4 sm:px-6 lg:px-12 pt-28 sm:pt-32 lg:pt-36 pb-16 sm:pb-20 overflow-hidden"
+      className="relative min-h-screen flex flex-col justify-center px-4 sm:px-6 lg:px-12 pt-16 sm:pt-20 lg:pt-24 pb-16 sm:pb-20 overflow-hidden"
     >
       <div className="max-w-[1500px] mx-auto w-full relative">
         {/* Abstract Monumental Typography Canvas */}

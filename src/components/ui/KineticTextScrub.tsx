@@ -113,6 +113,7 @@ export function KineticTextScrub({ className = '' }: KineticTextScrubProps) {
   return (
     <section
       ref={containerRef}
+      id="statement"
       className={`relative h-screen min-h-[100dvh] w-full flex flex-col justify-center items-center overflow-hidden border-t border-white/5 px-2 sm:px-4 ${className}`}
     >
       {/* Accessible readable text for assistive technologies */}

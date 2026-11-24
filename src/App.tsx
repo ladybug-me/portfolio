@@ -7,7 +7,7 @@ import { useGSAP } from '@gsap/react'
 import { HeroCanvas } from './components/canvas/HeroCanvas'
 import { PetCanvas } from './components/canvas/PetCanvas'
 import { CustomCursor } from './components/ui/CustomCursor'
-import { Navbar } from './components/ui/Navbar'
+import { SectionNavigator } from './components/ui/SectionNavigator'
 import { HeroSection } from './components/sections/HeroSection'
 import { KineticTextScrub } from './components/ui/KineticTextScrub'
 import { CircuitPipeline } from './components/ui/CircuitPipeline'
@@ -30,7 +30,10 @@ export function App() {
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       orientation: 'vertical',
       smoothWheel: true,
+      autoRaf: false,
     })
+
+    ;(window as unknown as { __lenis?: Lenis }).__lenis = lenis
 
     lenis.on('scroll', ScrollTrigger.update)
 
@@ -39,7 +42,7 @@ export function App() {
     }
 
     gsap.ticker.add(updateTicker)
-    gsap.ticker.lagSmoothing(500, 33)
+    gsap.ticker.lagSmoothing(0)
 
     const handleResize = () => {
       lenis.resize()
@@ -49,6 +52,7 @@ export function App() {
     window.addEventListener('resize', handleResize)
 
     return () => {
+      delete (window as unknown as { __lenis?: Lenis }).__lenis
       window.removeEventListener('resize', handleResize)
       gsap.ticker.remove(updateTicker)
       lenis.destroy()
@@ -121,7 +125,7 @@ export function App() {
       <HeroCanvas />
 
       {/* Foreground Content Layers */}
-      <Navbar />
+      <SectionNavigator />
       <main className="relative z-10">
         <HeroSection />
 
