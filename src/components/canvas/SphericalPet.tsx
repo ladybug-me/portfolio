@@ -57,11 +57,13 @@ export function SphericalPet() {
   const clickPulseTimer = useRef(0)
   const hopCooldown = useRef(0.8)
 
+  // Following state: DOES NOT follow on initial entry!
+  const isFollowing = useRef(false)
+  const lastEmptyClickTime = useRef(0)
+
   // Ecosystem life cycles
   const blinkTimer = useRef(2.5)
   const blinkState = useRef(1.0)
-  const idleWanderTimer = useRef(1.5)
-  const wanderTargetX = useRef(0)
 
   // Static platform data
   const platforms = useRef<[PlatformData, PlatformData]>([
@@ -89,28 +91,71 @@ export function SphericalPet() {
       const nx = (e.clientX / window.innerWidth) * 2 - 1
       const ny = -(e.clientY / window.innerHeight) * 2 + 1
 
-      // Update cursor position immediately
-      targetCursor.current.set(
-        nx * (viewport.width / 2) * 0.9,
-        ny * (viewport.height / 2) * 0.85,
-        0
-      )
-      clickPulseTimer.current = 0.6
+      // Project click coordinate to 3D world space
+      const clickWorldX = nx * (viewport.width / 2) * 0.9
+      const clickWorldY = ny * (viewport.height / 2) * 0.85
 
-      // Gentle inquisitive hop towards the clicked location without hijacking gaze
-      const dx = targetCursor.current.x - pos.current.x
-      vel.current.x = THREE.MathUtils.clamp(dx * 0.9, -1.2, 1.2)
-      vel.current.y = THREE.MathUtils.clamp(1.4 + Math.max(0, targetCursor.current.y - pos.current.y) * 0.6, 1.2, 2.4)
-      vel.current.z = THREE.MathUtils.clamp((0.2 - pos.current.z) * 0.8, -0.15, 0.3)
-      squash.current.set(0.88, 1.18, 0.88)
+      targetCursor.current.set(clickWorldX, clickWorldY, 0)
+
+      // Distance from click point to the pet in 3D world space
+      const distToPet = Math.hypot(clickWorldX - pos.current.x, clickWorldY - pos.current.y)
+
+      if (distToPet < 0.38) {
+        // 1. User clicked DIRECTLY ON THE PET -> Stop following the cursor!
+        isFollowing.current = false
+        vel.current.x = 0
+        // Settle down squish
+        squash.current.set(1.24, 0.76, 1.24)
+        clickPulseTimer.current = 0.8
+        lastEmptyClickTime.current = 0
+      } else {
+        // 2. Clicked on EMPTY SPACE -> Single click immediately triggers the jump!
+        const dx = clickWorldX - pos.current.x
+        vel.current.x = THREE.MathUtils.clamp(dx * 0.9, -1.2, 1.2)
+        vel.current.y = THREE.MathUtils.clamp(1.5 + Math.max(0, clickWorldY - pos.current.y) * 0.6, 1.3, 2.4)
+        vel.current.z = THREE.MathUtils.clamp((0.2 - pos.current.z) * 0.8, -0.15, 0.3)
+        squash.current.set(0.88, 1.18, 0.88)
+        clickPulseTimer.current = 0.6
+
+        // Check for double-click to also enable continuous following mode
+        const now = performance.now()
+        if (now - lastEmptyClickTime.current < 340) {
+          isFollowing.current = true
+          vel.current.y = 2.2
+          lastEmptyClickTime.current = 0
+        } else {
+          lastEmptyClickTime.current = now
+        }
+      }
+    }
+
+    const handleDblClick = (e: MouseEvent) => {
+      const targetTag = (e.target as HTMLElement)?.tagName?.toLowerCase()
+      if (targetTag === 'input' || targetTag === 'textarea') return
+
+      const nx = (e.clientX / window.innerWidth) * 2 - 1
+      const ny = -(e.clientY / window.innerHeight) * 2 + 1
+      const clickWorldX = nx * (viewport.width / 2) * 0.9
+      const clickWorldY = ny * (viewport.height / 2) * 0.85
+
+      const distToPet = Math.hypot(clickWorldX - pos.current.x, clickWorldY - pos.current.y)
+      if (distToPet >= 0.38) {
+        // Double-click on empty space: start following
+        isFollowing.current = true
+        vel.current.y = 2.1
+        squash.current.set(0.85, 1.25, 0.85)
+        clickPulseTimer.current = 1.0
+      }
     }
 
     window.addEventListener('pointermove', handlePointerMove)
     window.addEventListener('pointerdown', handlePointerDown)
+    window.addEventListener('dblclick', handleDblClick)
 
     return () => {
       window.removeEventListener('pointermove', handlePointerMove)
       window.removeEventListener('pointerdown', handlePointerDown)
+      window.removeEventListener('dblclick', handleDblClick)
     }
   }, [viewport.width, viewport.height])
 
@@ -140,16 +185,18 @@ export function SphericalPet() {
       clickPulseTimer.current -= dt
     }
 
-    // Gaze ALWAYS directly tracks the live cursor position with zero delay!
+    // Gaze ALWAYS directly tracks the live cursor position in 100% real-time!
     const activeFocus = targetCursor.current
 
-    // 3. Static Platform Spawning (Anchored to world coordinates when spawned, NEVER following cursor)
+    // 3. Static Platform Spawning (Only when following and target is elevated)
     platformCooldown.current -= dt
     const plats = platforms.current
-    const wantsElevatedLedge = activeFocus.y > floorY + 0.9 && pos.current.y < activeFocus.y - 0.4
+    const wantsElevatedLedge =
+      isFollowing.current &&
+      activeFocus.y > floorY + 0.9 &&
+      pos.current.y < activeFocus.y - 0.4
 
     if (wantsElevatedLedge && platformCooldown.current <= 0) {
-      // Find inactive platform to spawn at a FIXED static world position
       const freePlat = plats.find((p) => !p.active)
       if (freePlat) {
         const stepY = THREE.MathUtils.clamp(
@@ -258,27 +305,17 @@ export function SphericalPet() {
       pos.current.z = THREE.MathUtils.damp(pos.current.z, 0, 3.5, dt)
     }
 
-    // 5. Ecosystem Autonomous Locomotion
+    // 5. Following Locomotion: ONLY when isFollowing is active!
     const isOnSurface = Math.abs(pos.current.y - currentFloor) < 0.05
     hopCooldown.current -= dt
-    idleWanderTimer.current -= dt
 
-    if (isOnSurface && hopCooldown.current <= 0) {
-      let desiredX = pos.current.x
-      if (Math.abs(targetCursor.current.x - pos.current.x) > 0.45) {
-        desiredX = targetCursor.current.x
-      } else if (idleWanderTimer.current <= 0) {
-        wanderTargetX.current = (Math.random() - 0.5) * maxBoundX * 1.4
-        idleWanderTimer.current = 3.0 + Math.random() * 3.0
-        desiredX = wanderTargetX.current
-      }
-
-      const dx = desiredX - pos.current.x
-      if (Math.abs(dx) > 0.28) {
+    if (isOnSurface && hopCooldown.current <= 0 && isFollowing.current) {
+      const dx = targetCursor.current.x - pos.current.x
+      if (Math.abs(dx) > 0.34) {
         vel.current.y = 1.7 + Math.random() * 0.35
         vel.current.x = THREE.MathUtils.clamp(dx * 1.1, -1.5, 1.5)
         squash.current.set(0.9, 1.15, 0.9)
-        hopCooldown.current = 0.6 + Math.random() * 0.4
+        hopCooldown.current = 0.55 + Math.random() * 0.35
       }
     }
 
@@ -304,7 +341,7 @@ export function SphericalPet() {
         squash.current.z * breath
       )
 
-      // Direct, real-time horizontal Yaw & Pitch towards cursor with ZERO delay
+      // Direct, real-time horizontal Yaw & Pitch towards cursor (EYES AND HEAD KEEP FOLLOWING!)
       const dx = activeFocus.x - pos.current.x
       const dz = Math.max(0.35, activeFocus.z + 1.2 - pos.current.z)
       const targetYaw = Math.atan2(dx, dz)
@@ -345,7 +382,7 @@ export function SphericalPet() {
       innerCoreRef.current.scale.set(coreScale, coreScale, coreScale)
     }
 
-    // 10. Instantaneous Ocular Pupil Tracking - Locks directly onto cursor in real time
+    // 10. Instantaneous Ocular Pupil Tracking - Always tracks cursor
     const eyeWorld = new THREE.Vector3()
     if (bodyRef.current && leftPupilRef.current && rightPupilRef.current) {
       bodyRef.current.getWorldPosition(eyeWorld)
@@ -357,7 +394,7 @@ export function SphericalPet() {
       leftPupilRef.current.position.set(pupilX, pupilY, 0.028)
       rightPupilRef.current.position.set(pupilX, pupilY, 0.028)
 
-      // Pupil glow intensity (subtle pulse on click without freezing gaze)
+      // Pupil glow intensity
       const isPulsing = clickPulseTimer.current > 0
       const pulseEmissive = isPulsing ? 2.6 + Math.sin(time * 12) * 0.5 : 1.7
       ;(leftPupilRef.current.material as THREE.MeshStandardMaterial).emissiveIntensity = pulseEmissive
