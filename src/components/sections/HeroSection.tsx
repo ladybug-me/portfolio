@@ -1,10 +1,57 @@
+import { useRef } from 'react'
+import gsap from 'gsap'
+import { useGSAP } from '@gsap/react'
 import { MaskedText } from '../ui/MaskedText'
 import { ScrambleText } from '../ui/ScrambleText'
 
 export function HeroSection() {
+  const heroRef = useRef<HTMLDivElement>(null)
+
+  useGSAP(
+    () => {
+      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      if (prefersReducedMotion) return
+
+      // Gentle floating buoyancy for the tilted badge capsules
+      gsap.to('.tilted-badge-1', {
+        y: -8,
+        rotation: -4,
+        duration: 2.8,
+        repeat: -1,
+        yoyo: true,
+        ease: 'sine.inOut',
+      })
+
+      gsap.to('.tilted-badge-2', {
+        y: -10,
+        rotation: 6,
+        duration: 3.2,
+        repeat: -1,
+        yoyo: true,
+        ease: 'sine.inOut',
+        delay: 0.4,
+      })
+
+      gsap.to('.tilted-badge-3', {
+        y: -6,
+        rotation: -2,
+        duration: 2.5,
+        repeat: -1,
+        yoyo: true,
+        ease: 'sine.inOut',
+        delay: 0.8,
+      })
+    },
+    { scope: heroRef }
+  )
+
   return (
-    <section id="hero" className="relative min-h-[92vh] flex flex-col justify-center px-4 sm:px-8 pt-32 pb-20 overflow-hidden">
-      <div className="max-w-7xl mx-auto w-full">
+    <section
+      ref={heroRef}
+      id="hero"
+      className="relative min-h-[95vh] flex flex-col justify-center px-4 sm:px-8 pt-32 pb-20 overflow-hidden"
+    >
+      <div className="max-w-7xl mx-auto w-full relative">
         
         {/* Top Status Capsule */}
         <div className="hero-meta inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-mono text-xs mb-10 backdrop-blur-md">
@@ -12,8 +59,13 @@ export function HeroSection() {
           <ScrambleText text="VIT VELLORE '29 • CGPA 8.83 • SYSTEMS & RESEARCH" delay={150} />
         </div>
 
-        {/* Massive Editorial Headline */}
-        <div className="max-w-6xl mb-10">
+        {/* Massive Editorial Headline with Overlapping Tilted Badge Capsules */}
+        <div className="max-w-6xl mb-12 relative">
+          {/* Tilted Floating Badge 1 */}
+          <div className="tilted-badge-1 absolute -top-5 left-1/4 sm:left-1/3 z-20 hidden sm:inline-block px-4 py-1.5 rounded-full bg-slate-900/90 border border-cyan-400/40 text-cyan-300 font-mono text-xs font-semibold shadow-[0_4px_20px_rgba(0,242,254,0.2)] -rotate-6 backdrop-blur-md select-none">
+            ⚡ Independent Systems Eng
+          </div>
+
           <h1 className="text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-extrabold tracking-tighter text-white leading-[0.95] select-none">
             <span className="block mb-2">
               <MaskedText text="ENGINEERING" wordClassName="hero-word" />
@@ -22,6 +74,16 @@ export function HeroSection() {
               <MaskedText text="SYSTEMS & AI" wordClassName="hero-word" />
             </span>
           </h1>
+
+          {/* Tilted Floating Badge 2 */}
+          <div className="tilted-badge-2 absolute top-1/2 right-4 sm:right-16 z-20 hidden md:inline-block px-4 py-1.5 rounded-full bg-slate-900/90 border border-emerald-400/40 text-emerald-300 font-mono text-xs font-semibold shadow-[0_4px_20px_rgba(0,255,163,0.2)] rotate-4 backdrop-blur-md select-none">
+            ★ 9th ICRTAC'26 Author
+          </div>
+
+          {/* Tilted Floating Badge 3 */}
+          <div className="tilted-badge-3 absolute -bottom-4 left-1/3 sm:left-1/2 z-20 hidden sm:inline-block px-4 py-1.5 rounded-full bg-slate-900/90 border border-white/20 text-slate-200 font-mono text-xs font-semibold shadow-lg -rotate-3 backdrop-blur-md select-none">
+            ◈ Zero IPC Overhead
+          </div>
         </div>
 
         {/* Minimalist Narrative Statement */}

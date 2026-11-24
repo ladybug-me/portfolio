@@ -23,6 +23,9 @@ export function Navbar() {
             <a href="#skills" className="hover:text-cyan-400 transition-colors">
               // SYSTEM_STACK
             </a>
+            <a href="#faq" className="hover:text-cyan-400 transition-colors">
+              // FAQ
+            </a>
             <a href="#contact" className="hover:text-cyan-400 transition-colors">
               // CONTACT
             </a>

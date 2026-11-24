@@ -8,10 +8,13 @@ import { HeroCanvas } from './components/canvas/HeroCanvas'
 import { CustomCursor } from './components/ui/CustomCursor'
 import { Navbar } from './components/ui/Navbar'
 import { HeroSection } from './components/sections/HeroSection'
+import { CurvedRibbon } from './components/ui/CurvedRibbon'
 import { MarqueeTicker } from './components/ui/MarqueeTicker'
 import { KineticTextScrub } from './components/ui/KineticTextScrub'
+import { CircuitPipeline } from './components/ui/CircuitPipeline'
 import { ProjectsSection } from './components/sections/ProjectsSection'
 import { SkillsMatrix } from './components/sections/SkillsMatrix'
+import { InteractiveFaq } from './components/sections/InteractiveFaq'
 import { Footer } from './components/sections/Footer'
 
 gsap.registerPlugin(ScrollTrigger, useGSAP)
@@ -98,21 +101,7 @@ export function App() {
         ease: 'power4.out',
       })
 
-      // 3. Sequential Project Items Reveal with Staggered Elements
-      gsap.utils.toArray<HTMLElement>('.project-item').forEach((item) => {
-        gsap.from(item, {
-          scrollTrigger: {
-            trigger: item,
-            start: 'top 80%',
-          },
-          y: 60,
-          opacity: 0,
-          duration: 0.9,
-          ease: 'power3.out',
-        })
-      })
-
-      // 4. Skills Section Title Masked Reveal
+      // 3. Skills Section Title Masked Reveal
       gsap.from('.skills-title-word', {
         scrollTrigger: {
           trigger: '#skills h2',
@@ -126,7 +115,7 @@ export function App() {
         ease: 'power4.out',
       })
 
-      // 5. Technical Matrix Cards Reveal
+      // 4. Technical Matrix Cards Reveal
       gsap.from('.skill-card', {
         scrollTrigger: {
           trigger: '#skills',
@@ -137,6 +126,20 @@ export function App() {
         duration: 0.8,
         stagger: 0.15,
         ease: 'power3.out',
+      })
+
+      // 5. FAQ Title Masked Reveal
+      gsap.from('.faq-title-word', {
+        scrollTrigger: {
+          trigger: '#faq h2',
+          start: 'top 85%',
+        },
+        y: '125%',
+        rotateX: -40,
+        opacity: 0,
+        duration: 0.95,
+        stagger: 0.08,
+        ease: 'power4.out',
       })
     },
     { scope: containerRef }
@@ -158,17 +161,26 @@ export function App() {
       <main className="relative z-10">
         <HeroSection />
 
+        {/* Curved Ribbon Marquee Sweep */}
+        <CurvedRibbon />
+
         {/* Infinite Kinetic Ticker */}
         <MarqueeTicker />
 
         {/* Scroll-Linked Word Illumination Statement */}
         <KineticTextScrub text="ARCHITECTING LOW-OVERHEAD LINUX RUNTIMES, HIGH-THROUGHPUT C++ COMPOSITORS, AND ACCELERATED REAL-TIME EDGE INFERENCE." />
 
-        {/* Spacious Showcase Work */}
+        {/* Scroll-Drawn Circuit Pipeline */}
+        <CircuitPipeline />
+
+        {/* Sticky Deck Project Showcase */}
         <ProjectsSection />
 
         {/* Technical Capabilities Matrix */}
         <SkillsMatrix />
+
+        {/* Interactive Pill-Accordion Q&A */}
+        <InteractiveFaq />
       </main>
       <div className="relative z-10">
         <Footer />

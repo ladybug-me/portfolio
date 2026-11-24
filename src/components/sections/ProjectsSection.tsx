@@ -1,5 +1,11 @@
+import { useRef } from 'react'
+import gsap from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { useGSAP } from '@gsap/react'
 import { MaskedText } from '../ui/MaskedText'
 import { ScrambleText } from '../ui/ScrambleText'
+
+gsap.registerPlugin(ScrollTrigger)
 
 interface ShowcaseProject {
   id: string
@@ -52,10 +58,39 @@ const showcaseProjects: ShowcaseProject[] = [
 ]
 
 export function ProjectsSection() {
+  const containerRef = useRef<HTMLDivElement>(null)
+
+  useGSAP(
+    () => {
+      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      if (prefersReducedMotion) return
+
+      const cards = gsap.utils.toArray<HTMLElement>('.stacked-project-card')
+
+      // Animate card scale-down as subsequent cards stack over them
+      cards.forEach((card, index) => {
+        if (index === cards.length - 1) return // Last card doesn't scale down
+
+        gsap.to(card, {
+          scale: 0.94 - index * 0.02,
+          opacity: 0.6,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: cards[index + 1],
+            start: 'top 75%',
+            end: 'top 30%',
+            scrub: true,
+          },
+        })
+      })
+    },
+    { scope: containerRef }
+  )
+
   return (
-    <section id="projects" className="py-32 px-4 sm:px-8 max-w-7xl mx-auto">
+    <section ref={containerRef} id="projects" className="py-32 px-4 sm:px-8 max-w-7xl mx-auto">
       {/* Editorial Section Headline */}
-      <div className="mb-24">
+      <div className="mb-20">
         <div className="flex items-center gap-3 font-mono text-cyan-400 text-xs mb-4">
           <span className="w-12 h-[1px] bg-cyan-400" />
           <ScrambleText text="01 // AUTHORED SYSTEMS & RESEARCH" />
@@ -65,12 +100,13 @@ export function ProjectsSection() {
         </h2>
       </div>
 
-      {/* Spacious Sequential Project Horizons */}
-      <div className="space-y-24 sm:space-y-36">
-        {showcaseProjects.map((proj) => (
+      {/* Sticky Stacking Cards (Deck Presentation) */}
+      <div className="relative space-y-12 pb-24">
+        {showcaseProjects.map((proj, idx) => (
           <article
             key={proj.id}
-            className="project-item py-12 border-t border-white/10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start group"
+            style={{ top: `${110 + idx * 24}px` }}
+            className="stacked-project-card sticky glass-panel p-8 sm:p-12 rounded-3xl border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.6)] backdrop-blur-2xl will-change-transform grid grid-cols-1 lg:grid-cols-12 gap-8 items-start group"
           >
             {/* Left: Project Index & Big Stat Callout */}
             <div className="lg:col-span-4 flex flex-col justify-between">
@@ -78,7 +114,7 @@ export function ProjectsSection() {
                 {proj.number}
               </span>
 
-              <div className="glass-panel p-5 rounded-xl border border-white/5 w-fit">
+              <div className="p-4 rounded-xl bg-slate-900/80 border border-white/10 w-fit">
                 <span className="text-2xl sm:text-3xl font-bold font-mono text-white block mb-0.5">
                   {proj.stat}
                 </span>
@@ -124,7 +160,7 @@ export function ProjectsSection() {
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 text-xs font-mono text-cyan-400 hover:text-white transition-colors"
                   >
-                    <span>VIEW ON GITHUB</span>
+                    <span>VIEW REPOSITORY</span>
                     <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
                     </svg>
