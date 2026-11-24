@@ -3,7 +3,6 @@ import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useGSAP } from '@gsap/react'
 import { MaskedText } from '../ui/MaskedText'
-import { ScrambleText } from '../ui/ScrambleText'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -106,11 +105,6 @@ export function ProjectsSection() {
     <section ref={containerRef} id="projects" className="py-20 sm:py-28 lg:py-32 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
       {/* Editorial Section Headline */}
       <div className="mb-12 sm:mb-16 lg:mb-20">
-        <div className="flex items-center gap-3 font-mono text-cyan-400 text-xs mb-4">
-          <span className="w-12 h-[1px] bg-cyan-400" />
-          <ScrambleText text="01 • AUTHORED SYSTEMS & RESEARCH" />
-          <span className="w-12 h-[1px] bg-cyan-400" />
-        </div>
         <h2 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight text-white">
           <MaskedText text="SELECTED WORK" wordClassName="projects-title-word" />
         </h2>

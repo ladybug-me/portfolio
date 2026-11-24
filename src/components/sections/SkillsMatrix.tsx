@@ -1,14 +1,14 @@
 import { useRef } from 'react'
+import { Icon } from '@iconify/react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useGSAP } from '@gsap/react'
 import { MaskedText } from '../ui/MaskedText'
-import { ScrambleText } from '../ui/ScrambleText'
 
 gsap.registerPlugin(ScrollTrigger)
 
 interface SkillCategory {
-  number: string
+  icon: string
   title: string
   domain: string
   subtitle: string
@@ -18,44 +18,44 @@ interface SkillCategory {
 
 const categories: SkillCategory[] = [
   {
-    number: '01',
-    title: 'SYSTEMS & COMPOSITORS',
-    domain: 'NATIVE RUNTIMES',
-    subtitle: 'Native Wayland compositors, lock-free sockets, and strict memory layouts.',
-    stat: '<5ms IPC LATENCY',
-    skills: ['C++', 'C', 'QML', 'Wayland', 'D-Bus', 'POSIX Threads', 'Valgrind'],
+    icon: 'solar:widget-4-bold-duotone',
+    title: 'DESKTOP SHELL & PROTOCOLS',
+    domain: 'WAYLAND & QT',
+    subtitle: 'Custom Quickshell layer-shell surfaces, KDE Plasma 6 applets, and dynamic wallpaper plugin loaders.',
+    stat: 'CAELESTIA-KDE',
+    skills: ['C++', 'QML', 'Quickshell', 'Wayland', 'D-Bus', 'CMake'],
   },
   {
-    number: '02',
-    title: 'GPU KERNELS & PARALLELISM',
-    domain: 'HARDWARE COMPUTE',
-    subtitle: 'Custom CUDA kernels and TensorRT engines built to saturate device memory bandwidth.',
-    stat: 'BANDWIDTH BOUND',
-    skills: ['CUDA', 'TensorRT', 'cuBLAS', 'SIMD', 'PTX', 'Nsight Compute'],
+    icon: 'solar:cpu-bolt-bold-duotone',
+    title: 'EDGE INFERENCE & CUDA',
+    domain: 'GPU TOOLING',
+    subtitle: 'Model weight quantization, TensorRT engine exports, and pinned frame buffers on constrained ARM64 boards.',
+    stat: 'ARM64 & CUDA',
+    skills: ['YOLOv11-seg', 'Ultralytics', 'PyTorch', 'CUDA', 'Jetson Nano', 'Raspberry Pi'],
   },
   {
-    number: '03',
-    title: 'EDGE COMPUTER VISION',
-    domain: 'EMBEDDED INFERENCE',
-    subtitle: 'Real-time thermal defect segmentation holding frame rate on Jetson and Raspberry Pi.',
-    stat: "9th ICRTAC'26",
-    skills: ['YOLOv11-seg', 'Ultralytics', 'PyTorch', 'OpenCV', 'Jetson Nano', 'Raspberry Pi'],
+    icon: 'solar:database-bold-duotone',
+    title: 'SEMANTIC RETRIEVAL & LLMS',
+    domain: 'VECTOR & INTENT',
+    subtitle: 'Multi-turn outfit intent extraction, dense embedding pipelines, and sub-100ms FAISS index lookups.',
+    stat: '44,441 ITEMS',
+    skills: ['FAISS', 'SentenceTransformers', 'Ollama', 'SQLite', 'FastAPI', 'Uvicorn'],
   },
   {
-    number: '04',
-    title: 'VECTOR INDEXING & LOCAL LLMS',
-    domain: 'SEMANTIC RETRIEVAL',
-    subtitle: 'Sub-100ms vector lookups across 44,441 records with local model orchestration.',
-    stat: '44,441 VECTORS',
-    skills: ['FAISS', 'FastAPI', 'Ollama', 'SentenceTransformers', 'SQLite', 'asyncio'],
+    icon: 'solar:server-square-bold-duotone',
+    title: 'ASYNC APIS & DATA PIPELINES',
+    domain: 'SERVICES & STATE',
+    subtitle: 'Live AQI alert scoring, persistent AI memory graphs, and vectorized data pipelines served over async endpoints.',
+    stat: 'FASTAPI & FLASK',
+    skills: ['FastAPI', 'Flask', 'Uvicorn', 'Backboard', 'NumPy', 'Pandas', 'asyncio'],
   },
   {
-    number: '05',
-    title: 'LINUX TOOLING & DIAGNOSTICS',
-    domain: 'SYSTEM RELIABILITY',
-    subtitle: 'Kernel configuration, reproducible containers, and automated memory leak audits.',
-    stat: 'ZERO LEAK POLICY',
-    skills: ['Linux Kernel', 'CMake', 'Docker', 'Git', 'GDB', 'Valgrind', 'Bash'],
+    icon: 'solar:code-square-bold-duotone',
+    title: 'PACKAGING & LINUX AUTOMATION',
+    domain: 'DEVOPS & SHELL',
+    subtitle: 'Cross-distro Bash installers, Makefile targets, uv lockfiles, and containerized runtime builds.',
+    stat: 'MULTI-DISTRO',
+    skills: ['Linux', 'Bash', 'CMake', 'Makefile', 'Docker', 'uv', 'Git'],
   },
 ]
 
@@ -97,28 +97,28 @@ export function SkillsMatrix() {
       for (let i = 1; i < cards.length; i++) {
         gsap.set(cards[i], {
           xPercent: 115,
-          scale: 0.95,
+          scale: 1,
           opacity: 0,
           zIndex: 10 + i,
         })
       }
 
-      // Horizontal deck stacking timeline
+      // Horizontal deck stacking timeline (keep scale locked at 1 so typography never resizes)
       cards.forEach((card, i) => {
         if (i === 0) return
 
         const stepTime = (i - 1) * 1
 
-        // All preceding cards scale down slightly and shift left to form the stack
+        // Preceding cards shift left to form clean stacked edge tabs
         // Avoid CSS `filter` on backdrop-blur elements (prevents black compositor artifact)
         for (let prev = 0; prev < i; prev++) {
           const depth = i - prev
           tl.to(
             cards[prev],
             {
-              xPercent: -4 * depth,
-              scale: Math.max(0.86, 1 - depth * 0.035),
-              opacity: Math.max(0.45, 1 - depth * 0.16),
+              xPercent: -2.5 * depth,
+              scale: 1,
+              opacity: Math.max(0.18, 0.42 - (depth - 1) * 0.12),
               ease: 'power2.inOut',
               duration: 1,
             },
@@ -126,7 +126,7 @@ export function SkillsMatrix() {
           )
         }
 
-        // Current card enters from right, zoomed in at full focal scale
+        // Current card slides in from right at constant 1:1 typography scale
         tl.to(
           card,
           {
@@ -151,12 +151,6 @@ export function SkillsMatrix() {
     >
       {/* Editorial Header */}
       <div className="max-w-5xl mx-auto w-full mb-8">
-        <div className="flex items-center gap-3 font-mono text-cyan-400 text-sm sm:text-base mb-4">
-          <span className="w-12 h-[1px] bg-cyan-400" />
-          <ScrambleText text="02 • TOOLING MATRIX" />
-          <span className="w-12 h-[1px] bg-cyan-400" />
-        </div>
-
         <h2 className="text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tight text-white">
           <MaskedText text="SYSTEM TOOLING" wordClassName="skills-title-word" />
         </h2>
@@ -170,15 +164,15 @@ export function SkillsMatrix() {
         {categories.map((cat, idx) => (
           <article
             key={idx}
-            className="horizontal-stack-card absolute inset-0 w-full h-full rounded-2xl sm:rounded-3xl bg-[#07101d]/60 p-6 sm:p-10 lg:p-12 border border-white/15 shadow-[-25px_0_50px_rgba(0,0,0,0.75),inset_0_1px_1px_rgba(255,255,255,0.14)] backdrop-blur-3xl will-change-transform flex items-center overflow-hidden group hover:border-cyan-400/40 transition-colors duration-300"
+            className="horizontal-stack-card absolute inset-0 w-full h-full rounded-2xl sm:rounded-3xl bg-[#0d111a]/70 p-6 sm:p-10 lg:p-12 border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.6)] backdrop-blur-2xl will-change-transform flex items-center overflow-hidden group hover:border-cyan-400/40 transition-colors duration-300"
           >
             <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10 items-start lg:items-center">
-              {/* Left Column: Minimalist Index & Metric */}
-              <div className="lg:col-span-4 flex lg:flex-col items-baseline lg:items-start justify-between gap-2">
-                <span className="text-5xl sm:text-7xl lg:text-8xl font-black font-mono tracking-tighter text-cyan-400/25 group-hover:text-cyan-400/45 transition-colors duration-300 leading-none">
-                  {cat.number}
-                </span>
-                <span className="text-sm sm:text-base font-mono font-semibold uppercase tracking-widest text-cyan-300/90 lg:mt-4">
+              {/* Left Column: Centered Solar Icon & Metric */}
+              <div className="lg:col-span-4 flex lg:flex-col items-center justify-between lg:justify-center gap-4 text-center">
+                <div className="w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 rounded-2xl bg-cyan-500/[0.08] border border-cyan-400/25 flex items-center justify-center text-cyan-300 shadow-[0_0_28px_rgba(0,242,254,0.14)] group-hover:border-cyan-300/50 group-hover:text-cyan-200 transition-colors duration-300">
+                  <Icon icon={cat.icon} className="w-9 h-9 sm:w-11 sm:h-11 lg:w-12 lg:h-12" />
+                </div>
+                <span className="text-sm sm:text-base font-mono font-semibold uppercase tracking-widest text-cyan-300/90 lg:mt-2 text-center">
                   {cat.stat}
                 </span>
               </div>

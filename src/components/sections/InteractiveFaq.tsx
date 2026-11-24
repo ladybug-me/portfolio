@@ -3,7 +3,6 @@ import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useGSAP } from '@gsap/react'
 import { MaskedText } from '../ui/MaskedText'
-import { ScrambleText } from '../ui/ScrambleText'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -86,12 +85,6 @@ export function InteractiveFaq() {
         {/* Left Column: Heading, Progress Bar & Live Status */}
         <div className="lg:col-span-5 flex flex-col justify-between">
           <div>
-            <div className="flex items-center gap-3 font-mono text-cyan-400 text-xs mb-4">
-              <span className="w-12 h-[1px] bg-cyan-400" />
-              <ScrambleText text="03 • DIRECT INQUIRIES" />
-              <span className="w-12 h-[1px] bg-cyan-400" />
-            </div>
-
             <h2 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white mb-6 leading-tight">
               <MaskedText text="TECHNICAL BREAKDOWNS" wordClassName="faq-title-word" />
             </h2>
