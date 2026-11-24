@@ -32,11 +32,13 @@ export function SphericalPet() {
   const rightEyeGroupRef = useRef<THREE.Group>(null)
   const leftPupilRef = useRef<THREE.Mesh>(null)
   const rightPupilRef = useRef<THREE.Mesh>(null)
-  const shadowRef = useRef<THREE.Mesh>(null)
   const innerCoreRef = useRef<THREE.Mesh>(null)
   const primaryBandRef = useRef<THREE.Mesh>(null)
   const secondaryBandRef = useRef<THREE.Mesh>(null)
   const motesGroupRef = useRef<THREE.Group>(null)
+
+  // Real Three.js GPU shadow receiving floor plane reference
+  const floorReceiverRef = useRef<THREE.Mesh>(null)
 
   // Platform references (static world placement)
   const plat1GroupRef = useRef<THREE.Group>(null)
@@ -45,6 +47,10 @@ export function SphericalPet() {
   const plat2MatRef = useRef<THREE.MeshStandardMaterial>(null)
   const plat1RimRef = useRef<THREE.MeshBasicMaterial>(null)
   const plat2RimRef = useRef<THREE.MeshBasicMaterial>(null)
+  const plat1GlowMatRef = useRef<THREE.MeshBasicMaterial>(null)
+  const plat2GlowMatRef = useRef<THREE.MeshBasicMaterial>(null)
+  const plat1LightRef = useRef<THREE.PointLight>(null)
+  const plat2LightRef = useRef<THREE.PointLight>(null)
 
   // Physics state
   const pos = useRef(new THREE.Vector3(0, -1.6, 0))
@@ -159,7 +165,6 @@ export function SphericalPet() {
   }, [viewport.width, viewport.height])
 
   useFrame((state, delta) => {
-    // Lock delta to prevent jitter on high refresh rate or brief frame pauses
     const dt = Math.min(delta, 0.033)
     const time = state.clock.elapsedTime
     const petRadius = 0.18
@@ -238,8 +243,14 @@ export function SphericalPet() {
       plat1GroupRef.current.position.set(plats[0].x, plats[0].y, plats[0].z)
       plat1GroupRef.current.scale.set(Math.max(0.001, plats[0].scaleX), 1, 1)
       plat1GroupRef.current.visible = plats[0].opacity > 0.01
-      plat1MatRef.current.opacity = plats[0].opacity * 0.85
-      plat1RimRef.current.opacity = plats[0].opacity * 0.45
+      plat1MatRef.current.opacity = plats[0].opacity * 0.92
+      plat1RimRef.current.opacity = plats[0].opacity * 0.95
+      if (plat1GlowMatRef.current) {
+        plat1GlowMatRef.current.opacity = plats[0].opacity * (0.42 + Math.sin(time * 3.5) * 0.1)
+      }
+      if (plat1LightRef.current) {
+        plat1LightRef.current.intensity = plats[0].opacity * 2.2
+      }
     }
 
     // Update Platform 2 in scene
@@ -247,8 +258,14 @@ export function SphericalPet() {
       plat2GroupRef.current.position.set(plats[1].x, plats[1].y, plats[1].z)
       plat2GroupRef.current.scale.set(Math.max(0.001, plats[1].scaleX), 1, 1)
       plat2GroupRef.current.visible = plats[1].opacity > 0.01
-      plat2MatRef.current.opacity = plats[1].opacity * 0.85
-      plat2RimRef.current.opacity = plats[1].opacity * 0.45
+      plat2MatRef.current.opacity = plats[1].opacity * 0.92
+      plat2RimRef.current.opacity = plats[1].opacity * 0.95
+      if (plat2GlowMatRef.current) {
+        plat2GlowMatRef.current.opacity = plats[1].opacity * (0.42 + Math.cos(time * 3.5) * 0.1)
+      }
+      if (plat2LightRef.current) {
+        plat2LightRef.current.intensity = plats[1].opacity * 2.2
+      }
     }
 
     // 4. Gravity & Physics Integration
@@ -410,82 +427,107 @@ export function SphericalPet() {
       }
     }
 
-    // 12. Dynamic Contact Shadow on active surface
-    if (shadowRef.current) {
-      shadowRef.current.position.set(pos.current.x, currentFloor - petRadius + 0.012, pos.current.z)
-      const heightAbove = Math.max(0, pos.current.y - currentFloor)
-      const shadowScale = THREE.MathUtils.clamp(1.0 - heightAbove * 0.4, 0.25, 1.0)
-      shadowRef.current.scale.set(shadowScale, shadowScale, shadowScale)
+    // 12. GPU Shadow Receiving Floor Height Sync
+    if (floorReceiverRef.current) {
+      floorReceiverRef.current.position.y = floorY - petRadius
     }
   })
 
   return (
     <>
-      {/* Static Cybernetic Platform Strip 1 */}
+      {/* Static Cybernetic Platform Strip 1 (Glowing with Additive Bloom Corona) */}
       <group ref={plat1GroupRef} visible={false}>
-        <mesh>
-          <boxGeometry args={[0.75, 0.03, 0.24]} />
+        <mesh receiveShadow castShadow>
+          <boxGeometry args={[0.75, 0.04, 0.32]} />
           <meshStandardMaterial
             ref={plat1MatRef}
-            color="#00f2fe"
+            color="#003844"
             emissive="#00f2fe"
-            emissiveIntensity={1.5}
+            emissiveIntensity={0.8}
+            roughness={0.2}
+            metalness={0.6}
             transparent
             opacity={0}
-            roughness={0.15}
-            metalness={0.7}
           />
         </mesh>
-        <mesh scale={[1.04, 1.35, 1.08]}>
-          <boxGeometry args={[0.75, 0.03, 0.24]} />
+        <mesh scale={[1.025, 1.08, 1.05]}>
+          <boxGeometry args={[0.75, 0.04, 0.32]} />
           <meshBasicMaterial
             ref={plat1RimRef}
-            color="#00ffa3"
-            wireframe
-            transparent
-            opacity={0}
-          />
-        </mesh>
-      </group>
-
-      {/* Static Cybernetic Platform Strip 2 */}
-      <group ref={plat2GroupRef} visible={false}>
-        <mesh>
-          <boxGeometry args={[0.7, 0.03, 0.24]} />
-          <meshStandardMaterial
-            ref={plat2MatRef}
-            color="#00ffa3"
-            emissive="#00ffa3"
-            emissiveIntensity={1.4}
-            transparent
-            opacity={0}
-            roughness={0.15}
-            metalness={0.7}
-          />
-        </mesh>
-        <mesh scale={[1.04, 1.35, 1.08]}>
-          <boxGeometry args={[0.7, 0.03, 0.24]} />
-          <meshBasicMaterial
-            ref={plat2RimRef}
             color="#00f2fe"
             wireframe
             transparent
             opacity={0}
           />
         </mesh>
+        <mesh scale={[1.16, 2.2, 1.28]}>
+          <boxGeometry args={[0.75, 0.04, 0.32]} />
+          <meshBasicMaterial
+            ref={plat1GlowMatRef}
+            color="#00f2fe"
+            transparent
+            opacity={0}
+            blending={THREE.AdditiveBlending}
+            depthWrite={false}
+          />
+        </mesh>
+        <pointLight ref={plat1LightRef} color="#00f2fe" intensity={0} distance={1.8} decay={2} />
       </group>
 
-      {/* Dynamic Contact Shadow Plane */}
-      <mesh ref={shadowRef} rotation={[-Math.PI / 2, 0, 0]}>
-        <circleGeometry args={[0.2, 24]} />
-        <meshBasicMaterial color="#000000" transparent opacity={0.5} depthWrite={false} />
+      {/* Static Cybernetic Platform Strip 2 (Glowing with Additive Bloom Corona) */}
+      <group ref={plat2GroupRef} visible={false}>
+        <mesh receiveShadow castShadow>
+          <boxGeometry args={[0.7, 0.04, 0.32]} />
+          <meshStandardMaterial
+            ref={plat2MatRef}
+            color="#003844"
+            emissive="#00ffa3"
+            emissiveIntensity={0.8}
+            roughness={0.2}
+            metalness={0.6}
+            transparent
+            opacity={0}
+          />
+        </mesh>
+        <mesh scale={[1.025, 1.08, 1.05]}>
+          <boxGeometry args={[0.7, 0.04, 0.32]} />
+          <meshBasicMaterial
+            ref={plat2RimRef}
+            color="#00ffa3"
+            wireframe
+            transparent
+            opacity={0}
+          />
+        </mesh>
+        <mesh scale={[1.16, 2.2, 1.28]}>
+          <boxGeometry args={[0.7, 0.04, 0.32]} />
+          <meshBasicMaterial
+            ref={plat2GlowMatRef}
+            color="#00ffa3"
+            transparent
+            opacity={0}
+            blending={THREE.AdditiveBlending}
+            depthWrite={false}
+          />
+        </mesh>
+        <pointLight ref={plat2LightRef} color="#00ffa3" intensity={0} distance={1.8} decay={2} />
+      </group>
+
+      {/* Physically-based Three.js Shadow Receiving Floor Plane */}
+      <mesh
+        ref={floorReceiverRef}
+        rotation={[-Math.PI / 2, 0, 0]}
+        receiveShadow
+      >
+        <planeGeometry args={[25, 12]} />
+        <shadowMaterial transparent opacity={0.65} />
       </mesh>
 
       {/* Main Pet Hierarchical Group (Radius: 0.18) */}
       <group ref={petRootRef} position={[0, -1.6, 0]}>
         <group ref={bodyRef}>
           {/* Inner Glowing Bio-Energy Core with Horizontal Rotation */}
-          <mesh ref={innerCoreRef}>
+          <mesh ref={innerCoreRef} castShadow>
             <sphereGeometry args={[0.12, 20, 20]} />
             <meshStandardMaterial
               color="#00ffa3"
@@ -510,7 +552,7 @@ export function SphericalPet() {
           </mesh>
 
           {/* Glowing Equatorial Energy Band with Horizontal Spin */}
-          <mesh ref={primaryBandRef} rotation={[Math.PI / 2, 0, 0]}>
+          <mesh ref={primaryBandRef} rotation={[Math.PI / 2, 0, 0]} castShadow>
             <torusGeometry args={[0.182, 0.008, 12, 36]} />
             <meshStandardMaterial
               color="#00f2fe"
