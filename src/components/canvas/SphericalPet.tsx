@@ -121,32 +121,37 @@ export function SphericalPet() {
 
       targetCursor.current.set(clickWorldX, clickWorldY, 0)
       const distToPet = Math.hypot(clickWorldX - pos.current.x, clickWorldY - pos.current.y)
+      const now = performance.now()
+      const isSecondClickOfDbl = now - lastEmptyClickTime.current < 420 && lastEmptyClickTime.current > 0
 
-      if (distToPet < 0.38) {
-        // Click directly on pet: stop following
+      if (isSecondClickOfDbl) {
+        // Guaranteed double-click on empty space: ENABLE automatic following
+        isFollowing.current = true
+        lastEmptyClickTime.current = 0
+        hopCooldown.current = 0
+        vel.current.y = 3.3
+        squash.current.set(0.85, 1.25, 0.85)
+        clickPulseTimer.current = 1.0
+        return
+      }
+
+      if (distToPet < 0.32) {
+        // Click directly on pet: STOP following
         isFollowing.current = false
-        vel.current.x = 0
+        vel.current.set(0, 0, 0)
         squash.current.set(1.24, 0.76, 1.24)
         clickPulseTimer.current = 0.8
         lastEmptyClickTime.current = 0
       } else {
-        // Click on empty space: single click jump
+        // Single click on empty space: consistent natural jump towards click X (decoupled from mouse Y height)
+        lastEmptyClickTime.current = now
         const dx = clickWorldX - pos.current.x
-        vel.current.x = THREE.MathUtils.clamp(dx * 0.9, -1.2, 1.2)
-        vel.current.y = THREE.MathUtils.clamp(1.5 + Math.max(0, clickWorldY - pos.current.y) * 0.6, 1.3, 2.4)
+
+        vel.current.y = 3.3
+        vel.current.x = THREE.MathUtils.clamp(dx * 1.15, -2.0, 2.0)
         vel.current.z = THREE.MathUtils.clamp((0.2 - pos.current.z) * 0.8, -0.15, 0.3)
         squash.current.set(0.88, 1.18, 0.88)
         clickPulseTimer.current = 0.6
-
-        // Double-click on empty space: enable following
-        const now = performance.now()
-        if (now - lastEmptyClickTime.current < 340) {
-          isFollowing.current = true
-          vel.current.y = 2.2
-          lastEmptyClickTime.current = 0
-        } else {
-          lastEmptyClickTime.current = now
-        }
       }
     }
 
@@ -154,18 +159,9 @@ export function SphericalPet() {
       const targetTag = (e.target as HTMLElement)?.tagName?.toLowerCase()
       if (targetTag === 'input' || targetTag === 'textarea') return
 
-      const nx = (e.clientX / window.innerWidth) * 2 - 1
-      const ny = -(e.clientY / window.innerHeight) * 2 + 1
-      const clickWorldX = nx * (viewport.width / 2) * 0.9
-      const clickWorldY = ny * (viewport.height / 2) * 0.85
-
-      const distToPet = Math.hypot(clickWorldX - pos.current.x, clickWorldY - pos.current.y)
-      if (distToPet >= 0.38) {
-        isFollowing.current = true
-        vel.current.y = 2.2
-        squash.current.set(0.85, 1.25, 0.85)
-        clickPulseTimer.current = 1.0
-      }
+      isFollowing.current = true
+      hopCooldown.current = 0
+      clickPulseTimer.current = 1.0
     }
 
     window.addEventListener('pointermove', handlePointerMove, { passive: true })
@@ -350,17 +346,17 @@ export function SphericalPet() {
       }
     }
 
-    // 4. Gravity & Physics Integration
-    const gravity = 8.5
+    // 4. Gravity & Physics Integration: Pure Gravitational Acceleration (g = 9.8 m/s²)
+    const gravity = 9.8
     vel.current.y -= gravity * dt
+
+    // Lateral ground/air damping only (zero vertical drag to preserve true quadratic acceleration)
+    vel.current.x *= Math.pow(0.86, dt * 60)
+    vel.current.z *= Math.pow(0.82, dt * 60)
 
     pos.current.x += vel.current.x * dt
     pos.current.y += vel.current.y * dt
     pos.current.z += vel.current.z * dt
-
-    // Air resistance & lateral damping
-    vel.current.x *= Math.pow(0.85, dt * 60)
-    vel.current.z *= Math.pow(0.82, dt * 60)
 
     // Check collision with static platform ledges
     let currentFloor = floorY
@@ -381,13 +377,29 @@ export function SphericalPet() {
       }
     }
 
-    // Ground / Platform restitution bounce
+    // Ground / Platform velocity-dependent restitution bounce
     if (pos.current.y <= currentFloor) {
       pos.current.y = currentFloor
 
-      if (Math.abs(vel.current.y) > 0.3) {
-        vel.current.y = -vel.current.y * 0.58
-        squash.current.set(1.2, 0.8, 1.2)
+      const impactSpeed = Math.abs(vel.current.y)
+      if (impactSpeed > 0.30) {
+        // High-energy elastic bounce:
+        // Falling from top (impactSpeed ~8-10 m/s) rebounds ~1.9m - 2.4m high across a dramatic multi-bounce cascade.
+        // Gentle hopping at bottom (impactSpeed ~1.5-2.5 m/s) rebounds only ~0.15m and settles rapidly.
+        const cor = THREE.MathUtils.clamp(0.80 - impactSpeed * 0.009, 0.68, 0.82)
+        vel.current.y = impactSpeed * cor
+
+        // Dramatic elastic squash deformation proportional to impact velocity
+        const deformation = THREE.MathUtils.clamp(impactSpeed * 0.058, 0.05, 0.46)
+        const squashY = 1.0 - deformation
+        const squashXZ = Math.sqrt(1.0 / Math.max(0.1, squashY))
+        squash.current.set(squashXZ, squashY, squashXZ)
+        squashVel.current.set(0, deformation * 42.0, 0)
+
+        // Protect high-drop bounce sequence: lock locomotion hop until high cascade settles
+        if (impactSpeed > 4.5) {
+          hopCooldown.current = Math.max(hopCooldown.current, 0.70)
+        }
       } else {
         vel.current.y = 0
       }
@@ -403,25 +415,35 @@ export function SphericalPet() {
     }
 
     // 5. Following Locomotion: ONLY when isFollowing is active
-    const isOnSurface = Math.abs(pos.current.y - currentFloor) < 0.05
+    const isOnSurface = pos.current.y <= currentFloor + 0.05
     hopCooldown.current -= dt
 
     if (isOnSurface && hopCooldown.current <= 0 && isFollowing.current) {
       const dx = targetCursor.current.x - pos.current.x
-      if (Math.abs(dx) > 0.34) {
-        vel.current.y = 1.7 + Math.random() * 0.35
-        vel.current.x = THREE.MathUtils.clamp(dx * 1.1, -1.5, 1.5)
-        squash.current.set(0.9, 1.15, 0.9)
-        hopCooldown.current = 0.55 + Math.random() * 0.35
+      if (Math.abs(dx) > 0.22) {
+        // Physical hop kinematic impulse for g = 9.8 (brisk natural following hops)
+        const hopHeight = 0.20 + Math.random() * 0.08
+        vel.current.y = Math.sqrt(2 * 9.8 * hopHeight)
+        vel.current.x = THREE.MathUtils.clamp(dx * 1.35, -2.4, 2.4)
+        const hopStretch = THREE.MathUtils.clamp(vel.current.y * 0.045, 0.08, 0.20)
+        squash.current.set(1.0 - hopStretch * 0.5, 1.0 + hopStretch, 1.0 - hopStretch * 0.5)
+        hopCooldown.current = 0.32 + Math.random() * 0.15
       }
     }
 
-    // 6. Harmonic squash-and-stretch spring recovery
+    // 6. Harmonic squash-and-stretch spring recovery + mid-air dynamic flight elongation
+    const isMidAir = Math.abs(pos.current.y - currentFloor) > 0.06
+    // Elongate along vertical movement axis in direct proportion to falling speed/acceleration
+    const verticalSpeed = Math.abs(vel.current.y)
+    const flightStretch = isMidAir ? THREE.MathUtils.clamp(verticalSpeed * 0.045, 0, 0.42) : 0
+    const targetSquashY = 1.0 + flightStretch
+    const targetSquashXZ = Math.sqrt(1.0 / Math.max(0.1, targetSquashY))
+
     const k = 150
-    const damp = 13
-    squashVel.current.x += ((1 - squash.current.x) * k - squashVel.current.x * damp) * dt
-    squashVel.current.y += ((1 - squash.current.y) * k - squashVel.current.y * damp) * dt
-    squashVel.current.z += ((1 - squash.current.z) * k - squashVel.current.z * damp) * dt
+    const damp = 12
+    squashVel.current.x += ((targetSquashXZ - squash.current.x) * k - squashVel.current.x * damp) * dt
+    squashVel.current.y += ((targetSquashY - squash.current.y) * k - squashVel.current.y * damp) * dt
+    squashVel.current.z += ((targetSquashXZ - squash.current.z) * k - squashVel.current.z * damp) * dt
     squash.current.addScaledVector(squashVel.current, dt)
 
     // 7. Organic breathing idle pulse
@@ -438,11 +460,13 @@ export function SphericalPet() {
         squash.current.z * breath
       )
 
-      // Horizontal Yaw & Pitch towards cursor with high responsiveness
+      // Horizontal Yaw & Pitch towards cursor with aerodynamic velocity tilt
       const dx = activeFocus.x - pos.current.x
       const dz = Math.max(0.35, activeFocus.z + 1.2 - pos.current.z)
       const targetYaw = Math.atan2(dx, dz)
-      const targetPitch = -Math.atan2(activeFocus.y - pos.current.y, dz) * 0.45
+      const targetPitch =
+        -Math.atan2(activeFocus.y - pos.current.y, dz) * 0.45 -
+        THREE.MathUtils.clamp(vel.current.y * 0.035, -0.32, 0.22)
       const targetRoll = -vel.current.x * 0.16
 
       bodyRef.current.rotation.y = THREE.MathUtils.damp(
@@ -495,8 +519,10 @@ export function SphericalPet() {
       ;(rightPupilRef.current.material as THREE.MeshStandardMaterial).emissiveIntensity = pulseEmissive
     }
 
-    // 11. Micro-Ecosystem: Orbiting bio-digital energy motes
+    // 11. Micro-Ecosystem: Orbiting bio-digital energy motes with acceleration trail lag
     if (motesGroupRef.current) {
+      motesGroupRef.current.position.y = THREE.MathUtils.clamp(-vel.current.y * 0.024, -0.22, 0.22)
+      motesGroupRef.current.position.x = THREE.MathUtils.clamp(-vel.current.x * 0.020, -0.15, 0.15)
       const motes = motesGroupRef.current.children
       for (let i = 0; i < motes.length; i++) {
         const mote = MOTE_OFFSETS[i]
