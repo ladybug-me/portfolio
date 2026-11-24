@@ -56,7 +56,7 @@ export function InteractiveFaq() {
       if (prefersReducedMotion || !sectionRef.current) return
 
       const totalItems = faqs.length
-      const getScrollDistance = () => totalItems * Math.min(window.innerHeight * 0.55, 450)
+      const getScrollDistance = () => totalItems * Math.min(window.innerHeight * 0.6, 500)
 
       ScrollTrigger.create({
         trigger: sectionRef.current,
@@ -80,10 +80,9 @@ export function InteractiveFaq() {
     <section
       ref={sectionRef}
       id="faq"
-      className="relative min-h-screen py-24 px-4 sm:px-8 max-w-7xl mx-auto border-t border-white/5 flex flex-col justify-center overflow-hidden"
+      className="relative min-h-screen py-16 sm:py-20 px-4 sm:px-8 max-w-7xl mx-auto border-t border-white/5 flex flex-col justify-center overflow-hidden"
     >
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center w-full">
-        
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center w-full">
         {/* Left Column: Heading, Progress Bar & Live Status */}
         <div className="lg:col-span-5 flex flex-col justify-between">
           <div>
@@ -92,7 +91,7 @@ export function InteractiveFaq() {
               <ScrambleText text="03 // DIRECT INQUIRIES" />
             </div>
 
-            <h2 className="text-4xl sm:text-6xl font-extrabold tracking-tight text-white mb-6 leading-tight">
+            <h2 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white mb-6 leading-tight">
               <MaskedText text="TECHNICAL BREAKDOWNS" wordClassName="faq-title-word" />
             </h2>
 
@@ -106,7 +105,7 @@ export function InteractiveFaq() {
             <div className="flex items-center justify-between text-cyan-300 mb-2">
               <span className="flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
-                <span>SCROLLING THROUGH FAQS</span>
+                <span>ACCUMULATED FAQS</span>
               </span>
               <span className="font-bold text-white">
                 0{activeIdx + 1} / 0{faqs.length}
@@ -117,40 +116,51 @@ export function InteractiveFaq() {
             <div className="w-full h-1.5 rounded-full bg-white/10 overflow-hidden mt-3">
               <div
                 className="h-full bg-gradient-to-r from-cyan-400 to-emerald-400 transition-all duration-150 ease-out"
-                style={{ width: `${Math.max(10, scrollProgress * 100)}%` }}
+                style={{ width: `${Math.max(12, scrollProgress * 100)}%` }}
               />
+            </div>
+
+            <div className="flex items-center justify-between text-[10px] text-slate-400 mt-3 pt-2 border-t border-white/5">
+              <span>VIEWED RESPONSES STACKED</span>
+              <span className="text-cyan-400">{activeIdx + 1} OPEN</span>
             </div>
           </div>
         </div>
 
-        {/* Right Column: Scroll-Scrubbed FAQ Deck */}
-        <div className="lg:col-span-7 space-y-4 w-full">
+        {/* Right Column: Scroll-Scrubbed FAQ Stack Deck */}
+        <div className="lg:col-span-7 space-y-3.5 w-full">
           {faqs.map((faq, idx) => {
-            const isActive = activeIdx === idx
+            const isReached = idx <= activeIdx
+            const isCurrent = idx === activeIdx
+
             return (
               <div
                 key={idx}
                 className={`rounded-2xl transition-all duration-500 border ${
-                  isActive
-                    ? 'glass-panel border-cyan-400/50 bg-slate-900/95 shadow-[0_12px_40px_rgba(0,242,254,0.18)] translate-x-1 sm:translate-x-3 scale-[1.01]'
-                    : 'bg-white/[0.02] border-white/5 opacity-50'
+                  isCurrent
+                    ? 'glass-panel border-cyan-400/60 bg-slate-900/95 shadow-[0_12px_40px_rgba(0,242,254,0.18)] translate-x-1 sm:translate-x-2 scale-[1.01]'
+                    : isReached
+                      ? 'glass-panel border-cyan-500/25 bg-slate-900/80 shadow-[0_4px_20px_rgba(0,0,0,0.4)] opacity-90'
+                      : 'bg-white/[0.02] border-white/5 opacity-35 scale-[0.99]'
                 }`}
               >
                 {/* Question Row */}
-                <div className="p-6 text-left flex items-center justify-between gap-4">
+                <div className="p-4 sm:p-5 text-left flex items-center justify-between gap-4">
                   <div className="flex items-center gap-3">
                     <span
-                      className={`px-2.5 py-0.5 rounded text-[10px] font-mono border transition-colors ${
-                        isActive
+                      className={`px-2 py-0.5 rounded text-[10px] font-mono border transition-colors ${
+                        isCurrent
                           ? 'bg-cyan-500/20 text-cyan-300 border-cyan-400/40'
-                          : 'bg-white/5 text-slate-400 border-white/5'
+                          : isReached
+                            ? 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20'
+                            : 'bg-white/5 text-slate-400 border-white/5'
                       }`}
                     >
                       {faq.tag}
                     </span>
                     <span
-                      className={`text-base sm:text-lg font-semibold transition-colors ${
-                        isActive ? 'text-white' : 'text-slate-400'
+                      className={`text-sm sm:text-base font-semibold transition-colors ${
+                        isReached ? 'text-white' : 'text-slate-400'
                       }`}
                     >
                       {faq.question}
@@ -159,20 +169,30 @@ export function InteractiveFaq() {
 
                   <span
                     className={`w-7 h-7 rounded-full flex items-center justify-center font-mono text-xs border transition-all duration-300 shrink-0 ${
-                      isActive
-                        ? 'border-cyan-400 text-cyan-300 bg-cyan-950/80 scale-110'
-                        : 'border-white/10 text-slate-600'
+                      isCurrent
+                        ? 'border-cyan-400 text-cyan-300 bg-cyan-950/80 scale-110 shadow-[0_0_12px_rgba(0,242,254,0.4)]'
+                        : isReached
+                          ? 'border-cyan-500/40 text-cyan-400 bg-cyan-950/40'
+                          : 'border-white/10 text-slate-600'
                     }`}
                   >
                     {faq.number}
                   </span>
                 </div>
 
-                {/* Automatically revealed answer when active */}
-                {isActive && (
-                  <div className="px-6 pb-6 pt-1 text-sm text-slate-300 font-light leading-relaxed border-t border-cyan-500/10">
-                    <div className="p-4 rounded-xl bg-cyan-950/30 border border-cyan-500/20 font-mono text-xs sm:text-sm text-cyan-100 shadow-inner">
-                      <span className="text-cyan-400 font-bold block mb-1.5">// TECHNICAL RESPONSE:</span>
+                {/* Revealed answer stays open for all previously viewed FAQs */}
+                {isReached && (
+                  <div className="px-4 sm:px-5 pb-4 sm:pb-5 pt-0 text-xs sm:text-sm text-slate-300 font-light leading-relaxed border-t border-cyan-500/10">
+                    <div
+                      className={`p-3.5 rounded-xl font-mono text-xs sm:text-sm transition-colors ${
+                        isCurrent
+                          ? 'bg-cyan-950/40 border border-cyan-500/30 text-cyan-100 shadow-inner'
+                          : 'bg-slate-950/50 border border-white/5 text-slate-300'
+                      }`}
+                    >
+                      <span className="text-cyan-400 font-bold block mb-1">
+                        // TECHNICAL RESPONSE:
+                      </span>
                       {faq.answer}
                     </div>
                   </div>
@@ -181,7 +201,6 @@ export function InteractiveFaq() {
             )
           })}
         </div>
-
       </div>
     </section>
   )

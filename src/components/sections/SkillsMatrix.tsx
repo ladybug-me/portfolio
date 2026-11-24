@@ -154,10 +154,10 @@ export function SkillsMatrix() {
           tl.to(
             cards[prev],
             {
-              xPercent: -3.5 * depth,
-              scale: Math.max(0.85, 1 - depth * 0.04),
-              opacity: Math.max(0.25, 1 - depth * 0.22),
-              filter: `brightness(${Math.max(0.45, 1 - depth * 0.2)})`,
+              xPercent: -4 * depth,
+              scale: Math.max(0.86, 1 - depth * 0.035),
+              opacity: Math.max(0.48, 1 - depth * 0.12),
+              filter: `brightness(${Math.max(0.65, 1 - depth * 0.1)})`,
               ease: 'power2.inOut',
               duration: 1,
             },
