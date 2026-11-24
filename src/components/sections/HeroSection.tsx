@@ -1,14 +1,12 @@
-import { HeroCanvas } from '../canvas/HeroCanvas'
-
 export function HeroSection() {
   return (
-    <section id="hero" className="relative min-h-screen flex flex-col justify-center px-4 sm:px-8 pt-24 pb-12 overflow-hidden">
-      <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+    <section id="hero" className="relative min-h-screen flex flex-col justify-center px-4 sm:px-8 pt-28 pb-16 overflow-hidden">
+      <div className="max-w-7xl mx-auto w-full">
         
-        {/* Left Column: Semantic narrative & identity */}
-        <div className="lg:col-span-7 z-10 flex flex-col items-start">
+        {/* Semantic narrative & identity */}
+        <div className="max-w-3xl flex flex-col items-start z-10">
           {/* Status Badge */}
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-mono text-xs mb-6">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-mono text-xs mb-6 backdrop-blur-md">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
             <span>VIT VELLORE '29 • CGPA: 8.83 • OPEN FOR RESEARCH</span>
           </div>
@@ -22,21 +20,21 @@ export function HeroSection() {
           </h1>
 
           {/* Secondary Subtitle */}
-          <p className="text-base sm:text-lg text-slate-300 max-w-xl mb-8 leading-relaxed font-normal">
+          <p className="text-base sm:text-lg text-slate-300 max-w-2xl mb-8 leading-relaxed font-normal">
             Hi, I'm <strong className="text-white font-semibold">Rajveer Singh</strong>. I architect edge computing architectures, high-throughput C++/CUDA pipelines, and fluid Linux desktop environments.
           </p>
 
           {/* Technical metric pills */}
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 w-full max-w-lg mb-8 font-mono">
-            <div className="glass-panel p-3 rounded-lg border border-white/5">
+            <div className="glass-panel p-3.5 rounded-lg border border-white/5">
               <span className="text-cyan-400 text-xs block mb-1">CONFERENCE</span>
               <span className="text-white font-medium text-xs">9th ICRTAC'26</span>
             </div>
-            <div className="glass-panel p-3 rounded-lg border border-white/5">
+            <div className="glass-panel p-3.5 rounded-lg border border-white/5">
               <span className="text-cyan-400 text-xs block mb-1">LINUX SHELL</span>
               <span className="text-white font-medium text-xs">Caelestia KDE</span>
             </div>
-            <div className="glass-panel p-3 rounded-lg border border-white/5 col-span-2 sm:col-span-1">
+            <div className="glass-panel p-3.5 rounded-lg border border-white/5 col-span-2 sm:col-span-1">
               <span className="text-cyan-400 text-xs block mb-1">RETRIEVAL</span>
               <span className="text-white font-medium text-xs">44K+ FAISS</span>
             </div>
@@ -60,11 +58,6 @@ export function HeroSection() {
               // Get In Touch
             </a>
           </div>
-        </div>
-
-        {/* Right Column: Interactive 3D Canvas */}
-        <div className="lg:col-span-5 flex items-center justify-center relative">
-          <HeroCanvas />
         </div>
 
       </div>

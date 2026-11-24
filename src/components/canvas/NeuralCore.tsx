@@ -11,7 +11,6 @@ const vertexShader = `
   varying vec3 vPosition;
   varying float vDisplacement;
 
-  // Compact pseudo-simplex 3D noise
   vec4 permute(vec4 x) { return mod(((x*34.0)+1.0)*x, 289.0); }
   vec4 taylorInvSqrt(vec4 r) { return 1.79284291400159 - 0.85373472095314 * r; }
 
@@ -60,16 +59,14 @@ const vertexShader = `
     vUv = uv;
     vNormal = normalize(normalMatrix * normal);
     
-    // Calculate undulating cybernetic displacement
-    float noiseFreq = 1.4;
-    float noiseSpeed = 0.45;
+    float noiseFreq = 1.2;
+    float noiseSpeed = 0.35;
     float noiseVal = snoise(normal * noiseFreq + vec3(uTime * noiseSpeed));
     
-    // Interactive mouse pull
     float distToPointer = length(uv - (uPointer * 0.5 + 0.5));
-    float pointerInfluence = smoothstep(0.7, 0.0, distToPointer) * 0.15;
+    float pointerInfluence = smoothstep(0.8, 0.0, distToPointer) * 0.18;
     
-    float totalDisplacement = (noiseVal * 0.22) + pointerInfluence;
+    float totalDisplacement = (noiseVal * 0.28) + pointerInfluence;
     vDisplacement = totalDisplacement;
     
     vec3 newPosition = position + normal * totalDisplacement;
@@ -87,29 +84,25 @@ const fragmentShader = `
   varying float vDisplacement;
 
   void main() {
-    // Camera view direction
     vec3 viewDir = normalize(-vPosition);
+    float fresnel = pow(1.0 - max(dot(viewDir, vNormal), 0.0), 3.2);
     
-    // Fresnel edge glow
-    float fresnel = pow(1.0 - max(dot(viewDir, vNormal), 0.0), 3.0);
-    
-    // Cybernetic color gradient: deep navy (#0a101d) -> electric cyan (#00f2fe) -> neon jade (#00ffa3)
-    vec3 colorBase = vec3(0.04, 0.07, 0.12);
+    // Deep cosmic core with electric cyan & neon jade highlights
+    vec3 colorBase = vec3(0.02, 0.04, 0.07);
     vec3 colorCyan = vec3(0.0, 0.95, 0.99);
     vec3 colorJade = vec3(0.0, 1.0, 0.64);
     
-    // Mix colors according to displacement and fresnel
-    float blendFactor = smoothstep(-0.2, 0.3, vDisplacement);
-    vec3 coreColor = mix(colorBase, colorCyan, blendFactor * 0.6);
+    float blendFactor = smoothstep(-0.25, 0.35, vDisplacement);
+    vec3 coreColor = mix(colorBase, colorCyan * 0.35, blendFactor);
     
-    // Final composite with edge luminescence
-    vec3 finalColor = coreColor + (colorCyan * fresnel * 1.2) + (colorJade * pow(fresnel, 5.0) * 0.8);
+    vec3 finalColor = coreColor + (colorCyan * fresnel * 0.9) + (colorJade * pow(fresnel, 4.5) * 0.7);
     
-    gl_FragColor = vec4(finalColor, 0.92);
+    gl_FragColor = vec4(finalColor, 0.82);
   }
 `
 
 export function NeuralCore() {
+  const groupRef = useRef<THREE.Group>(null!)
   const meshRef = useRef<THREE.Mesh>(null!)
   const wireframeRef = useRef<THREE.Mesh>(null!)
   const pointsRef = useRef<THREE.Points>(null!)
@@ -122,43 +115,45 @@ export function NeuralCore() {
     []
   )
 
-  // Sub-points geometry for particle shell
   const particlesGeo = useMemo(() => {
-    const geo = new THREE.IcosahedronGeometry(2.35, 12)
-    return geo
+    return new THREE.IcosahedronGeometry(2.7, 10)
   }, [])
 
   useFrame((state, delta) => {
-    // Smooth time increment
     uniforms.uTime.value += delta
 
-    // Inertial pointer follow
-    const targetX = state.pointer.x * 0.8
-    const targetY = state.pointer.y * 0.8
+    // Inertial pointer movement
+    const targetX = state.pointer.x * 0.7
+    const targetY = state.pointer.y * 0.7
     uniforms.uPointer.value.x += (targetX - uniforms.uPointer.value.x) * 0.05
     uniforms.uPointer.value.y += (targetY - uniforms.uPointer.value.y) * 0.05
 
-    // Gentle rotational drift
+    // Drift group based on pointer and subtle breath
+    if (groupRef.current) {
+      groupRef.current.position.x = 0.6 + uniforms.uPointer.value.x * 0.4
+      groupRef.current.position.y = uniforms.uPointer.value.y * 0.3
+    }
+
     if (meshRef.current) {
-      meshRef.current.rotation.y += delta * 0.12
-      meshRef.current.rotation.x = Math.sin(state.clock.elapsedTime * 0.2) * 0.1
+      meshRef.current.rotation.y += delta * 0.1
+      meshRef.current.rotation.x = Math.sin(state.clock.elapsedTime * 0.15) * 0.08
     }
 
     if (wireframeRef.current) {
-      wireframeRef.current.rotation.y -= delta * 0.08
-      wireframeRef.current.rotation.z += delta * 0.05
+      wireframeRef.current.rotation.y -= delta * 0.06
+      wireframeRef.current.rotation.z += delta * 0.04
     }
 
     if (pointsRef.current) {
-      pointsRef.current.rotation.y += delta * 0.06
+      pointsRef.current.rotation.y += delta * 0.05
     }
   })
 
   return (
-    <group position={[0, 0, 0]}>
+    <group ref={groupRef} position={[0.6, 0, 0]}>
       {/* Primary Displaced Shader Core */}
       <mesh ref={meshRef}>
-        <icosahedronGeometry args={[1.8, 48]} />
+        <icosahedronGeometry args={[2.0, 48]} />
         <shaderMaterial
           vertexShader={vertexShader}
           fragmentShader={fragmentShader}
@@ -170,22 +165,22 @@ export function NeuralCore() {
 
       {/* Outer Cybernetic Wireframe Lattice */}
       <mesh ref={wireframeRef}>
-        <icosahedronGeometry args={[2.05, 4]} />
+        <icosahedronGeometry args={[2.3, 4]} />
         <meshBasicMaterial
           color="#00f2fe"
           wireframe={true}
           transparent={true}
-          opacity={0.16}
+          opacity={0.12}
         />
       </mesh>
 
       {/* Orbiting Neural Cloud Points */}
       <points ref={pointsRef} geometry={particlesGeo}>
         <pointsMaterial
-          size={0.025}
+          size={0.022}
           color="#00ffa3"
           transparent={true}
-          opacity={0.35}
+          opacity={0.25}
           blending={THREE.AdditiveBlending}
         />
       </points>
