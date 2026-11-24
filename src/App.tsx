@@ -115,18 +115,6 @@ export function App() {
         ease: 'power4.out',
       })
 
-      // 4. Technical Matrix Cards Reveal
-      gsap.from('.skill-card', {
-        scrollTrigger: {
-          trigger: '#skills',
-          start: 'top 75%',
-        },
-        y: 45,
-        opacity: 0,
-        duration: 0.8,
-        stagger: 0.15,
-        ease: 'power3.out',
-      })
 
       // 5. FAQ Title Masked Reveal
       gsap.from('.faq-title-word', {
