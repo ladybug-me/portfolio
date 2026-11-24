@@ -5,6 +5,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useGSAP } from '@gsap/react'
 
 import { HeroCanvas } from './components/canvas/HeroCanvas'
+import { CustomCursor } from './components/ui/CustomCursor'
 import { Navbar } from './components/ui/Navbar'
 import { HeroSection } from './components/sections/HeroSection'
 import { ProjectsSection } from './components/sections/ProjectsSection'
@@ -73,7 +74,10 @@ export function App() {
 
   return (
     <div ref={containerRef} className="relative min-h-screen bg-[#07090e] text-[#f0f6fc] selection:bg-cyan-400 selection:text-black">
-      {/* Fullscreen 3D Shader Background */}
+      {/* Interactive Cybernetic Mouse Follower */}
+      <CustomCursor />
+
+      {/* Fullscreen 3D Shader Background with Click-Reactive Particles */}
       <HeroCanvas />
 
       {/* Foreground Content Layers */}

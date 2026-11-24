@@ -1,10 +1,12 @@
-import { useRef, useMemo } from 'react'
+import { useRef, useMemo, useEffect } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 
-const vertexShader = `
+// Shader for the central neural core
+const coreVertexShader = `
   uniform float uTime;
   uniform vec2 uPointer;
+  uniform float uClickPulse;
   
   varying vec2 vUv;
   varying vec3 vNormal;
@@ -66,7 +68,10 @@ const vertexShader = `
     float distToPointer = length(uv - (uPointer * 0.5 + 0.5));
     float pointerInfluence = smoothstep(0.8, 0.0, distToPointer) * 0.18;
     
-    float totalDisplacement = (noiseVal * 0.28) + pointerInfluence;
+    // Click pulse expansion
+    float clickDeform = sin(uTime * 12.0) * uClickPulse * 0.25;
+    
+    float totalDisplacement = (noiseVal * 0.26) + pointerInfluence + clickDeform;
     vDisplacement = totalDisplacement;
     
     vec3 newPosition = position + normal * totalDisplacement;
@@ -76,8 +81,9 @@ const vertexShader = `
   }
 `
 
-const fragmentShader = `
+const coreFragmentShader = `
   uniform float uTime;
+  uniform float uClickPulse;
   varying vec2 vUv;
   varying vec3 vNormal;
   varying vec3 vPosition;
@@ -87,7 +93,6 @@ const fragmentShader = `
     vec3 viewDir = normalize(-vPosition);
     float fresnel = pow(1.0 - max(dot(viewDir, vNormal), 0.0), 3.2);
     
-    // Deep cosmic core with electric cyan & neon jade highlights
     vec3 colorBase = vec3(0.02, 0.04, 0.07);
     vec3 colorCyan = vec3(0.0, 0.95, 0.99);
     vec3 colorJade = vec3(0.0, 1.0, 0.64);
@@ -95,9 +100,65 @@ const fragmentShader = `
     float blendFactor = smoothstep(-0.25, 0.35, vDisplacement);
     vec3 coreColor = mix(colorBase, colorCyan * 0.35, blendFactor);
     
-    vec3 finalColor = coreColor + (colorCyan * fresnel * 0.9) + (colorJade * pow(fresnel, 4.5) * 0.7);
+    // Intensify luminance during mouse clicks
+    vec3 finalColor = coreColor 
+      + (colorCyan * (fresnel * 0.9 + uClickPulse * 0.5)) 
+      + (colorJade * pow(fresnel, 4.5) * 0.7);
     
-    gl_FragColor = vec4(finalColor, 0.82);
+    gl_FragColor = vec4(finalColor, 0.82 + uClickPulse * 0.15);
+  }
+`
+
+// Shaders for the click-interactive particle field
+const particlesVertexShader = `
+  uniform float uTime;
+  uniform vec2 uPointer;
+  uniform float uClickPulse;
+  uniform vec3 uClickPos;
+  
+  attribute vec3 aRandom;
+  varying float vAlpha;
+  varying vec3 vColor;
+
+  void main() {
+    vec3 pos = position;
+    
+    // Ambient rotational float
+    pos.x += sin(uTime * 0.6 + aRandom.x * 6.28) * 0.12;
+    pos.y += cos(uTime * 0.5 + aRandom.y * 6.28) * 0.12;
+    pos.z += sin(uTime * 0.7 + aRandom.z * 6.28) * 0.12;
+    
+    // Interactive mouse click shockwave
+    vec3 diff = pos - uClickPos;
+    float dist = length(diff);
+    float shockRadius = (1.0 - uClickPulse) * 4.5;
+    float waveDist = abs(dist - shockRadius);
+    float wave = smoothstep(1.2, 0.0, waveDist) * uClickPulse;
+    
+    // Displace outward from click epicenter
+    if (dist > 0.001) {
+      pos += normalize(diff) * (wave * 1.6 + uClickPulse * (0.8 / (dist * 0.4 + 1.0)));
+    }
+    
+    vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
+    gl_PointSize = (14.0 * (1.0 + wave * 2.2 + uClickPulse * 1.5)) / -mvPosition.z;
+    
+    vAlpha = 0.25 + wave * 0.75 + uClickPulse * 0.3;
+    vColor = mix(vec3(0.0, 0.95, 0.99), vec3(0.0, 1.0, 0.64), wave);
+    gl_Position = projectionMatrix * mvPosition;
+  }
+`
+
+const particlesFragmentShader = `
+  varying float vAlpha;
+  varying vec3 vColor;
+
+  void main() {
+    float d = length(gl_PointCoord - vec2(0.5));
+    if (d > 0.5) discard;
+    
+    float glow = smoothstep(0.5, 0.0, d);
+    gl_FragColor = vec4(vColor, glow * vAlpha);
   }
 `
 
@@ -105,47 +166,99 @@ export function NeuralCore() {
   const groupRef = useRef<THREE.Group>(null!)
   const meshRef = useRef<THREE.Mesh>(null!)
   const wireframeRef = useRef<THREE.Mesh>(null!)
-  const pointsRef = useRef<THREE.Points>(null!)
 
-  const uniforms = useMemo(
+  const clickPulseVal = useRef(0)
+  const clickPosVal = useRef(new THREE.Vector3(0.6, 0, 0))
+
+  const coreUniforms = useMemo(
     () => ({
       uTime: { value: 0 },
       uPointer: { value: new THREE.Vector2(0, 0) },
+      uClickPulse: { value: 0 },
     }),
     []
   )
 
-  const particlesGeo = useMemo(() => {
-    return new THREE.IcosahedronGeometry(2.7, 10)
+  const particleUniforms = useMemo(
+    () => ({
+      uTime: { value: 0 },
+      uPointer: { value: new THREE.Vector2(0, 0) },
+      uClickPulse: { value: 0 },
+      uClickPos: { value: new THREE.Vector3(0, 0, 0) },
+    }),
+    []
+  )
+
+  // Generate 1,500 interactive particles surrounding the core
+  const { particlePositions, particleRandoms } = useMemo(() => {
+    const count = 1500
+    const positions = new Float32Array(count * 3)
+    const randoms = new Float32Array(count * 3)
+
+    for (let i = 0; i < count; i++) {
+      // Golden spiral distribution across spherical shell
+      const phi = Math.acos(1 - 2 * ((i + 0.5) / count))
+      const theta = Math.PI * (1 + Math.sqrt(5)) * i
+      const radius = 2.2 + Math.random() * 2.8
+
+      positions[i * 3] = radius * Math.sin(phi) * Math.cos(theta)
+      positions[i * 3 + 1] = radius * Math.sin(phi) * Math.sin(theta)
+      positions[i * 3 + 2] = radius * Math.cos(phi)
+
+      randoms[i * 3] = Math.random()
+      randoms[i * 3 + 1] = Math.random()
+      randoms[i * 3 + 2] = Math.random()
+    }
+
+    return { particlePositions: positions, particleRandoms: randoms }
+  }, [])
+
+  // Listen to mouse clicks across the window to trigger particle impulse
+  useEffect(() => {
+    const handlePointerDown = (e: MouseEvent) => {
+      clickPulseVal.current = 1.0
+
+      // Map click screen coordinates into approximate 3D world space (Z=0)
+      const nx = (e.clientX / window.innerWidth) * 2 - 1
+      const ny = -(e.clientY / window.innerHeight) * 2 + 1
+      clickPosVal.current.set(nx * 4.0, ny * 2.5, 0)
+    }
+
+    window.addEventListener('pointerdown', handlePointerDown)
+    return () => window.removeEventListener('pointerdown', handlePointerDown)
   }, [])
 
   useFrame((state, delta) => {
-    uniforms.uTime.value += delta
+    coreUniforms.uTime.value += delta
+    particleUniforms.uTime.value += delta
+
+    // Smoothly decay click shockwave pulse
+    clickPulseVal.current = Math.max(0, clickPulseVal.current - delta * 1.5)
+    coreUniforms.uClickPulse.value = clickPulseVal.current
+    particleUniforms.uClickPulse.value = clickPulseVal.current
+    particleUniforms.uClickPos.value.copy(clickPosVal.current)
 
     // Inertial pointer movement
     const targetX = state.pointer.x * 0.7
     const targetY = state.pointer.y * 0.7
-    uniforms.uPointer.value.x += (targetX - uniforms.uPointer.value.x) * 0.05
-    uniforms.uPointer.value.y += (targetY - uniforms.uPointer.value.y) * 0.05
+    coreUniforms.uPointer.value.x += (targetX - coreUniforms.uPointer.value.x) * 0.05
+    coreUniforms.uPointer.value.y += (targetY - coreUniforms.uPointer.value.y) * 0.05
+    particleUniforms.uPointer.value.copy(coreUniforms.uPointer.value)
 
     // Drift group based on pointer and subtle breath
     if (groupRef.current) {
-      groupRef.current.position.x = 0.6 + uniforms.uPointer.value.x * 0.4
-      groupRef.current.position.y = uniforms.uPointer.value.y * 0.3
+      groupRef.current.position.x = 0.6 + coreUniforms.uPointer.value.x * 0.4
+      groupRef.current.position.y = coreUniforms.uPointer.value.y * 0.3
     }
 
     if (meshRef.current) {
-      meshRef.current.rotation.y += delta * 0.1
+      meshRef.current.rotation.y += delta * (0.1 + clickPulseVal.current * 0.3)
       meshRef.current.rotation.x = Math.sin(state.clock.elapsedTime * 0.15) * 0.08
     }
 
     if (wireframeRef.current) {
       wireframeRef.current.rotation.y -= delta * 0.06
       wireframeRef.current.rotation.z += delta * 0.04
-    }
-
-    if (pointsRef.current) {
-      pointsRef.current.rotation.y += delta * 0.05
     }
   })
 
@@ -155,9 +268,9 @@ export function NeuralCore() {
       <mesh ref={meshRef}>
         <icosahedronGeometry args={[2.0, 48]} />
         <shaderMaterial
-          vertexShader={vertexShader}
-          fragmentShader={fragmentShader}
-          uniforms={uniforms}
+          vertexShader={coreVertexShader}
+          fragmentShader={coreFragmentShader}
+          uniforms={coreUniforms}
           transparent={true}
           side={THREE.DoubleSide}
         />
@@ -174,13 +287,24 @@ export function NeuralCore() {
         />
       </mesh>
 
-      {/* Orbiting Neural Cloud Points */}
-      <points ref={pointsRef} geometry={particlesGeo}>
-        <pointsMaterial
-          size={0.022}
-          color="#00ffa3"
+      {/* Interactive Click-Responsive Particle Cloud */}
+      <points>
+        <bufferGeometry>
+          <bufferAttribute
+            attach="attributes-position"
+            args={[particlePositions, 3]}
+          />
+          <bufferAttribute
+            attach="attributes-aRandom"
+            args={[particleRandoms, 3]}
+          />
+        </bufferGeometry>
+        <shaderMaterial
+          vertexShader={particlesVertexShader}
+          fragmentShader={particlesFragmentShader}
+          uniforms={particleUniforms}
           transparent={true}
-          opacity={0.25}
+          depthWrite={false}
           blending={THREE.AdditiveBlending}
         />
       </points>
