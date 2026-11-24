@@ -9,8 +9,6 @@ import { PetCanvas } from './components/canvas/PetCanvas'
 import { CustomCursor } from './components/ui/CustomCursor'
 import { Navbar } from './components/ui/Navbar'
 import { HeroSection } from './components/sections/HeroSection'
-import { CurvedRibbon } from './components/ui/CurvedRibbon'
-import { MarqueeTicker } from './components/ui/MarqueeTicker'
 import { KineticTextScrub } from './components/ui/KineticTextScrub'
 import { CircuitPipeline } from './components/ui/CircuitPipeline'
 import { ProjectsSection } from './components/sections/ProjectsSection'
@@ -126,12 +124,6 @@ export function App() {
       <Navbar />
       <main className="relative z-10">
         <HeroSection />
-
-        {/* Curved Ribbon Marquee Sweep */}
-        <CurvedRibbon />
-
-        {/* Infinite Kinetic Ticker */}
-        <MarqueeTicker />
 
         {/* Scroll-Linked Word Illumination Statement */}
         <KineticTextScrub text="WE STRIP DEAD ABSTRACTIONS OUT OF THE DESKTOP. WE RUN HARD INFERENCE ON COLD SILICON. LATENCY IS A DEFECT." />

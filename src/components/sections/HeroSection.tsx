@@ -110,7 +110,9 @@ export function HeroSection() {
         },
       })
 
+      // Hold fully opaque at top before scroll departure kicks in
       outTl
+        .to({}, { duration: 0.35 })
         .to(
           '.hero-art-line-1',
           {
@@ -120,7 +122,7 @@ export function HeroSection() {
             filter: 'blur(14px)',
             ease: 'power1.in',
           },
-          0
+          '+=0'
         )
         .to(
           '.hero-art-line-2',
@@ -131,7 +133,7 @@ export function HeroSection() {
             filter: 'blur(14px)',
             ease: 'power1.in',
           },
-          0
+          '<'
         )
         .to(
           '.hero-art-line-3',
@@ -142,7 +144,7 @@ export function HeroSection() {
             filter: 'blur(10px)',
             ease: 'power1.in',
           },
-          0
+          '<'
         )
         .to(
           '.tilted-badge-1',
@@ -153,7 +155,7 @@ export function HeroSection() {
             opacity: 0,
             ease: 'power1.in',
           },
-          0
+          '<'
         )
         .to(
           '.tilted-badge-2',
@@ -164,7 +166,7 @@ export function HeroSection() {
             opacity: 0,
             ease: 'power1.in',
           },
-          0
+          '<'
         )
         .to(
           '.tilted-badge-3',
@@ -175,16 +177,16 @@ export function HeroSection() {
             opacity: 0,
             ease: 'power1.in',
           },
-          0
+          '<'
         )
         .to(
           '.hero-manifesto, .hero-cta',
           {
-            y: -40,
+            y: -35,
             opacity: 0,
             ease: 'power1.in',
           },
-          0
+          '<'
         )
     },
     { scope: heroRef }
@@ -243,7 +245,7 @@ export function HeroSection() {
         </div>
 
         {/* Minimalist Engineering Manifesto */}
-        <p className="hero-manifesto text-base sm:text-lg md:text-xl lg:text-2xl text-slate-300 max-w-3xl mb-8 sm:mb-12 font-light leading-relaxed will-change-transform">
+        <p className="hero-manifesto text-base sm:text-lg md:text-xl lg:text-2xl text-white font-normal max-w-3xl mb-8 sm:mb-12 leading-relaxed will-change-transform">
           I build software where latency and memory are hard constraints. Native Linux desktop architectures, accelerated vision on low-power chips, and fast local retrieval engines.
         </p>
 
