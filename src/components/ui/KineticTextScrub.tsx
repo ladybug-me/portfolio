@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useRef } from 'react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useGSAP } from '@gsap/react'
@@ -6,126 +6,151 @@ import { useGSAP } from '@gsap/react'
 gsap.registerPlugin(ScrollTrigger)
 
 interface KineticTextScrubProps {
-  text: string
+  text?: string
   className?: string
 }
 
-export function KineticTextScrub({ text, className = '' }: KineticTextScrubProps) {
+const LINES = [
+  'WE STRIP DEAD',
+  'ABSTRACTIONS OUT',
+  'OF THE DESKTOP.',
+  'WE RUN HARD',
+  'INFERENCE ON',
+  'COLD SILICON.',
+  'LATENCY IS A DEFECT.',
+]
+
+export function KineticTextScrub({ className = '' }: KineticTextScrubProps) {
   const containerRef = useRef<HTMLDivElement>(null)
-  const [scrubProgress, setScrubProgress] = useState<number>(0)
-  const words = text.split(' ')
 
   useGSAP(
     () => {
       const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
       if (prefersReducedMotion || !containerRef.current) return
 
+      const container = containerRef.current
+      const chars = container.querySelectorAll<HTMLElement>('.about-char')
+      if (!chars.length) return
+
+      const getPinDistance = () => {
+        const width = window.innerWidth
+        if (width < 480) return 1150
+        if (width < 992) return 1550
+        return 2200
+      }
+
+      // Set hardware acceleration & initial solid white state
+      gsap.set(chars, {
+        color: '#ffffff',
+        scale: 1,
+        rotation: 0,
+        display: 'inline-block',
+        transformOrigin: 'center center',
+        textShadow: '0 0 0px rgba(0, 242, 254, 0)',
+        willChange: 'transform, color, text-shadow',
+        backfaceVisibility: 'hidden',
+      })
+
       const tl = gsap.timeline({
         scrollTrigger: {
-          trigger: containerRef.current,
+          trigger: container,
           start: 'top top',
-          end: '+=950',
+          end: () => `+=${getPinDistance()}`,
           pin: true,
-          scrub: 0.6,
+          pinSpacing: true,
+          scrub: window.innerWidth < 992 ? 0.6 : 0.75,
           anticipatePin: 1,
           invalidateOnRefresh: true,
-          onUpdate: (self) => {
-            setScrubProgress(self.progress)
-          },
+          fastScrollEnd: true,
+          preventOverlaps: true,
         },
       })
 
-      // Scrub word colors progressively across the pinned duration
-      tl.fromTo(
-        '.scrub-token',
-        {
-          color: '#1a2233',
-          opacity: 0.25,
-          scale: 0.98,
-        },
-        {
-          color: '#00f2fe',
-          opacity: 1,
-          scale: 1,
-          stagger: 0.08,
-          ease: 'none',
-          duration: 1,
-        }
-      )
+      const totalChars = chars.length
+      const letterAnimSpan = 85
 
-      // Brief hold at full illumination before releasing to the next section
-      tl.to({}, { duration: 0.25 })
+      chars.forEach((char, i) => {
+        const startTime = (i / totalChars) * letterAnimSpan
+
+        // Stage 1: Active Wave - Scale 1.15, Random ±3-4 deg tilt, Vivid Glowing Cyan
+        tl.to(
+          char,
+          {
+            color: '#38bdf8',
+            scale: 1.15,
+            rotation: () => gsap.utils.random(-4, 4),
+            textShadow:
+              '0 0 20px #00f2fe, 0 0 38px rgba(0, 242, 254, 0.9), 0.8px 0.8px 0 #00f2fe, -0.8px -0.8px 0 #00f2fe',
+            duration: 3.5,
+            ease: 'power1.out',
+          },
+          startTime
+        )
+
+        // Stage 2: Settle into permanent website cyan, scale 1, 0 deg tilt
+        tl.to(
+          char,
+          {
+            color: '#00f2fe',
+            scale: 1,
+            rotation: 0,
+            textShadow: '0 0 14px rgba(0, 242, 254, 0.45)',
+            duration: 3.5,
+            ease: 'power1.inOut',
+          },
+          startTime + 3.5
+        )
+      })
+
+      // Brief hold at 100% illumination before unpinning
+      tl.to({}, { duration: 6 })
     },
     { scope: containerRef }
   )
 
-  const isCompleted = scrubProgress >= 0.92
+  const fullText = LINES.join(' ')
 
   return (
     <section
       ref={containerRef}
-      className={`relative min-h-screen py-20 px-4 sm:px-8 max-w-6xl mx-auto flex flex-col justify-center items-center overflow-hidden border-t border-white/5 ${className}`}
+      className={`relative h-screen min-h-[100dvh] w-full flex flex-col justify-center items-center overflow-hidden border-t border-white/5 px-2 sm:px-4 ${className}`}
     >
-      {/* Top Status Header */}
-      <div className="w-full max-w-4xl flex items-center justify-between font-mono text-xs mb-8 sm:mb-12">
-        <div className="flex items-center gap-2.5 text-cyan-400">
-          <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
-          <span className="tracking-widest uppercase">RUNTIME PHILOSOPHY</span>
-        </div>
-
-        <div className="flex items-center gap-3 text-slate-400">
-          <span className="hidden sm:inline">BUFFER ACCUMULATION:</span>
-          <span className="px-2.5 py-0.5 rounded-full bg-cyan-500/10 border border-cyan-500/30 font-bold text-cyan-300">
-            {Math.round(scrubProgress * 100)}%
-          </span>
-        </div>
-      </div>
-
       {/* Accessible readable text for assistive technologies */}
-      <p className="sr-only">{text}</p>
+      <p className="sr-only">{fullText}</p>
 
-      {/* Scrubbed kinetic word stream - words stay illuminated once reached */}
-      <div className="max-w-4xl text-center">
+      {/* Monumental scrubbed kinetic letter stream structured like img2 */}
+      <div className="w-full flex flex-col items-center justify-center text-center">
         <p
           aria-hidden="true"
-          className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black tracking-tight leading-[1.3] text-center select-none"
+          className="font-black tracking-tight sm:tracking-tighter text-center select-none uppercase w-full flex flex-col items-center justify-center"
+          style={{
+            fontSize: 'clamp(1.75rem, min(7.2vw, 10.2vh), 7.2rem)',
+            lineHeight: 1.08,
+          }}
         >
-          {words.map((word, idx) => (
-            <span
-              key={idx}
-              className="scrub-token inline-block mr-[0.25em] will-change-[color,opacity,transform] transition-[text-shadow] duration-200"
-              style={{
-                textShadow:
-                  scrubProgress > idx / words.length
-                    ? '0 0 22px rgba(0, 242, 254, 0.45)'
-                    : 'none',
-              }}
-            >
-              {word}
+          {LINES.map((line, lineIdx) => (
+            <span key={lineIdx} className="block whitespace-nowrap">
+              {line.split(' ').map((word, wordIdx) => (
+                <span key={wordIdx} className="inline-block whitespace-nowrap mr-[0.28em]">
+                  {word.split('').map((char, charIdx) => (
+                    <span
+                      key={charIdx}
+                      className="about-char inline-block will-change-[transform,color,text-shadow] text-white"
+                      style={{
+                        display: 'inline-block',
+                        transformOrigin: 'center center',
+                        backfaceVisibility: 'hidden',
+                        color: '#ffffff',
+                      }}
+                    >
+                      {char}
+                    </span>
+                  ))}
+                </span>
+              ))}
             </span>
           ))}
         </p>
-      </div>
-
-      {/* Dynamic Progress Track & Release Indicator */}
-      <div className="w-full max-w-4xl mt-10 sm:mt-14 flex flex-col items-center gap-3">
-        <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
-          <div
-            className="h-full bg-gradient-to-r from-cyan-500 via-teal-400 to-emerald-400 transition-all duration-100 ease-out"
-            style={{ width: `${Math.min(100, Math.round(scrubProgress * 100))}%` }}
-          />
-        </div>
-
-        <div className="flex items-center justify-between w-full font-mono text-[11px] text-slate-400">
-          <span>[ PERSISTENT STREAM SCRUB ]</span>
-          <span
-            className={`transition-colors duration-300 ${
-              isCompleted ? 'text-emerald-400 font-bold' : 'text-slate-500'
-            }`}
-          >
-            {isCompleted ? 'STATEMENT COMPLETE • PROCEEDING' : 'SCROLL TO FILL STREAM'}
-          </span>
-        </div>
       </div>
     </section>
   )
