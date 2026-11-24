@@ -210,11 +210,20 @@ export function SphericalPet() {
     const blinkClose = Math.max(1.0 - blinkState.current, 0)
     const happy = happyState.current
 
+    // Gaze ALWAYS directly tracks the live cursor in 60fps real-time
+    const activeFocus = targetCursor.current
+
     // Pupil closure & visibility (hidden when closed or smiling)
+    const distToLure = Math.hypot(activeFocus.x - pos.current.x, activeFocus.y - pos.current.y)
+    const isCuriousLure = distToLure < 1.5
+    const lurePupilDilation = isCuriousLure ? 1.0 + (1.5 - distToLure) * 0.24 : 1.0
+
     const pupilOpenFactor = THREE.MathUtils.clamp((1.0 - blinkClose) * (1.0 - happy), 0, 1)
     if (leftPupilRef.current && rightPupilRef.current) {
-      leftPupilRef.current.scale.y = pupilOpenFactor
-      rightPupilRef.current.scale.y = pupilOpenFactor
+      leftPupilRef.current.scale.x = lurePupilDilation
+      rightPupilRef.current.scale.x = lurePupilDilation
+      leftPupilRef.current.scale.y = pupilOpenFactor * lurePupilDilation
+      rightPupilRef.current.scale.y = pupilOpenFactor * lurePupilDilation
       leftPupilRef.current.visible = pupilOpenFactor > 0.08
       rightPupilRef.current.visible = pupilOpenFactor > 0.08
     }
@@ -273,9 +282,6 @@ export function SphericalPet() {
     if (clickPulseTimer.current > 0) {
       clickPulseTimer.current -= dt
     }
-
-    // Gaze ALWAYS directly tracks the live cursor in 60fps real-time
-    const activeFocus = targetCursor.current
 
     // 3. Static Platform Spawning (Only when following and target is elevated)
     platformCooldown.current -= dt
@@ -514,7 +520,7 @@ export function SphericalPet() {
       rightPupilRef.current.position.set(pupilX, pupilY, 0.028)
 
       const isPulsing = clickPulseTimer.current > 0
-      const pulseEmissive = isPulsing ? 2.6 + Math.sin(time * 12) * 0.5 : 1.7
+      const pulseEmissive = isPulsing ? 2.8 + Math.sin(time * 12) * 0.5 : isCuriousLure ? 2.2 : 1.7
       ;(leftPupilRef.current.material as THREE.MeshStandardMaterial).emissiveIntensity = pulseEmissive
       ;(rightPupilRef.current.material as THREE.MeshStandardMaterial).emissiveIntensity = pulseEmissive
     }

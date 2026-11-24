@@ -23,6 +23,121 @@
   }
 }
 
+/* Custom themed cursor: hide default OS pointer on fine-pointer desktop devices */
+@media (hover: hover) and (pointer: fine) {
+  html, body, a, button, input, textarea, select, [role="button"], label {
+    cursor: none !important;
+  }
+}
+
+/* Cyber Firefly Wing Flapping & Lure Glow */
+@keyframes fireflyFlapLeft {
+  0%, 100% {
+    transform: rotate(0deg) scaleX(1);
+  }
+  50% {
+    transform: rotate(-12deg) scaleX(0.2);
+  }
+}
+
+@keyframes fireflyFlapRight {
+  0%, 100% {
+    transform: rotate(0deg) scaleX(1);
+  }
+  50% {
+    transform: rotate(12deg) scaleX(0.2);
+  }
+}
+
+@keyframes fireflyGlowPulse {
+  0%, 100% {
+    filter: drop-shadow(0 0 6px #00f2fe) drop-shadow(0 0 12px rgba(0, 242, 254, 0.6));
+  }
+  50% {
+    filter: drop-shadow(0 0 9px #00ffa3) drop-shadow(0 0 16px rgba(0, 255, 163, 0.7));
+  }
+}
+
+.firefly-wing-left {
+  transform-origin: 16px 14px;
+  animation: fireflyFlapLeft 0.36s ease-in-out infinite;
+  will-change: transform;
+}
+
+.firefly-wing-right {
+  transform-origin: 16px 14px;
+  animation: fireflyFlapRight 0.36s ease-in-out infinite;
+  will-change: transform;
+}
+
+.firefly-wing-left-fast {
+  transform-origin: 16px 14px;
+  animation: fireflyFlapLeft 0.048s ease-in-out infinite;
+  will-change: transform;
+}
+
+.firefly-wing-right-fast {
+  transform-origin: 16px 14px;
+  animation: fireflyFlapRight 0.048s ease-in-out infinite;
+  will-change: transform;
+}
+
+.firefly-glow-body {
+  animation: fireflyGlowPulse 1.8s ease-in-out infinite;
+}
+
+/* Smooth watery wave ripples around click point */
+@keyframes wateryWaveExpand {
+  0% {
+    transform: translate(-50%, -50%) scale(0.04);
+    opacity: 0.92;
+  }
+  35% {
+    opacity: 0.72;
+  }
+  65% {
+    opacity: 0.35;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1.0);
+    opacity: 0;
+  }
+}
+
+.watery-wave-ring {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  transform: translate(-50%, -50%) scale(0.04);
+  transform-origin: center center;
+  will-change: transform, opacity;
+}
+
+.watery-wave-ring-1 {
+  width: 130px;
+  height: 130px;
+  border: 1.5px solid rgba(0, 242, 254, 0.85);
+  background: radial-gradient(circle, rgba(0, 242, 254, 0.14) 0%, rgba(0, 255, 163, 0.04) 50%, transparent 75%);
+  box-shadow: 0 0 10px rgba(0, 242, 254, 0.45), inset 0 0 8px rgba(0, 255, 163, 0.2);
+  animation: wateryWaveExpand 0.85s cubic-bezier(0.12, 0.8, 0.32, 1) forwards;
+}
+
+.watery-wave-ring-2 {
+  width: 98px;
+  height: 98px;
+  border: 1.2px solid rgba(0, 255, 163, 0.75);
+  box-shadow: 0 0 8px rgba(0, 255, 163, 0.4), inset 0 0 6px rgba(0, 242, 254, 0.2);
+  animation: wateryWaveExpand 0.78s cubic-bezier(0.12, 0.8, 0.32, 1) 0.09s forwards;
+}
+
+.watery-wave-ring-3 {
+  width: 70px;
+  height: 70px;
+  border: 1px solid rgba(0, 242, 254, 0.55);
+  box-shadow: 0 0 6px rgba(0, 242, 254, 0.3);
+  animation: wateryWaveExpand 0.7s cubic-bezier(0.12, 0.8, 0.32, 1) 0.18s forwards;
+}
+
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 6px;

@@ -258,26 +258,13 @@ export function NeuralCore() {
     }
   }, [])
 
-  // Listen to mouse clicks across window to trigger particle impulse
-  useEffect(() => {
-    const handlePointerDown = (e: MouseEvent) => {
-      clickPulseVal.current = 1.0
-      const nx = (e.clientX / window.innerWidth) * 2 - 1
-      const ny = -(e.clientY / window.innerHeight) * 2 + 1
-      clickPosVal.current.set(nx * 4.0, ny * 2.5, 0)
-    }
-
-    window.addEventListener('pointerdown', handlePointerDown)
-    return () => window.removeEventListener('pointerdown', handlePointerDown)
-  }, [])
-
   useFrame((state, delta) => {
     coreUniforms.uTime.value += delta
     particleUniforms.uTime.value += delta
 
-    clickPulseVal.current = Math.max(0, clickPulseVal.current - delta * 1.5)
-    coreUniforms.uClickPulse.value = clickPulseVal.current
-    particleUniforms.uClickPulse.value = clickPulseVal.current
+    clickPulseVal.current = 0
+    coreUniforms.uClickPulse.value = 0
+    particleUniforms.uClickPulse.value = 0
     particleUniforms.uClickPos.value.copy(clickPosVal.current)
 
     const targetX = state.pointer.x * 0.7
