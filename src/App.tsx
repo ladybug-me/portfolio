@@ -62,41 +62,7 @@ export function App() {
       const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
       if (prefersReducedMotion) return
 
-      // 1. Hero 3D Masked Word Roll-Up Entrance Timeline
-      const heroTl = gsap.timeline({ delay: 0.15 })
-
-      heroTl
-        .from('.hero-word', {
-          y: '130%',
-          rotateX: -45,
-          opacity: 0,
-          duration: 1.15,
-          stagger: 0.06,
-          ease: 'power4.out',
-        })
-        .from(
-          '.hero-sub',
-          {
-            y: 28,
-            opacity: 0,
-            duration: 0.85,
-            ease: 'power3.out',
-          },
-          '-=0.6'
-        )
-        .from(
-          '.hero-meta, .hero-cta',
-          {
-            y: 20,
-            opacity: 0,
-            duration: 0.7,
-            stagger: 0.1,
-            ease: 'power3.out',
-          },
-          '-=0.5'
-        )
-
-      // 2. Projects Section Title Masked Reveal
+      // 1. Projects Section Title Masked Reveal
       gsap.from('.projects-title-word', {
         scrollTrigger: {
           trigger: '#projects h2',
