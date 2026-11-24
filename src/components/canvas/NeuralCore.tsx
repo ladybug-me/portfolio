@@ -107,7 +107,8 @@ const coreFragmentShader = `
       + (colorCyan * (fresnel * 0.9 + uClickPulse * 0.5)) 
       + (colorJade * pow(fresnel, 4.5) * 0.7);
     
-    gl_FragColor = vec4(finalColor, 0.82 + uClickPulse * 0.15);
+    float alpha = 0.28 + fresnel * 0.22;
+    gl_FragColor = vec4(finalColor, alpha);
   }
 `
 
@@ -332,7 +333,7 @@ export function NeuralCore() {
           color="#00f2fe"
           wireframe={true}
           transparent={true}
-          opacity={0.12}
+          opacity={0.06}
         />
       </mesh>
 
