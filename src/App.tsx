@@ -5,6 +5,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useGSAP } from '@gsap/react'
 
 import { HeroCanvas } from './components/canvas/HeroCanvas'
+import { PetCanvas } from './components/canvas/PetCanvas'
 import { CustomCursor } from './components/ui/CustomCursor'
 import { Navbar } from './components/ui/Navbar'
 import { HeroSection } from './components/sections/HeroSection'
@@ -148,6 +149,9 @@ export function App() {
     >
       {/* Interactive Cybernetic Mouse Follower */}
       <CustomCursor />
+
+      {/* Autonomous 3D Spherical Pet Companion */}
+      <PetCanvas />
 
       {/* Fullscreen 3D Shader Background with GSAP-Scrubbed Orbit */}
       <HeroCanvas />
