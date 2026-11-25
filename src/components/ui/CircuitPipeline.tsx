@@ -82,8 +82,9 @@ function buildCardPixelSnapshot(
   ctx.fillStyle = bgGrad
   ctx.fill()
 
+  const activePalette = getActivePalette()
   ctx.lineWidth = 1.5
-  ctx.strokeStyle = 'rgba(34, 211, 238, 0.75)'
+  ctx.strokeStyle = `rgba(${activePalette.primaryRgb}, 0.75)`
   ctx.stroke()
 
   // Measure child elements relative to card so canvas picture matches DOM layout
@@ -122,13 +123,13 @@ function buildCardPixelSnapshot(
   if (tagBox) {
     ctx.beginPath()
     ctx.roundRect(tagBox.x, tagBox.y, tagBox.w, tagBox.h, tagBox.h / 2)
-    ctx.fillStyle = 'rgba(8, 51, 68, 0.55)'
+    ctx.fillStyle = `rgba(${activePalette.primaryRgb}, 0.14)`
     ctx.fill()
     ctx.lineWidth = 1
-    ctx.strokeStyle = 'rgba(6, 182, 212, 0.35)'
+    ctx.strokeStyle = `rgba(${activePalette.primaryRgb}, 0.35)`
     ctx.stroke()
 
-    ctx.fillStyle = '#67e8f9'
+    ctx.fillStyle = activePalette.mid
     ctx.font = `500 ${tagBox.style.fontSize || '10px'} ${tagBox.style.fontFamily}`
     ctx.textAlign = 'center'
     ctx.textBaseline = 'middle'
@@ -681,7 +682,7 @@ export function CircuitPipeline() {
                 }}
                 className={`relative flex flex-col p-6 rounded-2xl border backdrop-blur-md sm:backdrop-blur-xl ${
                   isCurrent
-                    ? 'bg-[#091520]/95 border-cyan-400 shadow-[0_0_24px_rgba(0,242,254,0.2)]'
+                    ? 'bg-[#091520]/95 border-cyan-400 shadow-[0_0_24px_rgba(var(--accent-cyan-rgb),0.2)]'
                     : isReached
                       ? 'bg-[#050b14]/85 border-cyan-500/35'
                       : 'bg-[#050b14]/40 border-white/5'
@@ -691,7 +692,7 @@ export function CircuitPipeline() {
                   <div className="flex items-center justify-between mb-4">
                     <span
                       data-piece="num"
-                      className="w-8 h-8 rounded-full font-mono text-xs font-bold flex items-center justify-center bg-cyan-400 text-black shadow-[0_0_12px_#00f2fe]"
+                      className="w-8 h-8 rounded-full font-mono text-xs font-bold flex items-center justify-center bg-cyan-400 text-black shadow-[0_0_12px_var(--accent-cyan)]"
                     >
                       {m.num}
                     </span>

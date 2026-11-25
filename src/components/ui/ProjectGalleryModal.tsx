@@ -103,7 +103,7 @@ function FloatingMediaCard({
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       aria-label={item.label}
-      className={`gallery-grid-item group relative cursor-pointer focus:outline-none will-change-transform [transform-style:preserve-3d] transition-[border-color,box-shadow,transform] duration-300 active:scale-[0.97] rounded-2xl border border-white/20 hover:border-cyan-400/60 overflow-hidden bg-slate-950/30 shadow-[0_20px_50px_rgba(0,0,0,0.65)] hover:shadow-[0_24px_60px_rgba(34,211,238,0.28)] flex items-center justify-center ${sizeClass}`}
+      className={`gallery-grid-item group relative cursor-pointer focus:outline-none will-change-transform [transform-style:preserve-3d] transition-[border-color,box-shadow,transform] duration-300 active:scale-[0.97] rounded-2xl border border-white/20 hover:border-cyan-400/60 overflow-hidden bg-slate-950/30 shadow-[0_20px_50px_rgba(0,0,0,0.65)] hover:shadow-[0_24px_60px_rgba(var(--accent-cyan-rgb),0.28)] flex items-center justify-center ${sizeClass}`}
     >
       {item.type === 'video' ? (
         <video

@@ -183,7 +183,7 @@ export function SkillsMatrix() {
             <div className="w-full my-auto grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 lg:gap-10 items-start lg:items-center">
               {/* Left Column: Centered Solar Icon & Metric */}
               <div className="lg:col-span-4 flex lg:flex-col items-center justify-between lg:justify-center gap-3 sm:gap-4 text-center">
-                <div className="w-12 h-12 sm:w-20 sm:h-20 lg:w-24 lg:h-24 rounded-xl sm:rounded-2xl bg-cyan-500/[0.08] border border-cyan-400/25 flex items-center justify-center text-cyan-300 shadow-[0_0_28px_rgba(0,242,254,0.14)] group-hover:border-cyan-300/50 group-hover:text-cyan-200 transition-colors duration-300">
+                <div className="w-12 h-12 sm:w-20 sm:h-20 lg:w-24 lg:h-24 rounded-xl sm:rounded-2xl bg-cyan-500/[0.08] border border-cyan-400/25 flex items-center justify-center text-cyan-300 shadow-[0_0_28px_rgba(var(--accent-cyan-rgb),0.14)] group-hover:border-cyan-300/50 group-hover:text-cyan-200 transition-colors duration-300">
                   <Icon icon={cat.icon} className="w-7 h-7 sm:w-11 sm:h-11 lg:w-12 lg:h-12" />
                 </div>
                 <span className="text-xs sm:text-base font-mono font-semibold uppercase tracking-widest text-cyan-300/90 lg:mt-2 text-center">

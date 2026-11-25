@@ -352,7 +352,7 @@ export function HeroSection({ ready = true }: HeroSectionProps) {
 
             {/* Badge 2: Mid-Right */}
             <div className="tilted-badge-2-wrap absolute top-1/3 sm:top-2/5 right-2 sm:right-8 will-change-transform">
-              <div className="tilted-badge-2-inner px-3 sm:px-4 py-1 sm:py-1.5 rounded-full bg-slate-900/90 border border-emerald-400/50 text-emerald-300 font-mono text-[11px] sm:text-xs font-semibold shadow-[0_4px_24px_rgba(0,255,163,0.3)] rotate-6 backdrop-blur-md">
+              <div className="tilted-badge-2-inner px-3 sm:px-4 py-1 sm:py-1.5 rounded-full bg-slate-900/90 border border-emerald-400/50 text-emerald-300 font-mono text-[11px] sm:text-xs font-semibold shadow-[0_4px_24px_rgba(var(--accent-green-rgb),0.3)] rotate-6 backdrop-blur-md">
                 ★ 9th ICRTAC'26 Paper Author
               </div>
             </div>

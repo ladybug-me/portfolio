@@ -246,7 +246,7 @@ export function BootLoader({ onComplete }: BootLoaderProps) {
         </div>
 
         {/* Segmented Rectangular Progress Bar with Flickering Glitch Rectangles */}
-        <div className="boot-bar-frame relative w-full h-9 sm:h-11 border border-cyan-400/40 bg-[#0a0f18] p-1.5 flex items-stretch gap-1 overflow-hidden shadow-[0_0_25px_rgba(34,211,238,0.12)]">
+        <div className="boot-bar-frame relative w-full h-9 sm:h-11 border border-cyan-400/40 bg-[#0a0f18] p-1.5 flex items-stretch gap-1 overflow-hidden shadow-[0_0_25px_rgba(var(--accent-cyan-rgb),0.12)]">
           {Array.from({ length: SEGMENT_COUNT }, (_, idx) => (
             <div
               key={idx}
