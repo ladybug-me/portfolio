@@ -7,10 +7,8 @@ REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 source "$REPO_ROOT/tests/helpers.sh"
 
 test_vite_base_path() {
-    assert_file_contains "$REPO_ROOT/vite.config.ts" "base: '/'" \
-        "vite.config.ts must configure base '/' for root deployment (Vercel)"
-    assert_file_not_contains "$REPO_ROOT/vite.config.ts" "/portfolio/" \
-        "vite.config.ts must not hardcode GitHub Pages /portfolio/ base path"
+    assert_file_contains "$REPO_ROOT/vite.config.ts" "base: '/portfolio/'" \
+        "vite.config.ts must configure base '/portfolio/' for GitHub Pages"
 }
 
 test_index_html_relative_favicon() {
@@ -26,10 +24,11 @@ test_no_root_relative_asset_paths_in_src() {
     assert_eq "" "$matches" "src/ must use import.meta.env.BASE_URL instead of hardcoded /assets/ paths"
 }
 
-test_github_pages_deploy_workflow_removed() {
-    if [[ -e "$REPO_ROOT/.github/workflows/deploy.yml" ]]; then
-        fail "unused GitHub Pages workflow .github/workflows/deploy.yml should be removed"
-    fi
+test_deploy_workflow_present() {
+    local wf="$REPO_ROOT/.github/workflows/deploy.yml"
+    assert_file_exists "$wf"
+    assert_file_contains "$wf" "npm run build" "deploy workflow must run npm run build"
+    assert_file_contains "$wf" "actions/deploy-pages" "deploy workflow must use actions/deploy-pages"
 }
 
 run_tests
