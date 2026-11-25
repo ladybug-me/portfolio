@@ -36,9 +36,9 @@ Before writing any new component, hook, shader, asset, or test:
 - **Decompose monolithic components**: Keep components focused and break oversized files (>200 lines) into dedicated subcomponents, shader modules, or hooks where practical.
 - **Pure & predictable helpers**: Keep utility and geometry/particle functions stateless and deterministic wherever possible.
 
-## 5. GitHub Pages & Blocker-Resilient Standards
+## 5. Deployment & Blocker-Resilient Standards
 
-- **Base-aware asset URLs**: Always reference files under `public/` using `${import.meta.env.BASE_URL}...` in `src/` and relative paths (`./favicon.svg`) in `index.html` so GitHub Pages (`/portfolio/`) resolves every asset cleanly.
+- **Base-aware asset URLs**: Always reference files under `public/` using `${import.meta.env.BASE_URL}...` in `src/` and relative paths (`./favicon.svg`) in `index.html` so root or subpath deployments resolve every asset cleanly.
 - **Zero runtime third-party CDNs**: Bundle fonts locally via `@fontsource/*` in `src/main.tsx` and register every `@iconify/react` icon locally in `src/icons.ts` via `addIcon(...)` so privacy/adblockers never break styling or icons.
 - **Graceful browser-API fallbacks**: Guard `ctx.getImageData` and WebGL/canvas effects with `try/catch` and visible DOM fallbacks. Never use adblocker cosmetic-filter keywords (`ad`, `ads`, `advert`, `banner`, `promo`, `sponsor`, `popup`) in class names, IDs, or filenames.
 
