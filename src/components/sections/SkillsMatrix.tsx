@@ -141,16 +141,12 @@ export function SkillsMatrix() {
           )
         }
 
-        // Current card slides in from right at constant 1:1 scale & full opacity
-        tl.fromTo(
+        // Current card becomes visible as its slide starts and moves cleanly at 1:1 scale & full opacity
+        tl.set(card, { visibility: 'visible' }, stepTime + 0.001)
+        tl.to(
           card,
           {
-            xPercent: 115,
-            visibility: 'hidden',
-          },
-          {
             xPercent: 0,
-            visibility: 'visible',
             scale: 1,
             opacity: 1,
             ease: 'power2.out',
