@@ -1,4 +1,4 @@
-# Rajveer Singh — Portfolio
+# Portfolio
 
 Interactive 3D portfolio built with React 19, Three.js, GSAP, Lenis, and Tailwind CSS v4.
 
