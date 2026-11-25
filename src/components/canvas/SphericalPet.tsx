@@ -523,8 +523,8 @@ export function SphericalPet() {
 
       const isPulsing = clickPulseTimer.current > 0
       const pulseEmissive = isPulsing ? 2.8 + Math.sin(time * 12) * 0.5 : isCuriousLure ? 2.2 : 1.7
-        ; (leftPupilRef.current.material as THREE.MeshStandardMaterial).emissiveIntensity = pulseEmissive
-        ; (rightPupilRef.current.material as THREE.MeshStandardMaterial).emissiveIntensity = pulseEmissive
+      ;(leftPupilRef.current.material as THREE.MeshStandardMaterial).emissiveIntensity = pulseEmissive
+      ;(rightPupilRef.current.material as THREE.MeshStandardMaterial).emissiveIntensity = pulseEmissive
     }
 
     // 11. Micro-Ecosystem: Orbiting bio-digital energy motes with acceleration trail lag

@@ -624,12 +624,13 @@ export function CircuitPipeline() {
                 ref={(el) => {
                   cardsRef.current[idx] = el
                 }}
-                className={`relative flex flex-col p-6 rounded-2xl border backdrop-blur-xl ${isCurrent
+                className={`relative flex flex-col p-6 rounded-2xl border backdrop-blur-xl ${
+                  isCurrent
                     ? 'bg-[#091520]/95 border-cyan-400 shadow-[0_0_24px_rgba(0,242,254,0.2)]'
                     : isReached
                       ? 'bg-[#050b14]/85 border-cyan-500/35'
                       : 'bg-[#050b14]/40 border-white/5'
-                  }`}
+                }`}
               >
                 <div>
                   <div className="flex items-center justify-between mb-4">

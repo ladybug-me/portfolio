@@ -90,9 +90,9 @@ export function CustomCursor() {
           m.y = mouseY
         })
         if (fireflyRef.current) fireflyRef.current.style.opacity = '1'
-          ;[mote0Ref, mote1Ref, mote2Ref, mote3Ref].forEach((ref) => {
-            if (ref.current) ref.current.style.opacity = '0.7'
-          })
+        ;[mote0Ref, mote1Ref, mote2Ref, mote3Ref].forEach((ref) => {
+          if (ref.current) ref.current.style.opacity = '0.7'
+        })
       }
 
       // Check for interactive targets
@@ -125,17 +125,17 @@ export function CustomCursor() {
     const handleMouseLeave = () => {
       isVisible = false
       if (fireflyRef.current) fireflyRef.current.style.opacity = '0'
-        ;[mote0Ref, mote1Ref, mote2Ref, mote3Ref].forEach((ref) => {
-          if (ref.current) ref.current.style.opacity = '0'
-        })
+      ;[mote0Ref, mote1Ref, mote2Ref, mote3Ref].forEach((ref) => {
+        if (ref.current) ref.current.style.opacity = '0'
+      })
     }
 
     const handleMouseEnter = () => {
       isVisible = true
       if (fireflyRef.current) fireflyRef.current.style.opacity = '1'
-        ;[mote0Ref, mote1Ref, mote2Ref, mote3Ref].forEach((ref) => {
-          if (ref.current) ref.current.style.opacity = '0.7'
-        })
+      ;[mote0Ref, mote1Ref, mote2Ref, mote3Ref].forEach((ref) => {
+        if (ref.current) ref.current.style.opacity = '0.7'
+      })
     }
 
     // Direct 60fps GPU compositor loop
