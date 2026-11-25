@@ -230,7 +230,7 @@ export function SectionNavigator() {
           const textOpacity = isActive ? 'opacity-100' : 'opacity-35 hover:opacity-85'
           const textColor = isActive ? 'text-cyan-300' : 'text-slate-400 hover:text-slate-200'
           const textGlow = isActive
-            ? '[text-shadow:0_0_16px_rgba(0,242,254,0.95),0_0_35px_rgba(0,242,254,0.45)]'
+            ? '[text-shadow:0_0_16px_rgba(var(--accent-cyan-rgb),0.95),0_0_35px_rgba(var(--accent-cyan-rgb),0.45)]'
             : ''
           const zIndex = isActive ? 'z-20' : 'z-0'
 

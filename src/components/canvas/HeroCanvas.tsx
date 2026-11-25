@@ -2,8 +2,11 @@ import { Suspense } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { NeuralCore } from './NeuralCore'
 import { DistantOrbitParticles } from './DistantOrbitParticles'
+import { usePalette } from '../../theme/palettes'
 
 export function HeroCanvas() {
+  const palette = usePalette()
+
   return (
     <div className="fixed inset-0 w-full h-screen pointer-events-none z-0 overflow-hidden">
       <Suspense fallback={null}>
@@ -19,16 +22,16 @@ export function HeroCanvas() {
           className="w-full h-full"
         >
           <ambientLight intensity={0.5} />
-          <directionalLight position={[10, 10, 5]} intensity={1.5} color="#00f2fe" />
-          <pointLight position={[-10, -10, -5]} intensity={0.9} color="#00ffa3" />
+          <directionalLight position={[10, 10, 5]} intensity={1.5} color={palette.primary} />
+          <pointLight position={[-10, -10, -5]} intensity={0.9} color={palette.secondary} />
           <NeuralCore />
           <DistantOrbitParticles />
         </Canvas>
       </Suspense>
 
       {/* Atmospheric vignette overlays balanced for visible orbital particle radiance and readability */}
-      <div className="absolute inset-0 bg-radial from-transparent via-[#07090e]/25 to-[#07090e]/70 pointer-events-none" />
-      <div className="absolute inset-0 bg-gradient-to-b from-[#07090e]/30 via-transparent to-[#07090e]/80 pointer-events-none" />
+      <div className="absolute inset-0 bg-radial from-transparent via-[var(--bg-primary)]/25 to-[var(--bg-primary)]/70 pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-b from-[var(--bg-primary)]/30 via-transparent to-[var(--bg-primary)]/80 pointer-events-none" />
     </div>
   )
 }

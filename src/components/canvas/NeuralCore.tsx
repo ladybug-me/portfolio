@@ -3,6 +3,7 @@ import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { getActivePalette, usePalette } from '../../theme/palettes'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -87,6 +88,8 @@ const coreVertexShader = `
 const coreFragmentShader = `
   uniform float uTime;
   uniform float uClickPulse;
+  uniform vec3 uColorPrimary;
+  uniform vec3 uColorSecondary;
   varying vec2 vUv;
   varying vec3 vNormal;
   varying vec3 vPosition;
@@ -97,15 +100,13 @@ const coreFragmentShader = `
     float fresnel = pow(1.0 - max(dot(viewDir, vNormal), 0.0), 3.2);
     
     vec3 colorBase = vec3(0.02, 0.04, 0.07);
-    vec3 colorCyan = vec3(0.0, 0.95, 0.99);
-    vec3 colorJade = vec3(0.0, 1.0, 0.64);
     
     float blendFactor = smoothstep(-0.25, 0.35, vDisplacement);
-    vec3 coreColor = mix(colorBase, colorCyan * 0.35, blendFactor);
+    vec3 coreColor = mix(colorBase, uColorPrimary * 0.35, blendFactor);
     
     vec3 finalColor = coreColor 
-      + (colorCyan * (fresnel * 0.9 + uClickPulse * 0.5)) 
-      + (colorJade * pow(fresnel, 4.5) * 0.7);
+      + (uColorPrimary * (fresnel * 0.9 + uClickPulse * 0.5)) 
+      + (uColorSecondary * pow(fresnel, 4.5) * 0.7);
     
     float alpha = 0.28 + fresnel * 0.22;
     gl_FragColor = vec4(finalColor, alpha);
@@ -118,6 +119,8 @@ const particlesVertexShader = `
   uniform vec2 uPointer;
   uniform float uClickPulse;
   uniform vec3 uClickPos;
+  uniform vec3 uColorPrimary;
+  uniform vec3 uColorSecondary;
   
   attribute vec3 aRandom;
   varying float vAlpha;
@@ -144,7 +147,7 @@ const particlesVertexShader = `
     gl_PointSize = (14.0 * (1.0 + wave * 2.2 + uClickPulse * 1.5)) / -mvPosition.z;
     
     vAlpha = 0.25 + wave * 0.75 + uClickPulse * 0.3;
-    vColor = mix(vec3(0.0, 0.95, 0.99), vec3(0.0, 1.0, 0.64), wave);
+    vColor = mix(uColorPrimary, uColorSecondary, wave);
     gl_Position = projectionMatrix * mvPosition;
   }
 `
@@ -163,6 +166,7 @@ const particlesFragmentShader = `
 `
 
 export function NeuralCore() {
+  const palette = usePalette()
   const groupRef = useRef<THREE.Group>(null!)
   const meshRef = useRef<THREE.Mesh>(null!)
   const wireframeRef = useRef<THREE.Mesh>(null!)
@@ -184,6 +188,8 @@ export function NeuralCore() {
       uTime: { value: 0 },
       uPointer: { value: new THREE.Vector2(0, 0) },
       uClickPulse: { value: 0 },
+      uColorPrimary: { value: new THREE.Color('#00f2fe') },
+      uColorSecondary: { value: new THREE.Color('#00ffa3') },
     }),
     []
   )
@@ -194,6 +200,8 @@ export function NeuralCore() {
       uPointer: { value: new THREE.Vector2(0, 0) },
       uClickPulse: { value: 0 },
       uClickPos: { value: new THREE.Vector3(0, 0, 0) },
+      uColorPrimary: { value: new THREE.Color('#00f2fe') },
+      uColorSecondary: { value: new THREE.Color('#00ffa3') },
     }),
     []
   )
@@ -260,6 +268,12 @@ export function NeuralCore() {
   }, [])
 
   useFrame((state, delta) => {
+    const active = getActivePalette()
+    coreUniforms.uColorPrimary.value.set(active.primary)
+    coreUniforms.uColorSecondary.value.set(active.secondary)
+    particleUniforms.uColorPrimary.value.set(active.primary)
+    particleUniforms.uColorSecondary.value.set(active.secondary)
+
     coreUniforms.uTime.value += delta
     particleUniforms.uTime.value += delta
 
@@ -330,7 +344,7 @@ export function NeuralCore() {
       <mesh ref={wireframeRef}>
         <icosahedronGeometry args={[2.3, 4]} />
         <meshBasicMaterial
-          color="#00f2fe"
+          color={palette.primary}
           wireframe={true}
           transparent={true}
           opacity={0.06}

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import gsap from 'gsap'
 import { useGSAP } from '@gsap/react'
+import { getActivePalette } from '../../theme/palettes'
 
 gsap.registerPlugin(useGSAP)
 
@@ -132,11 +133,12 @@ export function BootLoader({ onComplete }: BootLoaderProps) {
                 segmentRefs.current.forEach((seg, idx) => {
                   if (!seg) return
                   const isLit = idx < litCount
+                  const active = getActivePalette()
                   seg.style.opacity = isLit ? '1' : '0.12'
                   seg.style.backgroundColor = isLit
                     ? idx >= SEGMENT_COUNT - 4
-                      ? '#34d399'
-                      : '#22d3ee'
+                      ? active.secondary
+                      : active.primary
                     : '#1e293b'
                 })
               }

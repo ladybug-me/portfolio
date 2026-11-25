@@ -7,6 +7,7 @@ import { useGSAP } from '@gsap/react'
 import { HeroCanvas } from './components/canvas/HeroCanvas'
 import { CustomCursor } from './components/ui/CustomCursor'
 import { SectionNavigator } from './components/ui/SectionNavigator'
+import { PaletteSwitcher } from './components/ui/PaletteSwitcher'
 import { BootLoader } from './components/ui/BootLoader'
 import { HeroSection } from './components/sections/HeroSection'
 import { KineticTextScrub } from './components/ui/KineticTextScrub'
@@ -126,7 +127,7 @@ export function App() {
   return (
     <div
       ref={containerRef}
-      className="relative min-h-screen bg-[#07090e] text-[#f0f6fc] selection:bg-cyan-400 selection:text-black"
+      className="relative min-h-screen bg-[var(--bg-primary)] text-[#f0f6fc] selection:bg-cyan-400 selection:text-black"
     >
       {/* Boot Screen: Minimalist Dark Linux Init */}
       {!bootDone && (
@@ -150,6 +151,7 @@ export function App() {
       </Suspense>
 
       {/* Foreground Content Layers */}
+      <PaletteSwitcher />
       <SectionNavigator />
       <main className="relative z-10">
         <HeroSection ready={bootDone} />

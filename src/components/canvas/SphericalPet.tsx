@@ -1,6 +1,7 @@
 import { useRef, useEffect } from 'react'
 import * as THREE from 'three'
 import { useFrame, useThree } from '@react-three/fiber'
+import { usePalette } from '../../theme/palettes'
 
 interface PlatformData {
   x: number
@@ -23,6 +24,7 @@ const MOTE_OFFSETS = [
 ]
 
 export function SphericalPet() {
+  const palette = usePalette()
   const { viewport } = useThree()
 
   // Mesh part references
@@ -521,8 +523,8 @@ export function SphericalPet() {
 
       const isPulsing = clickPulseTimer.current > 0
       const pulseEmissive = isPulsing ? 2.8 + Math.sin(time * 12) * 0.5 : isCuriousLure ? 2.2 : 1.7
-      ;(leftPupilRef.current.material as THREE.MeshStandardMaterial).emissiveIntensity = pulseEmissive
-      ;(rightPupilRef.current.material as THREE.MeshStandardMaterial).emissiveIntensity = pulseEmissive
+        ; (leftPupilRef.current.material as THREE.MeshStandardMaterial).emissiveIntensity = pulseEmissive
+        ; (rightPupilRef.current.material as THREE.MeshStandardMaterial).emissiveIntensity = pulseEmissive
     }
 
     // 11. Micro-Ecosystem: Orbiting bio-digital energy motes with acceleration trail lag
@@ -555,8 +557,8 @@ export function SphericalPet() {
           <boxGeometry args={[0.75, 0.04, 0.32]} />
           <meshStandardMaterial
             ref={plat1MatRef}
-            color="#003844"
-            emissive="#00f2fe"
+            color={palette.bgSecondary}
+            emissive={palette.primary}
             emissiveIntensity={1.0}
             roughness={0.2}
             metalness={0.6}
@@ -568,7 +570,7 @@ export function SphericalPet() {
           <boxGeometry args={[0.75, 0.04, 0.32]} />
           <meshBasicMaterial
             ref={plat1RimRef}
-            color="#00f2fe"
+            color={palette.primary}
             wireframe
             transparent
             opacity={0}
@@ -578,7 +580,7 @@ export function SphericalPet() {
           <boxGeometry args={[0.75, 0.04, 0.32]} />
           <meshBasicMaterial
             ref={plat1GlowMatRef}
-            color="#00f2fe"
+            color={palette.primary}
             transparent
             opacity={0}
             blending={THREE.AdditiveBlending}
@@ -593,8 +595,8 @@ export function SphericalPet() {
           <boxGeometry args={[0.7, 0.04, 0.32]} />
           <meshStandardMaterial
             ref={plat2MatRef}
-            color="#003844"
-            emissive="#00ffa3"
+            color={palette.bgSecondary}
+            emissive={palette.secondary}
             emissiveIntensity={1.0}
             roughness={0.2}
             metalness={0.6}
@@ -606,7 +608,7 @@ export function SphericalPet() {
           <boxGeometry args={[0.7, 0.04, 0.32]} />
           <meshBasicMaterial
             ref={plat2RimRef}
-            color="#00ffa3"
+            color={palette.secondary}
             wireframe
             transparent
             opacity={0}
@@ -616,7 +618,7 @@ export function SphericalPet() {
           <boxGeometry args={[0.7, 0.04, 0.32]} />
           <meshBasicMaterial
             ref={plat2GlowMatRef}
-            color="#00ffa3"
+            color={palette.secondary}
             transparent
             opacity={0}
             blending={THREE.AdditiveBlending}
@@ -642,8 +644,8 @@ export function SphericalPet() {
           <mesh ref={innerCoreRef} castShadow>
             <sphereGeometry args={[0.12, 14, 14]} />
             <meshStandardMaterial
-              color="#00ffa3"
-              emissive="#00f2fe"
+              color={palette.secondary}
+              emissive={palette.primary}
               emissiveIntensity={1.6}
               roughness={0.2}
             />
@@ -653,8 +655,8 @@ export function SphericalPet() {
           <mesh castShadow receiveShadow>
             <sphereGeometry args={[0.18, 18, 18]} />
             <meshStandardMaterial
-              color="#061c28"
-              emissive="#00f2fe"
+              color={palette.bgSecondary}
+              emissive={palette.primary}
               emissiveIntensity={0.25}
               roughness={0.14}
               metalness={0.25}
@@ -667,19 +669,19 @@ export function SphericalPet() {
           <mesh ref={primaryBandRef} rotation={[Math.PI / 2, 0, 0]} castShadow>
             <torusGeometry args={[0.182, 0.008, 8, 24]} />
             <meshStandardMaterial
-              color="#00f2fe"
-              emissive="#00f2fe"
+              color={palette.primary}
+              emissive={palette.primary}
               emissiveIntensity={2.0}
               roughness={0.25}
             />
           </mesh>
 
-          {/* Secondary Emerald Rim Ring with Counter-Spin */}
+          {/* Secondary Accent Rim Ring with Counter-Spin */}
           <mesh ref={secondaryBandRef} rotation={[0, 0, Math.PI / 4]}>
             <torusGeometry args={[0.181, 0.004, 8, 24]} />
             <meshStandardMaterial
-              color="#00ffa3"
-              emissive="#00ffa3"
+              color={palette.secondary}
+              emissive={palette.secondary}
               emissiveIntensity={1.4}
               transparent
               opacity={0.7}
@@ -690,26 +692,26 @@ export function SphericalPet() {
           <group position={[0, 0.18, 0]}>
             <mesh position={[0, 0.03, 0]}>
               <cylinderGeometry args={[0.005, 0.007, 0.06, 8]} />
-              <meshStandardMaterial color="#00f2fe" metalness={0.8} roughness={0.2} />
+              <meshStandardMaterial color={palette.primary} metalness={0.8} roughness={0.2} />
             </mesh>
 
-            {/* Cyan Primary Beacon */}
+            {/* Primary Beacon */}
             <mesh position={[0, 0.07, 0]}>
               <sphereGeometry args={[0.016, 12, 12]} />
               <meshStandardMaterial
-                color="#00f2fe"
-                emissive="#00f2fe"
+                color={palette.primary}
+                emissive={palette.primary}
                 emissiveIntensity={2.5}
                 roughness={0.2}
               />
             </mesh>
 
-            {/* Emerald Satellite Mini-Bead */}
+            {/* Secondary Satellite Mini-Bead */}
             <mesh position={[0.024, 0.08, 0]}>
               <sphereGeometry args={[0.008, 8, 8]} />
               <meshStandardMaterial
-                color="#00ffa3"
-                emissive="#00ffa3"
+                color={palette.secondary}
+                emissive={palette.secondary}
                 emissiveIntensity={2.2}
               />
             </mesh>
@@ -727,8 +729,8 @@ export function SphericalPet() {
             <mesh ref={leftPupilRef} position={[0, 0, 0.024]}>
               <sphereGeometry args={[0.022, 10, 10]} />
               <meshStandardMaterial
-                color="#00ffa3"
-                emissive="#00f2fe"
+                color={palette.secondary}
+                emissive={palette.primary}
                 emissiveIntensity={2.0}
                 roughness={0.2}
               />
@@ -744,8 +746,8 @@ export function SphericalPet() {
             <mesh ref={leftSmileGlowRef} position={[0, -0.0095, 0.028]} visible={false}>
               <torusGeometry args={[0.031, 0.003, 8, 24, Math.PI]} />
               <meshStandardMaterial
-                color="#00ffa3"
-                emissive="#00f2fe"
+                color={palette.secondary}
+                emissive={palette.primary}
                 emissiveIntensity={2.8}
                 roughness={0.2}
               />
@@ -764,8 +766,8 @@ export function SphericalPet() {
             <mesh ref={rightPupilRef} position={[0, 0, 0.024]}>
               <sphereGeometry args={[0.022, 10, 10]} />
               <meshStandardMaterial
-                color="#00ffa3"
-                emissive="#00f2fe"
+                color={palette.secondary}
+                emissive={palette.primary}
                 emissiveIntensity={2.0}
                 roughness={0.2}
               />
@@ -781,8 +783,8 @@ export function SphericalPet() {
             <mesh ref={rightSmileGlowRef} position={[0, -0.0095, 0.028]} visible={false}>
               <torusGeometry args={[0.031, 0.003, 8, 24, Math.PI]} />
               <meshStandardMaterial
-                color="#00ffa3"
-                emissive="#00f2fe"
+                color={palette.secondary}
+                emissive={palette.primary}
                 emissiveIntensity={2.8}
                 roughness={0.2}
               />
@@ -815,16 +817,20 @@ export function SphericalPet() {
 
           {/* Micro-Ecosystem: Swarm of 6 bio-digital energy motes */}
           <group ref={motesGroupRef}>
-            {MOTE_OFFSETS.map((mote, i) => (
-              <mesh key={i}>
-                <sphereGeometry args={[0.011, 8, 8]} />
-                <meshStandardMaterial
-                  color={mote.color}
-                  emissive={mote.color}
-                  emissiveIntensity={2.8}
-                />
-              </mesh>
-            ))}
+            {MOTE_OFFSETS.map((_, i) => {
+              const moteColor =
+                i % 3 === 0 ? palette.primary : i % 3 === 1 ? palette.secondary : palette.mid
+              return (
+                <mesh key={i}>
+                  <sphereGeometry args={[0.011, 8, 8]} />
+                  <meshStandardMaterial
+                    color={moteColor}
+                    emissive={moteColor}
+                    emissiveIntensity={2.8}
+                  />
+                </mesh>
+              )
+            })}
           </group>
         </group>
       </group>

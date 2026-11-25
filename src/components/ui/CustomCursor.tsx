@@ -1,6 +1,8 @@
 import { useEffect, useRef } from 'react'
+import { getActivePalette, usePalette } from '../../theme/palettes'
 
 export function CustomCursor() {
+  const palette = usePalette()
   const fireflyRef = useRef<HTMLDivElement>(null)
   const leftWingRef = useRef<SVGGElement>(null)
   const rightWingRef = useRef<SVGGElement>(null)
@@ -88,9 +90,9 @@ export function CustomCursor() {
           m.y = mouseY
         })
         if (fireflyRef.current) fireflyRef.current.style.opacity = '1'
-        ;[mote0Ref, mote1Ref, mote2Ref, mote3Ref].forEach((ref) => {
-          if (ref.current) ref.current.style.opacity = '0.7'
-        })
+          ;[mote0Ref, mote1Ref, mote2Ref, mote3Ref].forEach((ref) => {
+            if (ref.current) ref.current.style.opacity = '0.7'
+          })
       }
 
       // Check for interactive targets
@@ -102,9 +104,10 @@ export function CustomCursor() {
       if (interactive !== isHovering) {
         isHovering = interactive
         if (fireflyRef.current) {
+          const active = getActivePalette()
           fireflyRef.current.style.filter = isHovering
-            ? 'drop-shadow(0 0 10px rgba(0, 255, 163, 0.95)) drop-shadow(0 0 16px rgba(0, 242, 254, 0.7))'
-            : 'drop-shadow(0 0 8px rgba(0, 242, 254, 0.85))'
+            ? `drop-shadow(0 0 10px rgba(${active.secondaryRgb}, 0.95)) drop-shadow(0 0 16px rgba(${active.primaryRgb}, 0.7))`
+            : `drop-shadow(0 0 8px rgba(${active.primaryRgb}, 0.85))`
         }
       }
     }
@@ -122,17 +125,17 @@ export function CustomCursor() {
     const handleMouseLeave = () => {
       isVisible = false
       if (fireflyRef.current) fireflyRef.current.style.opacity = '0'
-      ;[mote0Ref, mote1Ref, mote2Ref, mote3Ref].forEach((ref) => {
-        if (ref.current) ref.current.style.opacity = '0'
-      })
+        ;[mote0Ref, mote1Ref, mote2Ref, mote3Ref].forEach((ref) => {
+          if (ref.current) ref.current.style.opacity = '0'
+        })
     }
 
     const handleMouseEnter = () => {
       isVisible = true
       if (fireflyRef.current) fireflyRef.current.style.opacity = '1'
-      ;[mote0Ref, mote1Ref, mote2Ref, mote3Ref].forEach((ref) => {
-        if (ref.current) ref.current.style.opacity = '0.7'
-      })
+        ;[mote0Ref, mote1Ref, mote2Ref, mote3Ref].forEach((ref) => {
+          if (ref.current) ref.current.style.opacity = '0.7'
+        })
     }
 
     // Direct 60fps GPU compositor loop
@@ -236,41 +239,46 @@ export function CustomCursor() {
       {/* Bioluminescent Trailing Spark Motes */}
       <div
         ref={mote0Ref}
-        className="fixed top-0 left-0 w-2 h-2 rounded-full bg-cyan-300 opacity-0 will-change-transform shadow-[0_0_8px_#00f2fe]"
+        className="fixed top-0 left-0 w-2 h-2 rounded-full bg-cyan-300 opacity-0 will-change-transform"
+        style={{ boxShadow: `0 0 8px ${palette.primary}` }}
       />
       <div
         ref={mote1Ref}
-        className="fixed top-0 left-0 w-1.5 h-1.5 rounded-full bg-cyan-400 opacity-0 will-change-transform shadow-[0_0_6px_#00f2fe]"
+        className="fixed top-0 left-0 w-1.5 h-1.5 rounded-full bg-cyan-400 opacity-0 will-change-transform"
+        style={{ boxShadow: `0 0 6px ${palette.primary}` }}
       />
       <div
         ref={mote2Ref}
-        className="fixed top-0 left-0 w-1.5 h-1.5 rounded-full bg-emerald-400 opacity-0 will-change-transform shadow-[0_0_6px_#00ffa3]"
+        className="fixed top-0 left-0 w-1.5 h-1.5 rounded-full bg-emerald-400 opacity-0 will-change-transform"
+        style={{ boxShadow: `0 0 6px ${palette.secondary}` }}
       />
       <div
         ref={mote3Ref}
-        className="fixed top-0 left-0 w-1 h-1 rounded-full bg-emerald-300 opacity-0 will-change-transform shadow-[0_0_4px_#00ffa3]"
+        className="fixed top-0 left-0 w-1 h-1 rounded-full bg-emerald-300 opacity-0 will-change-transform"
+        style={{ boxShadow: `0 0 4px ${palette.secondary}` }}
       />
 
       {/* Playful Cyber Firefly / Energy Sprite */}
       <div
         ref={fireflyRef}
-        className="fixed top-0 left-0 w-8 h-8 opacity-0 will-change-transform transition-[filter] duration-200 ease-out flex items-center justify-center drop-shadow-[0_0_8px_rgba(0,242,254,0.85)]"
+        className="fixed top-0 left-0 w-8 h-8 opacity-0 will-change-transform transition-[filter] duration-200 ease-out flex items-center justify-center"
+        style={{ filter: `drop-shadow(0 0 8px rgba(${palette.primaryRgb}, 0.85))` }}
       >
         <svg viewBox="0 0 32 32" className="w-full h-full overflow-visible">
           <defs>
             {/* Wing Gradients */}
             <linearGradient id="fireflyWingGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#00ffa3" stopOpacity="0.85" />
-              <stop offset="50%" stopColor="#00f2fe" stopOpacity="0.65" />
-              <stop offset="100%" stopColor="#00f2fe" stopOpacity="0.2" />
+              <stop offset="0%" stopColor={palette.secondary} stopOpacity="0.85" />
+              <stop offset="50%" stopColor={palette.primary} stopOpacity="0.65" />
+              <stop offset="100%" stopColor={palette.primary} stopOpacity="0.2" />
             </linearGradient>
 
             {/* Glowing Core Gradient */}
             <radialGradient id="fireflyCoreGrad" cx="50%" cy="50%" r="50%">
               <stop offset="0%" stopColor="#ffffff" stopOpacity="1" />
-              <stop offset="35%" stopColor="#00ffa3" stopOpacity="0.95" />
-              <stop offset="70%" stopColor="#00f2fe" stopOpacity="0.9" />
-              <stop offset="100%" stopColor="#00f2fe" stopOpacity="0" />
+              <stop offset="35%" stopColor={palette.secondary} stopOpacity="0.95" />
+              <stop offset="70%" stopColor={palette.primary} stopOpacity="0.9" />
+              <stop offset="100%" stopColor={palette.primary} stopOpacity="0" />
             </radialGradient>
           </defs>
 
@@ -279,7 +287,7 @@ export function CustomCursor() {
             <path
               d="M 15 14 C 6 6 1 12 7 20 C 11 23 15 17 15 14 Z"
               fill="url(#fireflyWingGrad)"
-              stroke="#00ffa3"
+              stroke={palette.secondary}
               strokeWidth="0.8"
               strokeOpacity="0.8"
             />
@@ -290,7 +298,7 @@ export function CustomCursor() {
             <path
               d="M 17 14 C 26 6 31 12 25 20 C 21 23 17 17 17 14 Z"
               fill="url(#fireflyWingGrad)"
-              stroke="#00ffa3"
+              stroke={palette.secondary}
               strokeWidth="0.8"
               strokeOpacity="0.8"
             />
@@ -299,31 +307,31 @@ export function CustomCursor() {
           {/* Curved Holographic Antennae with glowing tips */}
           <path
             d="M 14.5 10.5 Q 11 4 7 6"
-            stroke="rgba(0, 242, 254, 0.8)"
+            stroke={`rgba(${palette.primaryRgb}, 0.8)`}
             strokeWidth="1"
             fill="none"
             strokeLinecap="round"
           />
-          <circle cx="7" cy="6" r="1.2" fill="#00ffa3" className="shadow-[0_0_4px_#00ffa3]" />
+          <circle cx="7" cy="6" r="1.2" fill={palette.secondary} />
 
           <path
             d="M 17.5 10.5 Q 21 4 25 6"
-            stroke="rgba(0, 242, 254, 0.8)"
+            stroke={`rgba(${palette.primaryRgb}, 0.8)`}
             strokeWidth="1"
             fill="none"
             strokeLinecap="round"
           />
-          <circle cx="25" cy="6" r="1.2" fill="#00ffa3" className="shadow-[0_0_4px_#00ffa3]" />
+          <circle cx="25" cy="6" r="1.2" fill={palette.secondary} />
 
           {/* Obsidian Head & Thorax */}
-          <circle cx="16" cy="11.5" r="2.4" fill="#030814" stroke="#00f2fe" strokeWidth="0.8" />
+          <circle cx="16" cy="11.5" r="2.4" fill="#030814" stroke={palette.primary} strokeWidth="0.8" />
 
           {/* Radiant Bioluminescent Abdomen */}
           <ellipse cx="16" cy="18.5" rx="3.6" ry="6" fill="url(#fireflyCoreGrad)" className="firefly-glow-body" />
           <ellipse cx="16" cy="17.5" rx="1.6" ry="3.2" fill="#ffffff" opacity="0.95" />
 
           {/* Pixel-perfect center laser pinpoint */}
-          <circle cx="16" cy="11.5" r="0.9" fill="#00ffa3" />
+          <circle cx="16" cy="11.5" r="0.9" fill={palette.secondary} />
         </svg>
       </div>
     </div>

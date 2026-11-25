@@ -3,6 +3,7 @@ import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { SplitText } from 'gsap/SplitText'
 import { useGSAP } from '@gsap/react'
+import { getActivePalette, usePalette } from '../../theme/palettes'
 
 gsap.registerPlugin(ScrollTrigger, SplitText)
 
@@ -50,13 +51,6 @@ const MILESTONES = [
     desc: 'Declarative Linux shell UI in Caelestia and automated system scripting.',
     tag: 'SHELL & UI',
   },
-]
-
-const ENERGY_PALETTE = [
-  'rgba(0, 242, 254, 0.95)',
-  'rgba(56, 189, 248, 0.90)',
-  'rgba(0, 255, 163, 0.85)',
-  'rgba(125, 211, 252, 0.90)',
 ]
 
 /**
@@ -112,7 +106,7 @@ function buildCardPixelSnapshot(
     const cy = numBox.y + numBox.h / 2
     ctx.beginPath()
     ctx.arc(cx, cy, numBox.w / 2, 0, Math.PI * 2)
-    ctx.fillStyle = '#22d3ee'
+    ctx.fillStyle = getActivePalette().primary
     ctx.fill()
 
     ctx.fillStyle = '#000000'
@@ -218,11 +212,17 @@ function createPixelParticle(
   const baseDelay = isBorder ? normY * 0.14 : 0.12 + (normX * 0.14 + normY * 0.18)
   const delay = Math.min(0.42, baseDelay + Math.random() * 0.06)
 
-  const energyColor = ENERGY_PALETTE[Math.floor(Math.random() * ENERGY_PALETTE.length)]
-  // Blend pixel RGB halfway toward theme cyan (#00f2fe) for mid-flight crystallization
-  const mr = Math.round(r * 0.55)
-  const mg = Math.round(g * 0.55 + 242 * 0.45)
-  const mb = Math.round(b * 0.55 + 254 * 0.45)
+  const activePalette = getActivePalette()
+  const energyOptions = [
+    `rgba(${activePalette.primaryRgb}, 0.95)`,
+    `rgba(${activePalette.secondaryRgb}, 0.85)`,
+    activePalette.mid,
+  ]
+  const energyColor = energyOptions[Math.floor(Math.random() * energyOptions.length)]
+  const [pr, pg, pb] = activePalette.primaryRgb.split(',').map((v) => Number(v.trim()))
+  const mr = Math.round(r * 0.55 + pr * 0.45)
+  const mg = Math.round(g * 0.55 + pg * 0.45)
+  const mb = Math.round(b * 0.55 + pb * 0.45)
 
   return {
     relX: x,
@@ -239,6 +239,7 @@ function createPixelParticle(
 }
 
 export function CircuitPipeline() {
+  const palette = usePalette()
   const containerRef = useRef<HTMLDivElement>(null)
   const pathRef = useRef<SVGPathElement>(null)
   const cardsRef = useRef<(HTMLDivElement | null)[]>([])
@@ -257,6 +258,10 @@ export function CircuitPipeline() {
     snapshotsRef.current = cards.map((card, idx) => buildCardPixelSnapshot(card, MILESTONES[idx]))
     needsRenderRef.current = true
   }, [])
+
+  useEffect(() => {
+    rebuildSnapshots()
+  }, [palette.id, rebuildSnapshots])
 
   useEffect(() => {
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -281,6 +286,10 @@ export function CircuitPipeline() {
   }, [rebuildSnapshots])
 
   // Real-time Reverse Pixel Dispersion Particle Renderer
+  useEffect(() => {
+    rebuildSnapshots()
+  }, [palette.id, rebuildSnapshots])
+
   useEffect(() => {
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     const canvas = canvasRef.current
@@ -595,10 +604,10 @@ export function CircuitPipeline() {
             <path
               ref={pathRef}
               d="M 20,30 Q 250,55 500,30 T 980,30"
-              stroke="#00f2fe"
+              stroke={palette.primary}
               strokeWidth="4"
               strokeLinecap="round"
-              className="filter drop-shadow-[0_0_10px_#00f2fe]"
+              style={{ filter: `drop-shadow(0 0 10px ${palette.primary})` }}
             />
           </svg>
         </div>
@@ -615,13 +624,12 @@ export function CircuitPipeline() {
                 ref={(el) => {
                   cardsRef.current[idx] = el
                 }}
-                className={`relative flex flex-col p-6 rounded-2xl border backdrop-blur-xl ${
-                  isCurrent
+                className={`relative flex flex-col p-6 rounded-2xl border backdrop-blur-xl ${isCurrent
                     ? 'bg-[#091520]/95 border-cyan-400 shadow-[0_0_24px_rgba(0,242,254,0.2)]'
                     : isReached
                       ? 'bg-[#050b14]/85 border-cyan-500/35'
                       : 'bg-[#050b14]/40 border-white/5'
-                }`}
+                  }`}
               >
                 <div>
                   <div className="flex items-center justify-between mb-4">

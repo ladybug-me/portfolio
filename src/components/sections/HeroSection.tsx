@@ -342,7 +342,7 @@ export function HeroSection({ ready = true }: HeroSectionProps) {
           <div className="hidden sm:block absolute inset-0 pointer-events-none z-20">
             {/* Badge 1: Top-Center */}
             <div className="tilted-badge-1-wrap absolute -top-4 sm:-top-8 left-6 sm:left-1/4 will-change-transform">
-              <div className="tilted-badge-1-inner px-3 sm:px-4 py-1 sm:py-1.5 rounded-full bg-slate-900/90 border border-cyan-400/50 text-cyan-300 font-mono text-[11px] sm:text-xs font-semibold shadow-[0_4px_24px_rgba(0,242,254,0.3)] -rotate-6 backdrop-blur-md flex items-center gap-2">
+              <div className="tilted-badge-1-inner px-3 sm:px-4 py-1 sm:py-1.5 rounded-full bg-slate-900/90 border border-cyan-400/50 text-cyan-300 font-mono text-[11px] sm:text-xs font-semibold shadow-[0_4px_24px_rgba(var(--accent-cyan-rgb),0.3)] -rotate-6 backdrop-blur-md flex items-center gap-2">
                 <img
                   src={`${import.meta.env.BASE_URL}assets/icons/caelestia.svg`}
                   alt=""
@@ -386,7 +386,7 @@ export function HeroSection({ ready = true }: HeroSectionProps) {
 
             {/* Line 2: SINGH <-> RAJVEER SINGH (Hollow Electric Cyan Contour) */}
             <div className="hero-line-2-wrap overflow-hidden py-1 will-change-transform">
-              <span className="hero-line-2-inner block whitespace-nowrap text-[13vw] sm:text-[14.5vw] lg:text-[15.5vw] text-transparent text-stroke-cyan text-right pr-2 sm:pr-8 will-change-transform drop-shadow-[0_0_24px_rgba(0,242,254,0.35)]">
+              <span className="hero-line-2-inner block whitespace-nowrap text-[13vw] sm:text-[14.5vw] lg:text-[15.5vw] text-transparent text-stroke-cyan text-right pr-2 sm:pr-8 will-change-transform drop-shadow-[0_0_24px_rgba(var(--accent-cyan-rgb),0.35)]">
                 SINGH
               </span>
             </div>

@@ -2,6 +2,7 @@ import { useRef } from 'react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useGSAP } from '@gsap/react'
+import { usePalette } from '../../theme/palettes'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -22,6 +23,7 @@ const LINES = [
 
 export function KineticTextScrub({ className = '' }: KineticTextScrubProps) {
   const containerRef = useRef<HTMLDivElement>(null)
+  const palette = usePalette()
 
   useGSAP(
     () => {
@@ -46,7 +48,7 @@ export function KineticTextScrub({ className = '' }: KineticTextScrubProps) {
         rotation: 0,
         display: 'inline-block',
         transformOrigin: 'center center',
-        textShadow: '0 0 0px rgba(0, 242, 254, 0)',
+        textShadow: `0 0 0px rgba(${palette.primaryRgb}, 0)`,
         willChange: 'transform, color, text-shadow',
         backfaceVisibility: 'hidden',
       })
@@ -72,29 +74,28 @@ export function KineticTextScrub({ className = '' }: KineticTextScrubProps) {
       chars.forEach((char, i) => {
         const startTime = (i / totalChars) * letterAnimSpan
 
-        // Stage 1: Active Wave - Scale 1.15, Random ±3-4 deg tilt, Vivid Glowing Cyan
+        // Stage 1: Active Wave - Scale 1.15, Random ±3-4 deg tilt, Vivid Glowing Accent
         tl.to(
           char,
           {
-            color: '#38bdf8',
+            color: palette.mid,
             scale: 1.15,
             rotation: () => gsap.utils.random(-4, 4),
-            textShadow:
-              '0 0 20px #00f2fe, 0 0 38px rgba(0, 242, 254, 0.9), 0.8px 0.8px 0 #00f2fe, -0.8px -0.8px 0 #00f2fe',
+            textShadow: `0 0 20px ${palette.primary}, 0 0 38px rgba(${palette.primaryRgb}, 0.9), 0.8px 0.8px 0 ${palette.primary}, -0.8px -0.8px 0 ${palette.primary}`,
             duration: 3.5,
             ease: 'power1.out',
           },
           startTime
         )
 
-        // Stage 2: Settle into permanent website cyan, scale 1, 0 deg tilt
+        // Stage 2: Settle into permanent website primary accent, scale 1, 0 deg tilt
         tl.to(
           char,
           {
-            color: '#00f2fe',
+            color: palette.primary,
             scale: 1,
             rotation: 0,
-            textShadow: '0 0 14px rgba(0, 242, 254, 0.45)',
+            textShadow: `0 0 14px rgba(${palette.primaryRgb}, 0.45)`,
             duration: 3.5,
             ease: 'power1.inOut',
           },
@@ -105,7 +106,7 @@ export function KineticTextScrub({ className = '' }: KineticTextScrubProps) {
       // Brief hold at 100% illumination before unpinning
       tl.to({}, { duration: 6 })
     },
-    { scope: containerRef }
+    { scope: containerRef, dependencies: [palette.id], revertOnUpdate: true }
   )
 
   const fullText = LINES.join(' ')

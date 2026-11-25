@@ -3,6 +3,7 @@ import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { getActivePalette } from '../../theme/palettes'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -168,6 +169,7 @@ export function DistantOrbitParticles() {
   }, [])
 
   useFrame((state, delta) => {
+    uniforms.uColor.value.set(getActivePalette().primary)
     uniforms.uTime.value += delta
 
     // Pointer interpolation
