@@ -9,21 +9,26 @@ interface BootLoaderProps {
 }
 
 const BOOT_STEPS = [
-  { status: 'OK', text: 'Mounted /dev/nvme0n1p1 (wayland-compositor)' },
-  { status: 'OK', text: 'Started Caelestia IPC Socket (<5ms)' },
-  { status: 'OK', text: 'Initialized CUDA & Edge Inference Runtime' },
-  { status: 'OK', text: 'Loaded FAISS Vector Index (44,441 items)' },
-  { status: 'OK', text: 'Reached target Graphical Interface.' },
+  'BIOS: POST complete, bootable drive located.',
+  'Bootloader: Loading Linux kernel into RAM...',
+  'Initramfs: Drivers initialized, root filesystem mounted.',
+  'Init System: PID 1 active, system services started.',
+  'User Login: Session ready.',
 ]
+
+const SEGMENT_COUNT = 24
+const GLITCH_RECTS = Array.from({ length: 10 }, (_, i) => i)
 
 export function BootLoader({ onComplete }: BootLoaderProps) {
   const rootRef = useRef<HTMLDivElement>(null)
-  const barRef = useRef<HTMLDivElement>(null)
   const percentRef = useRef<HTMLSpanElement>(null)
+  const statusTextRef = useRef<HTMLSpanElement>(null)
+  const segmentRefs = useRef<(HTMLDivElement | null)[]>([])
+  const glitchTlRef = useRef<gsap.core.Timeline | null>(null)
   const hasExitedRef = useRef(false)
   const [readyToExit, setReadyToExit] = useState(false)
 
-  // Hand off from static #boot-splash and pause scroll while booting
+  // Hand off from static #boot-splash and lock scroll while booting
   useEffect(() => {
     document.getElementById('boot-splash')?.remove()
 
@@ -65,7 +70,7 @@ export function BootLoader({ onComplete }: BootLoaderProps) {
     }
   }, [])
 
-  // Boot sequence entrance & progress choreography
+  // Rectangular progress bar + flickering glitch choreography
   useGSAP(
     () => {
       if (!rootRef.current) return
@@ -73,64 +78,91 @@ export function BootLoader({ onComplete }: BootLoaderProps) {
       if (prefersReducedMotion) return
 
       const progressObj = { value: 0 }
-      const tl = gsap.timeline()
+      let lastLitCount = -1
+      let lastStepIdx = -1
 
-      tl.from('.boot-cmd', {
-        autoAlpha: 0,
-        y: 8,
-        duration: 0.3,
-        ease: 'power2.out',
-      })
-        .from(
-          '.boot-line',
-          {
-            autoAlpha: 0,
-            x: -14,
-            duration: 0.35,
-            stagger: 0.28,
-            ease: 'power3.out',
-          },
-          0.18
-        )
-        .from(
-          '.boot-ok',
-          {
-            scale: 0.65,
-            autoAlpha: 0,
-            duration: 0.25,
-            stagger: 0.28,
-            ease: 'back.out(2)',
-          },
-          0.18
-        )
+      // Continuous rectangular glitch flicker loop
+      glitchTlRef.current = gsap
+        .timeline({ repeat: -1, repeatRefresh: true })
+        .to('.boot-glitch-rect', {
+          autoAlpha: () => (Math.random() > 0.45 ? gsap.utils.random(0.25, 0.95) : 0),
+          xPercent: () => gsap.utils.random(-35, 35),
+          yPercent: () => gsap.utils.random(-25, 25),
+          scaleX: () => gsap.utils.random(0.4, 2.2),
+          scaleY: () => gsap.utils.random(0.5, 1.8),
+          duration: 0.06,
+          stagger: { each: 0.015, from: 'random' },
+          ease: 'steps(1)',
+        })
         .to(
-          barRef.current,
+          '.boot-bar-frame',
           {
-            scaleX: 1,
-            duration: 1.75,
-            ease: 'power2.inOut',
+            x: () => (Math.random() > 0.7 ? gsap.utils.random(-3, 3) : 0),
+            skewX: () => (Math.random() > 0.78 ? gsap.utils.random(-4, 4) : 0),
+            duration: 0.06,
+            ease: 'steps(1)',
           },
-          0.15
+          '<'
         )
+
+      const mainTl = gsap.timeline()
+
+      mainTl
+        .from('.boot-shell', {
+          autoAlpha: 0,
+          y: 10,
+          duration: 0.25,
+          ease: 'power2.out',
+        })
         .to(
           progressObj,
           {
             value: 100,
-            duration: 1.75,
+            duration: 1.85,
             ease: 'power2.inOut',
             onUpdate: () => {
+              const pct = Math.round(progressObj.value)
               if (percentRef.current) {
-                percentRef.current.textContent = `${Math.round(progressObj.value)}%`
+                percentRef.current.textContent = `${String(pct).padStart(3, '0')}%`
+              }
+
+              const litCount = Math.round((pct / 100) * SEGMENT_COUNT)
+              if (litCount !== lastLitCount) {
+                lastLitCount = litCount
+                segmentRefs.current.forEach((seg, idx) => {
+                  if (!seg) return
+                  const isLit = idx < litCount
+                  seg.style.opacity = isLit ? '1' : '0.12'
+                  seg.style.backgroundColor = isLit
+                    ? idx >= SEGMENT_COUNT - 4
+                      ? '#34d399'
+                      : '#22d3ee'
+                    : '#1e293b'
+                })
+              }
+
+              const stepIdx = Math.min(
+                BOOT_STEPS.length - 1,
+                Math.floor((pct / 100) * BOOT_STEPS.length)
+              )
+              if (stepIdx !== lastStepIdx && statusTextRef.current) {
+                lastStepIdx = stepIdx
+                statusTextRef.current.textContent = BOOT_STEPS[stepIdx]
+                gsap.fromTo(
+                  statusTextRef.current,
+                  { autoAlpha: 0, x: -6 },
+                  { autoAlpha: 1, x: 0, duration: 0.18, ease: 'power2.out', overwrite: 'auto' }
+                )
               }
             },
           },
-          0.15
+          0.08
         )
     },
     { scope: rootRef }
   )
 
-  // Compositor shutter exit once min 2s & page assets are ready
+  // Glitch burst + compositor shutter exit once min 2s & page assets are ready
   useGSAP(
     () => {
       if (!readyToExit || hasExitedRef.current || !rootRef.current) return
@@ -142,6 +174,8 @@ export function BootLoader({ onComplete }: BootLoaderProps) {
         return
       }
 
+      glitchTlRef.current?.kill()
+
       gsap
         .timeline({
           onComplete: () => {
@@ -151,22 +185,34 @@ export function BootLoader({ onComplete }: BootLoaderProps) {
             onComplete()
           },
         })
-        .to('.boot-shell', {
-          autoAlpha: 0,
-          y: -16,
-          scale: 0.97,
-          duration: 0.28,
-          ease: 'power2.in',
+        .to('.boot-glitch-rect', {
+          autoAlpha: 0.9,
+          scaleX: 2.6,
+          xPercent: () => gsap.utils.random(-50, 50),
+          duration: 0.08,
+          stagger: 0.01,
+          ease: 'steps(1)',
         })
+        .to(
+          '.boot-shell',
+          {
+            autoAlpha: 0,
+            scale: 0.96,
+            skewX: 4,
+            duration: 0.22,
+            ease: 'power2.in',
+          },
+          '+=0.04'
+        )
         .to(
           rootRef.current,
           {
             clipPath: 'inset(50% 0% 50% 0%)',
             autoAlpha: 0,
-            duration: 0.65,
+            duration: 0.6,
             ease: 'expo.inOut',
           },
-          '-=0.08'
+          '-=0.06'
         )
     },
     { scope: rootRef, dependencies: [readyToExit] }
@@ -180,38 +226,64 @@ export function BootLoader({ onComplete }: BootLoaderProps) {
       aria-label="System booting"
       className="fixed inset-0 z-[9998] flex items-center justify-center bg-[#07090e] px-6 select-none"
     >
-      <div className="boot-shell w-full max-w-xl font-mono text-xs sm:text-sm">
-        {/* Terminal Prompt */}
-        <div className="boot-cmd flex items-center gap-2 text-slate-400 mb-5">
-          <span className="text-cyan-400 font-bold">ladybug-me@arch</span>
-          <span className="text-slate-600">:</span>
-          <span className="text-emerald-400">~</span>
-          <span className="text-slate-500">$ ./init --portfolio</span>
-          <span className="inline-block w-2 h-4 bg-cyan-400 animate-pulse ml-0.5" />
-        </div>
-
-        {/* Minimalist Kernel / Systemd Lines */}
-        <div className="space-y-2.5 mb-7">
-          {BOOT_STEPS.map((step, idx) => (
-            <div key={idx} className="boot-line flex items-baseline gap-3 text-slate-300">
-              <span className="boot-ok shrink-0 text-slate-500">
-                [ <span className="text-emerald-400 font-semibold">{step.status}</span> ]
-              </span>
-              <span className="truncate">{step.text}</span>
-            </div>
-          ))}
-        </div>
-
-        {/* Thin Progress Line + Numeric Readout */}
-        <div className="flex items-center gap-4">
-          <div className="relative flex-1 h-[2px] bg-white/10 overflow-hidden rounded-full">
-            <div
-              ref={barRef}
-              className="absolute inset-0 bg-gradient-to-r from-cyan-400 via-teal-300 to-emerald-400 origin-left scale-x-0 shadow-[0_0_12px_rgba(34,211,238,0.8)]"
-            />
+      <div className="boot-shell relative w-full max-w-xl font-mono text-xs sm:text-sm">
+        {/* Top Terminal Prompt + Percentage */}
+        <div className="flex items-center justify-between gap-4 mb-3">
+          <div className="flex items-center gap-2 text-slate-400 truncate">
+            <span className="text-cyan-400 font-bold">ladybug-me@arch</span>
+            <span className="text-slate-600">:</span>
+            <span className="text-emerald-400">~</span>
+            <span className="text-slate-500">$ ./init</span>
           </div>
-          <span ref={percentRef} className="w-10 text-right text-cyan-300 font-semibold tabular-nums">
-            0%
+          <span
+            ref={percentRef}
+            className="text-cyan-300 font-bold tracking-wider tabular-nums shrink-0"
+          >
+            000%
+          </span>
+        </div>
+
+        {/* Segmented Rectangular Progress Bar with Flickering Glitch Rectangles */}
+        <div className="boot-bar-frame relative w-full h-9 sm:h-11 border border-cyan-400/40 bg-[#0a0f18] p-1.5 flex items-stretch gap-1 overflow-hidden shadow-[0_0_25px_rgba(34,211,238,0.12)]">
+          {Array.from({ length: SEGMENT_COUNT }, (_, idx) => (
+            <div
+              key={idx}
+              ref={(el) => {
+                segmentRefs.current[idx] = el
+              }}
+              className="flex-1 bg-slate-800 opacity-15 transition-colors duration-75"
+            />
+          ))}
+
+          {/* Rectangular Glitch Overlays */}
+          <div className="pointer-events-none absolute inset-0 overflow-hidden">
+            {GLITCH_RECTS.map((idx) => (
+              <div
+                key={idx}
+                style={{
+                  left: `${(idx * 9.5) % 88}%`,
+                  top: `${(idx * 23) % 72}%`,
+                  width: `${18 + (idx % 4) * 14}px`,
+                  height: `${4 + (idx % 3) * 5}px`,
+                }}
+                className={`boot-glitch-rect absolute opacity-0 ${idx % 3 === 0
+                  ? 'bg-cyan-300/80'
+                  : idx % 3 === 1
+                    ? 'bg-emerald-400/75'
+                    : 'bg-white/80'
+                  }`}
+              />
+            ))}
+          </div>
+        </div>
+
+        {/* Single Active Kernel / Systemd Line */}
+        <div className="mt-3.5 flex items-center gap-2.5 text-slate-300">
+          <span className="shrink-0 text-slate-500">
+            [ <span className="text-emerald-400 font-semibold">OK</span> ]
+          </span>
+          <span ref={statusTextRef} className="truncate text-slate-300">
+            {BOOT_STEPS[0]}
           </span>
         </div>
       </div>
