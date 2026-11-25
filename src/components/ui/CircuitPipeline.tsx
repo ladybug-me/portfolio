@@ -699,7 +699,7 @@ export function CircuitPipeline() {
                     </span>
                     <span
                       data-piece="tag"
-                      className="font-mono text-[10px] px-2 py-0.5 rounded-full border border-cyan-500/30 bg-cyan-950/40 text-cyan-300"
+                      className="font-mono text-xs sm:text-sm font-medium px-3 py-1 rounded-full border border-cyan-500/30 bg-cyan-950/40 text-cyan-300"
                     >
                       {m.tag}
                     </span>

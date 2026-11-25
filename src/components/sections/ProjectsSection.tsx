@@ -149,7 +149,7 @@ export function ProjectsSection() {
               {/* Right: Title, Narrative & Meta */}
               <div className="lg:col-span-8 flex flex-col justify-between">
                 <div>
-                  <span className="inline-block px-3 py-1 rounded-full text-xs font-mono bg-cyan-500/10 text-cyan-300 border border-cyan-500/20 mb-3 sm:mb-4">
+                  <span className="inline-block px-4 py-1.5 rounded-full text-sm sm:text-base font-mono font-medium bg-cyan-500/10 text-cyan-300 border border-cyan-500/20 mb-3 sm:mb-4">
                     {proj.badge}
                   </span>
 
