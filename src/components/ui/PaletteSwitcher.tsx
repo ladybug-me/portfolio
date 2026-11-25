@@ -50,21 +50,16 @@ export function PaletteSwitcher() {
   return (
     <div
       ref={wrapRef}
-      className={`fixed top-4 right-4 sm:top-5 sm:right-6 z-[60] transition-opacity duration-300 ${
-        isOpen ? 'opacity-100' : 'opacity-20 hover:opacity-100 focus-within:opacity-100'
-      }`}
+      className="fixed top-4 right-4 sm:top-6 sm:right-6 z-[60] flex flex-col items-end"
     >
       <button
         type="button"
         onClick={() => setIsOpen((prev) => !prev)}
-        aria-label="Color palette settings"
+        aria-label="Color palette switcher"
         aria-expanded={isOpen}
-        className="w-10 h-10 rounded-full bg-[#0d111a]/80 backdrop-blur-xl border border-white/15 hover:border-cyan-400/60 text-slate-300 hover:text-cyan-300 flex items-center justify-center transition-colors duration-200 cursor-pointer shadow-[0_8px_24px_rgba(0,0,0,0.45)]"
+        className="w-12 h-12 rounded-full bg-[#0d111a]/80 backdrop-blur-2xl border border-white/20 hover:border-cyan-400/60 text-cyan-300 hover:text-white flex items-center justify-center transition-all duration-200 cursor-pointer shadow-[0_8px_30px_rgba(0,0,0,0.5)] hover:scale-105"
       >
-        <Icon
-          icon="mdi:cog"
-          className={`w-5 h-5 transition-transform duration-300 ${isOpen ? 'rotate-90 text-cyan-300' : ''}`}
-        />
+        <Icon icon="mdi:palette" className="w-6 h-6" />
       </button>
 
       {isOpen && (
@@ -72,7 +67,7 @@ export function PaletteSwitcher() {
           ref={menuRef}
           role="menu"
           aria-label="Select color palette"
-          className="mt-2.5 w-48 rounded-2xl bg-[#0d111a]/92 backdrop-blur-2xl border border-white/15 p-1.5 shadow-[0_18px_45px_rgba(0,0,0,0.75)] flex flex-col gap-1"
+          className="mt-3 w-80 sm:w-96 rounded-3xl bg-[#0d111a]/65 backdrop-blur-3xl border border-white/20 p-3 sm:p-4 shadow-[0_24px_80px_rgba(0,0,0,0.85)] flex flex-col gap-2"
         >
           {PALETTES.map((p) => {
             const isSelected = p.id === palette.id
@@ -86,26 +81,29 @@ export function PaletteSwitcher() {
                   setActivePalette(p.id)
                   setIsOpen(false)
                 }}
-                className={`w-full px-3 py-2 rounded-xl flex items-center justify-between text-xs font-mono transition-colors cursor-pointer ${
+                className={`w-full px-5 py-4 rounded-2xl flex items-center justify-between text-2xl sm:text-3xl font-extrabold tracking-tight transition-colors cursor-pointer ${
                   isSelected
-                    ? 'bg-white/10 text-white'
-                    : 'text-slate-300 hover:bg-white/5 hover:text-white'
+                    ? 'bg-white/12 text-white border border-white/20'
+                    : 'text-slate-300 hover:bg-white/8 hover:text-white border border-transparent'
                 }`}
               >
-                <span className="flex items-center gap-2.5">
+                <span className="flex items-center gap-4">
                   <span
-                    className="w-3 h-3 rounded-full shrink-0 border border-white/25"
+                    className="w-5 h-5 sm:w-6 sm:h-6 rounded-full shrink-0 border border-white/30"
                     style={{
                       background: `linear-gradient(135deg, ${p.primary}, ${p.secondary})`,
-                      boxShadow: `0 0 8px ${p.primary}`,
+                      boxShadow: `0 0 12px ${p.primary}`,
                     }}
                   />
                   <span>{p.name}</span>
                 </span>
                 {isSelected && (
                   <span
-                    className="w-1.5 h-1.5 rounded-full"
-                    style={{ backgroundColor: p.primary }}
+                    className="w-2.5 h-2.5 rounded-full shrink-0"
+                    style={{
+                      backgroundColor: p.primary,
+                      boxShadow: `0 0 10px ${p.primary}`,
+                    }}
                   />
                 )}
               </button>
