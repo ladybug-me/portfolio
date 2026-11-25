@@ -3,6 +3,7 @@ import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useGSAP } from '@gsap/react'
 import { usePalette } from '../../theme/palettes'
+import { getPinnedOverflow, syncPinnedOverflow } from '../../utils/scrollPan'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -23,6 +24,7 @@ const LINES = [
 
 export function KineticTextScrub({ className = '' }: KineticTextScrubProps) {
   const containerRef = useRef<HTMLDivElement>(null)
+  const innerRef = useRef<HTMLDivElement>(null)
   const palette = usePalette()
 
   useGSAP(
@@ -57,7 +59,7 @@ export function KineticTextScrub({ className = '' }: KineticTextScrubProps) {
         scrollTrigger: {
           trigger: container,
           start: 'top top',
-          end: () => `+=${getPinDistance()}`,
+          end: () => `+=${getPinDistance() + getPinnedOverflow(container)}`,
           pin: true,
           pinSpacing: true,
           scrub: window.innerWidth < 992 ? 0.6 : 0.75,
@@ -65,6 +67,12 @@ export function KineticTextScrub({ className = '' }: KineticTextScrubProps) {
           invalidateOnRefresh: true,
           fastScrollEnd: true,
           preventOverlaps: true,
+          onUpdate: (self) => {
+            syncPinnedOverflow(container, innerRef.current, self.progress)
+          },
+          onRefresh: (self) => {
+            syncPinnedOverflow(container, innerRef.current, self.progress)
+          },
         },
       })
 
@@ -115,13 +123,13 @@ export function KineticTextScrub({ className = '' }: KineticTextScrubProps) {
     <section
       ref={containerRef}
       id="statement"
-      className={`relative h-screen min-h-[100dvh] w-full flex flex-col justify-center items-center overflow-hidden border-t border-white/5 px-2 sm:px-4 ${className}`}
+      className={`relative min-h-[100dvh] w-full flex flex-col justify-center items-center overflow-x-clip border-t border-white/5 px-2 sm:px-4 py-8 ${className}`}
     >
       {/* Accessible readable text for assistive technologies */}
       <p className="sr-only">{fullText}</p>
 
       {/* Monumental scrubbed kinetic letter stream structured like img2 */}
-      <div className="w-full flex flex-col items-center justify-center text-center">
+      <div ref={innerRef} className="w-full flex flex-col items-center justify-center text-center will-change-transform">
         <p
           aria-hidden="true"
           className="font-black tracking-tight sm:tracking-tighter text-center select-none uppercase w-full flex flex-col items-center justify-center"

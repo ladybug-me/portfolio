@@ -4,6 +4,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { SplitText } from 'gsap/SplitText'
 import { useGSAP } from '@gsap/react'
 import { getActivePalette, usePalette } from '../../theme/palettes'
+import { getPinnedOverflow, syncPinnedOverflow } from '../../utils/scrollPan'
 
 gsap.registerPlugin(ScrollTrigger, SplitText)
 
@@ -241,6 +242,7 @@ function createPixelParticle(
 export function CircuitPipeline() {
   const palette = usePalette()
   const containerRef = useRef<HTMLDivElement>(null)
+  const innerRef = useRef<HTMLDivElement>(null)
   const pathRef = useRef<SVGPathElement>(null)
   const cardsRef = useRef<(HTMLDivElement | null)[]>([])
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -556,7 +558,7 @@ export function CircuitPipeline() {
         scrollTrigger: {
           trigger: containerRef.current,
           start: 'top top',
-          end: '+=2400',
+          end: () => `+=${2400 + getPinnedOverflow(containerRef.current)}`,
           pin: true,
           scrub: 0.5,
           anticipatePin: 1,
@@ -564,6 +566,7 @@ export function CircuitPipeline() {
           onUpdate: (self) => {
             scrollProgressRef.current = self.progress
             needsRenderRef.current = true
+            syncPinnedOverflow(containerRef.current, innerRef.current, self.progress)
             const step = Math.min(
               MILESTONES.length - 1,
               Math.floor(self.progress * MILESTONES.length)
@@ -573,6 +576,7 @@ export function CircuitPipeline() {
           onRefresh: (self) => {
             scrollProgressRef.current = self.progress
             needsRenderRef.current = true
+            syncPinnedOverflow(containerRef.current, innerRef.current, self.progress)
           },
         },
       })
@@ -602,7 +606,7 @@ export function CircuitPipeline() {
         className="absolute inset-0 w-full h-full pointer-events-none z-20"
       />
 
-      <div className="relative w-full max-w-7xl mx-auto px-4 sm:px-8">
+      <div ref={innerRef} className="relative w-full max-w-7xl mx-auto px-4 sm:px-8 will-change-transform">
         {/* Scroll-drawn SVG pipeline line */}
         <div className="hidden lg:block absolute top-[44px] left-16 right-16 z-0 pointer-events-none">
           <svg viewBox="0 0 1000 60" fill="none" className="w-full h-auto overflow-visible">

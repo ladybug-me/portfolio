@@ -4,6 +4,11 @@ import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useGSAP } from '@gsap/react'
 import { MaskedText } from '../ui/MaskedText'
+import {
+  getPinnedOverflow,
+  handleBoundedCardWheel,
+  syncPinnedOverflow,
+} from '../../utils/scrollPan'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -61,6 +66,7 @@ const categories: SkillCategory[] = [
 
 export function SkillsMatrix() {
   const sectionRef = useRef<HTMLElement>(null)
+  const innerRef = useRef<HTMLDivElement>(null)
   const stackWrapperRef = useRef<HTMLDivElement>(null)
 
   useGSAP(
@@ -71,8 +77,10 @@ export function SkillsMatrix() {
       const cards = gsap.utils.toArray<HTMLElement>('.horizontal-stack-card')
       if (cards.length <= 1) return
 
-      // Dynamic scroll distance tailored to window height
-      const getScrollDistance = () => (cards.length - 1) * Math.min(window.innerHeight * 0.85, 700)
+      // Dynamic scroll distance tailored to window height + any zoomed overflow
+      const getScrollDistance = () =>
+        (cards.length - 1) * Math.min(window.innerHeight * 0.85, 700) +
+        getPinnedOverflow(sectionRef.current)
 
       const tl = gsap.timeline({
         scrollTrigger: {
@@ -83,6 +91,12 @@ export function SkillsMatrix() {
           scrub: 0.6,
           anticipatePin: 1,
           invalidateOnRefresh: true,
+          onUpdate: (self) => {
+            syncPinnedOverflow(sectionRef.current, innerRef.current, self.progress)
+          },
+          onRefresh: (self) => {
+            syncPinnedOverflow(sectionRef.current, innerRef.current, self.progress)
+          },
         },
       })
 
@@ -149,22 +163,24 @@ export function SkillsMatrix() {
       id="skills"
       className="relative min-h-screen py-20 px-4 sm:px-8 border-t border-white/5 flex flex-col justify-center overflow-x-clip"
     >
-      {/* Editorial Header */}
-      <div className="max-w-5xl mx-auto w-full mb-8">
-        <h2 className="text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tight text-white">
-          <MaskedText text="SYSTEM TOOLING" wordClassName="skills-title-word" />
-        </h2>
-      </div>
+      <div ref={innerRef} className="w-full will-change-transform">
+        {/* Editorial Header */}
+        <div className="max-w-5xl mx-auto w-full mb-8">
+          <h2 className="text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tight text-white">
+            <MaskedText text="SYSTEM TOOLING" wordClassName="skills-title-word" />
+          </h2>
+        </div>
 
-      {/* Horizontal Stack Stage (Minimalist Glassmorphic Deck) */}
-      <div
-        ref={stackWrapperRef}
-        className="relative max-w-5xl w-full mx-auto min-h-[520px] sm:min-h-[440px] lg:min-h-[420px] h-[min(560px,82vh)]"
-      >
+        {/* Horizontal Stack Stage (Minimalist Glassmorphic Deck) */}
+        <div
+          ref={stackWrapperRef}
+          className="relative max-w-5xl w-full mx-auto min-h-[520px] sm:min-h-[440px] lg:min-h-[420px] h-[min(560px,82vh)]"
+        >
         {categories.map((cat, idx) => (
           <article
             key={idx}
-            className="horizontal-stack-card absolute inset-0 w-full h-full rounded-2xl sm:rounded-3xl bg-[#0d111a]/70 p-5 sm:p-10 lg:p-12 border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.6)] backdrop-blur-2xl will-change-transform flex items-center overflow-y-auto overflow-x-hidden group hover:border-cyan-400/40 transition-colors duration-300"
+            onWheel={handleBoundedCardWheel}
+            className="horizontal-stack-card absolute inset-0 w-full h-full rounded-2xl sm:rounded-3xl bg-[#0d111a]/70 p-5 sm:p-10 lg:p-12 border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.6)] backdrop-blur-2xl will-change-transform flex items-center overflow-y-auto overflow-x-hidden overscroll-contain group hover:border-cyan-400/40 transition-colors duration-300"
           >
             <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 lg:gap-10 items-start lg:items-center">
               {/* Left Column: Centered Solar Icon & Metric */}
@@ -206,6 +222,7 @@ export function SkillsMatrix() {
             </div>
           </article>
         ))}
+        </div>
       </div>
     </section>
   )

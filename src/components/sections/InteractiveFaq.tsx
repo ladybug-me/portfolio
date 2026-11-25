@@ -4,6 +4,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { SplitText } from 'gsap/SplitText'
 import { useGSAP } from '@gsap/react'
 import { MaskedText } from '../ui/MaskedText'
+import { getPinnedOverflow, syncPinnedOverflow } from '../../utils/scrollPan'
 
 gsap.registerPlugin(ScrollTrigger, SplitText)
 
@@ -42,6 +43,7 @@ const faqs: FaqItem[] = [
 
 export function InteractiveFaq() {
   const sectionRef = useRef<HTMLElement>(null)
+  const innerRef = useRef<HTMLDivElement>(null)
   const cardRefs = useRef<(HTMLDivElement | null)[]>([])
   const answerWrapRefs = useRef<(HTMLDivElement | null)[]>([])
   const answerTextRefs = useRef<(HTMLParagraphElement | null)[]>([])
@@ -113,14 +115,18 @@ export function InteractiveFaq() {
       ScrollTrigger.create({
         trigger: sectionRef.current,
         start: 'top top',
-        end: () => `+=${getScrollDistance()}`,
+        end: () => `+=${getScrollDistance() + getPinnedOverflow(sectionRef.current)}`,
         pin: true,
         scrub: 0.5,
         anticipatePin: 1,
         invalidateOnRefresh: true,
         onUpdate: (self) => {
+          syncPinnedOverflow(sectionRef.current, innerRef.current, self.progress)
           const newIdx = Math.min(Math.floor(self.progress * totalItems), totalItems - 1)
           setActiveIdx((prev) => (prev !== newIdx ? newIdx : prev))
+        },
+        onRefresh: (self) => {
+          syncPinnedOverflow(sectionRef.current, innerRef.current, self.progress)
         },
       })
     },
@@ -204,7 +210,7 @@ export function InteractiveFaq() {
       id="faq"
       className="relative min-h-screen py-16 sm:py-20 px-4 sm:px-8 max-w-7xl mx-auto border-t border-white/5 flex flex-col justify-center overflow-x-clip"
     >
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center w-full [perspective:1200px]">
+      <div ref={innerRef} className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center w-full [perspective:1200px] will-change-transform">
         {/* Left Column: Minimalist Heading & Subtitle */}
         <div className="lg:col-span-4">
           <h2 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white mb-6 leading-tight">
