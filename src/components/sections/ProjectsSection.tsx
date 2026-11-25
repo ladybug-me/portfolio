@@ -1,8 +1,9 @@
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useGSAP } from '@gsap/react'
 import { MaskedText } from '../ui/MaskedText'
+import { ProjectGalleryModal, type GalleryMediaItem } from '../ui/ProjectGalleryModal'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -15,7 +16,10 @@ interface ShowcaseProject {
   tags: string[]
   link?: string
   media: string
+  gallery: GalleryMediaItem[]
 }
+
+const base = import.meta.env.BASE_URL
 
 const showcaseProjects: ShowcaseProject[] = [
   {
@@ -23,7 +27,14 @@ const showcaseProjects: ShowcaseProject[] = [
     number: '1',
     title: 'Edge-Based Solar Panel Inspection',
     badge: "9th ICRTAC'26 Accepted Paper",
-    media: `${import.meta.env.BASE_URL}assets/spd/spd.png`,
+    media: `${base}assets/spd/spd.png`,
+    gallery: [
+      { src: `${base}assets/spd/thermal.png`, label: 'Thermal Spectrum Analysis', type: 'image' },
+      { src: `${base}assets/spd/crack.png`, label: 'Micro-Crack Segmentation', type: 'image' },
+      { src: `${base}assets/spd/dusty.png`, label: 'Dust Occlusion Detection', type: 'image' },
+      { src: `${base}assets/spd/birddrop.png`, label: 'Surface Debris Isolation', type: 'image' },
+      { src: `${base}assets/spd/clean.png`, label: 'Clean Panel Baseline', type: 'image' },
+    ],
     summary:
       'Trained instance segmentation networks on custom thermal imagery to isolate micro-cracks, dust, and hotspots. Deployed directly to Raspberry Pi and Nvidia Jetson Nano to calculate electrical efficiency loss in real time.',
     tags: ['C++', 'CUDA', 'Python', 'YOLOv11-seg', 'Jetson Nano', 'Raspberry Pi'],
@@ -33,7 +44,8 @@ const showcaseProjects: ShowcaseProject[] = [
     number: '2',
     title: 'Caelestia KDE Shell Architecture',
     badge: 'Owner & Maintainer',
-    media: `${import.meta.env.BASE_URL}assets/caelestia/animatedlogo.svg`,
+    media: `${base}assets/caelestia/animatedlogo.svg`,
+    gallery: [{ src: `${base}assets/caelestia/caelestia.mp4`, label: 'Shell Runtime Showcase', type: 'video' }],
     summary:
       'A morphing desktop shell for modern Linux distributions. Replaced Python D-Bus layers with native C++ asynchronous sockets, removing compositor stutter and stabilizing window transitions under heavy load.',
     tags: ['C++', 'QML', 'Wayland', 'D-Bus IPC', 'Bash', 'Linux Compositors'],
@@ -44,7 +56,11 @@ const showcaseProjects: ShowcaseProject[] = [
     number: '3',
     title: 'High-Volume FAISS Vector Pipeline',
     badge: 'Psyduck Engine • Open Source',
-    media: `${import.meta.env.BASE_URL}assets/psyduck/psyduck.gif`,
+    media: `${base}assets/psyduck/psyduck.gif`,
+    gallery: [
+      { src: `${base}assets/psyduck/interface.png`, label: 'Semantic Search Interface', type: 'image' },
+      { src: `${base}assets/psyduck/results.png`, label: 'FAISS Retrieval Results', type: 'image' },
+    ],
     summary:
       'Local semantic retrieval pipeline. Combines Ollama models for intent extraction with Sentence Transformers and FAISS index partitions, querying structured catalog data over an automated SQLite pipeline.',
     tags: ['FAISS', 'FastAPI', 'Ollama', 'Sentence Transformers', 'SQLite', 'Python'],
@@ -55,7 +71,8 @@ const showcaseProjects: ShowcaseProject[] = [
     number: '4',
     title: 'Grudge Art Online • AI Game Engine',
     badge: "DevSoc'26 Top 15 Finalist",
-    media: `${import.meta.env.BASE_URL}assets/icons/devsoc.jpg`,
+    media: `${base}assets/icons/devsoc.jpg`,
+    gallery: [],
     summary:
       'Interactive game engine built during a 48-hour sprint. Linked Unity clients to local Flask backends and the Backboard API, driving real-time dialogues with autonomous game characters.',
     tags: ['Unity', 'C#', 'Flask', 'Python', 'Backboard API', 'Game AI'],
@@ -65,6 +82,7 @@ const showcaseProjects: ShowcaseProject[] = [
 
 export function ProjectsSection() {
   const containerRef = useRef<HTMLDivElement>(null)
+  const [activeProject, setActiveProject] = useState<ShowcaseProject | null>(null)
 
   useGSAP(
     () => {
@@ -113,11 +131,29 @@ export function ProjectsSection() {
             {/* Left: Enlarged Centered Thumb & Non-Overlapping Bottom-Left Numbering */}
             <div className="lg:col-span-4 flex flex-col justify-between gap-4 h-full">
               <div className="flex-1 w-full flex items-center justify-center">
-                <img
-                  src={proj.media}
-                  alt={proj.title}
-                  className="w-auto max-w-[260px] sm:max-w-[320px] max-h-48 sm:max-h-56 object-contain mx-auto"
-                />
+                {proj.gallery.length > 0 ? (
+                  <button
+                    type="button"
+                    onClick={() => setActiveProject(proj)}
+                    aria-label={`Open ${proj.title} media gallery`}
+                    className="group/thumb relative flex flex-col items-center justify-center cursor-pointer focus:outline-none"
+                  >
+                    <img
+                      src={proj.media}
+                      alt={proj.title}
+                      className="w-auto max-w-[260px] sm:max-w-[320px] max-h-48 sm:max-h-56 object-contain mx-auto transition-all duration-300 ease-out group-hover/thumb:scale-[1.12] group-hover/thumb:-translate-y-1.5 group-hover/thumb:drop-shadow-[0_0_26px_rgba(34,211,238,0.45)]"
+                    />
+                    <span className="mt-3 px-3 py-1 rounded-full text-[10px] font-mono tracking-widest uppercase text-cyan-300 bg-slate-950/80 border border-cyan-400/30 opacity-0 translate-y-1.5 group-hover/thumb:opacity-100 group-hover/thumb:translate-y-0 transition-all duration-300 pointer-events-none">
+                      View Gallery ({proj.gallery.length}) ↗
+                    </span>
+                  </button>
+                ) : (
+                  <img
+                    src={proj.media}
+                    alt={proj.title}
+                    className="w-auto max-w-[260px] sm:max-w-[320px] max-h-48 sm:max-h-56 object-contain mx-auto"
+                  />
+                )}
               </div>
 
               <span className="self-start shrink-0 text-3xl sm:text-4xl lg:text-5xl font-extrabold font-mono text-cyan-500/30 group-hover:text-cyan-400 transition-colors leading-none select-none">
@@ -172,6 +208,14 @@ export function ProjectsSection() {
           </article>
         ))}
       </div>
+
+      {activeProject && (
+        <ProjectGalleryModal
+          key={activeProject.id}
+          project={activeProject}
+          onClose={() => setActiveProject(null)}
+        />
+      )}
     </section>
   )
 }
