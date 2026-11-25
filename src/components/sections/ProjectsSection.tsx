@@ -67,7 +67,7 @@ const showcaseProjects: ShowcaseProject[] = [
     number: '4',
     title: 'Grudge Art Online • AI Game Engine',
     badge: "DevSoc'26 Top 15 Finalist",
-    media: `${base}assets/icons/devsoc.jpg`,
+    media: `${base}assets/devsoc/logo.png`,
     gallery: [],
     summary:
       'Interactive game engine built during a 48-hour sprint. Linked Unity clients to local Flask backends and the Backboard API, driving real-time dialogues with autonomous game characters.',
