@@ -332,20 +332,27 @@ export function CircuitPipeline() {
 
     let animId: number
 
-    const handleResize = () => {
+    const syncCanvasSize = () => {
       const rect = container.getBoundingClientRect()
       const dpr = Math.min(window.devicePixelRatio || 1, 2)
-      canvas.width = rect.width * dpr
-      canvas.height = rect.height * dpr
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
-      needsRenderRef.current = true
+      const targetW = Math.max(1, Math.round(rect.width * dpr))
+      const targetH = Math.max(1, Math.round(rect.height * dpr))
+      if (canvas.width !== targetW || canvas.height !== targetH) {
+        canvas.width = targetW
+        canvas.height = targetH
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+        needsRenderRef.current = true
+      }
     }
 
-    handleResize()
-    window.addEventListener('resize', handleResize)
+    syncCanvasSize()
+    const resizeObserver = new ResizeObserver(syncCanvasSize)
+    resizeObserver.observe(container)
+    window.addEventListener('resize', syncCanvasSize)
 
     const render = () => {
       animId = requestAnimationFrame(render)
+      syncCanvasSize()
       if (!needsRenderRef.current) return
 
       const contRect = container.getBoundingClientRect()
@@ -354,7 +361,10 @@ export function CircuitPipeline() {
       }
 
       needsRenderRef.current = false
-      ctx.clearRect(0, 0, contRect.width, contRect.height)
+      ctx.save()
+      ctx.setTransform(1, 0, 0, 1, 0, 0)
+      ctx.clearRect(0, 0, canvas.width, canvas.height)
+      ctx.restore()
 
       const progress = scrollProgressRef.current
       const totalCards = MILESTONES.length
@@ -426,9 +436,10 @@ export function CircuitPipeline() {
           const easeOut = 1 - inv * inv * inv
           const invEase = 1 - easeOut
 
-          // 1. Asymmetric spacing expansion (starts magnified & deformed, contracts to 1.0x)
-          const spaceX = 1 + invEase * (isMobile ? 0.95 : 1.85)
-          const spaceY = 1 + invEase * (isMobile ? 0.75 : 1.35)
+          // 1. Asymmetric spacing expansion (scales proportionally with available width)
+          const widthScale = Math.min(1, contRect.width / 1280)
+          const spaceX = 1 + invEase * (isMobile ? 0.95 : 1.85 * widthScale)
+          const spaceY = 1 + invEase * (isMobile ? 0.75 : 1.35 * widthScale)
 
           const dx = (p.relX - halfW) * spaceX
           const dy = (p.relY - halfH) * spaceY
@@ -471,7 +482,8 @@ export function CircuitPipeline() {
 
     return () => {
       cancelAnimationFrame(animId)
-      window.removeEventListener('resize', handleResize)
+      resizeObserver.disconnect()
+      window.removeEventListener('resize', syncCanvasSize)
     }
   }, [])
 
