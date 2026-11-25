@@ -23,7 +23,11 @@ const MOTE_OFFSETS = [
   { speed: -2.3, rX: 0.29, rY: 0.19, rZ: 0.25, phase: 5.4, color: '#2dd4bf' },
 ]
 
-export function SphericalPet() {
+interface SphericalPetProps {
+  onFollowingChange?: (following: boolean) => void
+}
+
+export function SphericalPet({ onFollowingChange }: SphericalPetProps) {
   const palette = usePalette()
   const { viewport } = useThree()
 
@@ -129,6 +133,7 @@ export function SphericalPet() {
       if (isSecondClickOfDbl) {
         // Guaranteed double-click on empty space: ENABLE automatic following
         isFollowing.current = true
+        onFollowingChange?.(true)
         lastEmptyClickTime.current = 0
         hopCooldown.current = 0
         vel.current.y = 3.3
@@ -140,6 +145,7 @@ export function SphericalPet() {
       if (distToPet < 0.32) {
         // Click directly on pet: STOP following
         isFollowing.current = false
+        onFollowingChange?.(false)
         vel.current.set(0, 0, 0)
         squash.current.set(1.24, 0.76, 1.24)
         clickPulseTimer.current = 0.8
@@ -162,6 +168,7 @@ export function SphericalPet() {
       if (targetTag === 'input' || targetTag === 'textarea') return
 
       isFollowing.current = true
+      onFollowingChange?.(true)
       hopCooldown.current = 0
       clickPulseTimer.current = 1.0
     }
@@ -175,7 +182,7 @@ export function SphericalPet() {
       window.removeEventListener('pointerdown', handlePointerDown)
       window.removeEventListener('dblclick', handleDblClick)
     }
-  }, [viewport.width, viewport.height])
+  }, [viewport.width, viewport.height, onFollowingChange])
 
   useFrame((state, delta) => {
     const dt = Math.min(delta, 0.033)
