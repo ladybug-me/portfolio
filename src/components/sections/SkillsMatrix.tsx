@@ -180,7 +180,7 @@ export function SkillsMatrix() {
           <article
             key={idx}
             onWheel={handleBoundedCardWheel}
-            className="horizontal-stack-card absolute inset-0 w-full h-full rounded-2xl sm:rounded-3xl bg-[#0d111a]/70 p-5 sm:p-10 lg:p-12 border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.6)] backdrop-blur-2xl will-change-transform flex overflow-y-auto overflow-x-hidden overscroll-contain group hover:border-cyan-400/40 transition-colors duration-300"
+            className="horizontal-stack-card absolute inset-0 w-full h-full rounded-2xl sm:rounded-3xl bg-[#0d111a]/70 p-5 sm:p-10 lg:p-12 border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.6)] backdrop-blur-2xl will-change-transform flex overflow-y-auto overflow-x-hidden group hover:border-cyan-400/40 transition-colors duration-300"
           >
             <div className="w-full my-auto grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 lg:gap-10 items-start lg:items-center">
               {/* Left Column: Centered Solar Icon & Metric */}

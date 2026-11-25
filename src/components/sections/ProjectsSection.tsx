@@ -95,7 +95,7 @@ export function ProjectsSection() {
             key={proj.id}
             style={{ top: `calc(max(60px, min(85px, 9vh)) + ${idx * 16}px)` }}
             onWheel={handleBoundedCardWheel}
-            className="stacked-project-card sticky glass-panel p-6 sm:p-8 lg:p-12 rounded-2xl sm:rounded-3xl border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.6)] backdrop-blur-2xl will-change-transform grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-stretch group max-h-[calc(100dvh-96px)] overflow-y-auto overflow-x-hidden overscroll-contain"
+            className="stacked-project-card sticky glass-panel p-6 sm:p-8 lg:p-12 rounded-2xl sm:rounded-3xl border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.6)] backdrop-blur-2xl will-change-transform grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-stretch group max-h-[calc(100dvh-96px)] overflow-y-auto overflow-x-hidden"
           >
             {/* Left: Enlarged Centered Thumb & Non-Overlapping Bottom-Left Numbering */}
             <div className="lg:col-span-4 flex flex-col justify-between gap-4 h-full">
