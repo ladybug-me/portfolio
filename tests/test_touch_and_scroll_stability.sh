@@ -48,10 +48,10 @@ test_no_backdrop_blur_opacity_or_filter_flicker() {
 }
 
 test_circuit_pipeline_last_card_text_buffer() {
-    assert_file_contains "$REPO_ROOT/src/components/ui/CircuitPipeline.tsx" "assembleEnd" \
-        "CircuitPipeline.tsx must reserve scroll progress after card assembly so last card text finishes before unpinning"
-    assert_file_contains "$REPO_ROOT/src/components/ui/CircuitPipeline.tsx" "minTextProgress" \
-        "CircuitPipeline.tsx must advance the last card text timeline before unpinning"
+    assert_file_contains "$REPO_ROOT/src/components/ui/PixelDispersionCanvas.tsx" "assembleEnd" \
+        "PixelDispersionCanvas.tsx must reserve scroll progress after card assembly so last card text finishes before unpinning"
+    assert_file_contains "$REPO_ROOT/src/components/ui/PixelDispersionCanvas.tsx" "minTextProgress" \
+        "PixelDispersionCanvas.tsx must advance the last card text timeline before unpinning"
 }
 
 test_touch_interactions_and_mobile_navigator() {

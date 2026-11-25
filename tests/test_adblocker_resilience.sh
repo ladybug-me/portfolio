@@ -41,11 +41,11 @@ test_all_iconify_icons_registered_locally() {
 }
 
 test_circuit_pipeline_canvas_fallback() {
-    local file="$REPO_ROOT/src/components/ui/CircuitPipeline.tsx"
+    local file="$REPO_ROOT/src/components/ui/PixelDispersionCanvas.tsx"
     assert_file_contains "$file" "try {" \
-        "CircuitPipeline.tsx must guard ctx.getImageData with try/catch"
+        "PixelDispersionCanvas.tsx must guard ctx.getImageData with try/catch"
     assert_file_contains "$file" "snap.particles.length === 0" \
-        "CircuitPipeline.tsx must fall back to visible DOM cards when pixel sampling is blocked"
+        "PixelDispersionCanvas.tsx must fall back to visible DOM cards when pixel sampling is blocked"
 }
 
 test_no_adblocker_cosmetic_keywords() {

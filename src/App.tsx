@@ -11,7 +11,7 @@ import { PaletteSwitcher } from './components/ui/PaletteSwitcher'
 import { BootLoader } from './components/ui/BootLoader'
 import { HeroSection } from './components/sections/HeroSection'
 import { KineticTextScrub } from './components/ui/KineticTextScrub'
-import { CircuitPipeline } from './components/ui/CircuitPipeline'
+import { PipelineSection } from './components/sections/PipelineSection'
 
 const PetCanvas = lazy(() =>
   import('./components/canvas/PetCanvas').then((m) => ({ default: m.PetCanvas }))
@@ -208,7 +208,7 @@ export function App() {
         <KineticTextScrub text="WE STRIP DEAD ABSTRACTIONS OUT OF THE DESKTOP. WE RUN HARD INFERENCE ON COLD SILICON. LATENCY IS A DEFECT." />
 
         {/* Scroll-Drawn Circuit Pipeline */}
-        <CircuitPipeline />
+        <PipelineSection />
 
         {/* Deferred Below-the-Fold Sections */}
         <Suspense fallback={null}>

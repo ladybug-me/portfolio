@@ -11,7 +11,7 @@ Strictly enforce DRY (Don't Repeat Yourself), dead-code hygiene, architectural r
 Before writing any new component, hook, shader, asset, or test:
 
 - **Scan first**: Search the codebase for existing implementations, abstractions, or patterns that solve the problem.
-  - **UI & Sections**: Check `src/components/ui/` (`MaskedText`, `KineticTextScrub`, `CircuitPipeline`, `SectionNavigator`, `ProjectGalleryModal`) and `src/components/sections/` before creating new visual primitives.
+  - **UI & Sections**: Check `src/components/ui/` (`MaskedText`, `KineticTextScrub`, `PixelDispersionCanvas`, `SectionNavigator`, `ProjectGalleryModal`) and `src/components/sections/` (`PipelineSection`, `ProjectsSection`, `SkillsMatrix`, `InteractiveFaq`, `ContactSection`) before creating new visual primitives.
   - **3D & Shaders**: Inspect `src/components/canvas/` (`HeroCanvas`, `PetCanvas`, `NeuralCore`, `SphericalPet`, `DistantOrbitParticles`) before adding new WebGL canvases or shader uniforms.
   - **Static Assets**: Check `public/assets/` and `src/icons.ts` before adding duplicate icons, images, or media.
   - **Tests**: Inspect `tests/` (`test_*.sh`) to understand established contracts and invariants before modifying implementation files.
