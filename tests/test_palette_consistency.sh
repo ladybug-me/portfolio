@@ -20,6 +20,8 @@ test_cards_use_palette_surface_token() {
         "index.css must expose --bg-secondary-rgb per palette"
     assert_file_contains "$REPO_ROOT/src/components/ui/CircuitPipeline.tsx" "top-1/2 -translate-y-1/2" \
         "CircuitPipeline.tsx SVG line must anchor vertically at the container center"
+    assert_file_not_contains "$REPO_ROOT/src/components/ui/KineticTextScrub.tsx" "revertOnUpdate: true" \
+        "KineticTextScrub.tsx must update palette colors in-place without destroying/reordering ScrollTrigger pins"
 }
 
 run_tests

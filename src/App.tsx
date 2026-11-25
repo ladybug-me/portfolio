@@ -68,6 +68,7 @@ export function App() {
       if (refreshTimer) clearTimeout(refreshTimer)
       refreshTimer = setTimeout(() => {
         lenis.resize()
+        ScrollTrigger.sort()
         ScrollTrigger.refresh()
       }, 220)
     }
