@@ -39,8 +39,10 @@ test_no_backdrop_blur_opacity_or_filter_flicker() {
         "ProjectsSection.tsx must not scrub fractional opacity on backdrop-blur cards"
     assert_file_not_contains "$REPO_ROOT/src/components/sections/InteractiveFaq.tsx" "opacity: 0.22" \
         "InteractiveFaq.tsx must keep backdrop-blur cards at full opacity"
-    assert_file_contains "$REPO_ROOT/src/components/sections/SkillsMatrix.tsx" "tl.set(card, { visibility: 'visible' }" \
-        "SkillsMatrix.tsx must use tl.set for visibility instead of discrete fromTo interpolation"
+    assert_file_not_contains "$REPO_ROOT/src/components/sections/SkillsMatrix.tsx" "visibility: 'hidden'" \
+        "SkillsMatrix.tsx must keep cards GPU-promoted without visibility toggling flashes during mobile scroll"
+    assert_file_not_contains "$REPO_ROOT/src/components/sections/SkillsMatrix.tsx" "backgroundColor:" \
+        "SkillsMatrix.tsx must not animate backgroundColor on stacked glass cards during scroll"
 }
 
 test_circuit_pipeline_last_card_text_buffer() {

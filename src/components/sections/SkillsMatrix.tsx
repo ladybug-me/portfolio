@@ -100,40 +100,39 @@ export function SkillsMatrix() {
         },
       })
 
-      // Initial positions: Card 0 is front; Cards 1..N start offscreen right at opacity 1 (no backdrop-blur opacity fade flicker)
+      // Initial positions: Card 0 is front; Cards 1..N start off-viewport right at opacity 1
+      // Keeping all cards visibility:visible and opacity:1 avoids GPU layer upload flashes on mobile
       gsap.set(cards[0], {
         xPercent: 0,
+        x: 0,
         scale: 1,
         opacity: 1,
-        visibility: 'visible',
         zIndex: 10,
       })
 
       for (let i = 1; i < cards.length; i++) {
         gsap.set(cards[i], {
-          xPercent: 115,
+          xPercent: 0,
+          x: () => window.innerWidth,
           scale: 1,
           opacity: 1,
-          visibility: 'hidden',
           zIndex: 10 + i,
         })
       }
 
-      // Horizontal deck stacking timeline (keep scale and opacity locked at 1 to prevent backdrop-blur flicker)
+      // Horizontal deck stacking timeline (pure GPU transform only; zero opacity/color/visibility changes)
       cards.forEach((card, i) => {
         if (i === 0) return
 
         const stepTime = (i - 1) * 1
 
-        // Preceding cards shift left and darken cleanly without lowering layer opacity
+        // Preceding cards shift left cleanly to form stacked edge tabs
         for (let prev = 0; prev < i; prev++) {
           const depth = i - prev
           tl.to(
             cards[prev],
             {
               xPercent: -2.5 * depth,
-              scale: 1,
-              backgroundColor: depth === 1 ? 'rgba(9, 13, 22, 0.88)' : 'rgba(6, 9, 16, 0.94)',
               ease: 'power2.inOut',
               duration: 1,
             },
@@ -141,14 +140,11 @@ export function SkillsMatrix() {
           )
         }
 
-        // Current card becomes visible as its slide starts and moves cleanly at 1:1 scale & full opacity
-        tl.set(card, { visibility: 'visible' }, stepTime + 0.001)
+        // Current card slides in smoothly using GPU translateX only
         tl.to(
           card,
           {
-            xPercent: 0,
-            scale: 1,
-            opacity: 1,
+            x: 0,
             ease: 'power2.out',
             duration: 1,
           },
@@ -176,13 +172,13 @@ export function SkillsMatrix() {
         {/* Horizontal Stack Stage (Minimalist Glassmorphic Deck) */}
         <div
           ref={stackWrapperRef}
-          className="relative max-w-5xl w-full mx-auto min-h-[520px] sm:min-h-[440px] lg:min-h-[420px] h-[min(560px,78vh)]"
+          className="relative max-w-5xl w-full mx-auto min-h-[400px] sm:min-h-[440px] lg:min-h-[420px] h-[min(540px,72dvh)]"
         >
         {categories.map((cat, idx) => (
           <article
             key={idx}
             onWheel={handleBoundedCardWheel}
-            className="horizontal-stack-card absolute inset-0 w-full h-full rounded-2xl sm:rounded-3xl bg-[#0d111a]/75 p-5 sm:p-10 lg:p-12 border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.6)] backdrop-blur-md sm:backdrop-blur-2xl will-change-transform flex overflow-y-auto overflow-x-hidden group hover:border-cyan-400/40 transition-colors duration-300"
+            className="horizontal-stack-card absolute inset-0 w-full h-full rounded-2xl sm:rounded-3xl bg-[#0a0f18]/[0.96] sm:bg-[#0d111a]/82 p-5 sm:p-10 lg:p-12 border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.6)] sm:backdrop-blur-2xl will-change-transform flex overflow-y-auto overflow-x-hidden group hover:border-cyan-400/40"
           >
             <div className="w-full my-auto grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 lg:gap-10 items-start lg:items-center">
               {/* Left Column: Centered Solar Icon & Metric */}
@@ -214,7 +210,7 @@ export function SkillsMatrix() {
                   {cat.skills.map((skill, sIdx) => (
                     <span
                       key={sIdx}
-                      className="px-2.5 py-1 sm:px-3.5 sm:py-1.5 rounded-lg text-xs sm:text-base font-mono font-medium bg-white/[0.05] text-slate-100 border border-white/15 backdrop-blur-md group-hover:border-cyan-400/35 hover:border-cyan-300 hover:text-cyan-300 transition-colors duration-200"
+                      className="px-2.5 py-1 sm:px-3.5 sm:py-1.5 rounded-lg text-xs sm:text-base font-mono font-medium bg-white/[0.06] text-slate-100 border border-white/15 group-hover:border-cyan-400/35 hover:border-cyan-300 hover:text-cyan-300 transition-colors duration-200"
                     >
                       {skill}
                     </span>
