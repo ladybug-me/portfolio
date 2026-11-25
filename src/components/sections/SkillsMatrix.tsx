@@ -147,7 +147,7 @@ export function SkillsMatrix() {
     <section
       ref={sectionRef}
       id="skills"
-      className="relative min-h-screen py-20 px-4 sm:px-8 border-t border-white/5 flex flex-col justify-center overflow-hidden"
+      className="relative min-h-screen py-20 px-4 sm:px-8 border-t border-white/5 flex flex-col justify-center overflow-x-clip"
     >
       {/* Editorial Header */}
       <div className="max-w-5xl mx-auto w-full mb-8">
@@ -159,12 +159,12 @@ export function SkillsMatrix() {
       {/* Horizontal Stack Stage (Minimalist Glassmorphic Deck) */}
       <div
         ref={stackWrapperRef}
-        className="relative max-w-5xl w-full mx-auto h-[520px] sm:h-[440px] lg:h-[420px] max-h-[82vh]"
+        className="relative max-w-5xl w-full mx-auto min-h-[520px] sm:min-h-[440px] lg:min-h-[420px] h-[min(560px,82vh)]"
       >
         {categories.map((cat, idx) => (
           <article
             key={idx}
-            className="horizontal-stack-card absolute inset-0 w-full h-full rounded-2xl sm:rounded-3xl bg-[#0d111a]/70 p-5 sm:p-10 lg:p-12 border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.6)] backdrop-blur-2xl will-change-transform flex items-center overflow-hidden group hover:border-cyan-400/40 transition-colors duration-300"
+            className="horizontal-stack-card absolute inset-0 w-full h-full rounded-2xl sm:rounded-3xl bg-[#0d111a]/70 p-5 sm:p-10 lg:p-12 border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.6)] backdrop-blur-2xl will-change-transform flex items-center overflow-y-auto overflow-x-hidden group hover:border-cyan-400/40 transition-colors duration-300"
           >
             <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 lg:gap-10 items-start lg:items-center">
               {/* Left Column: Centered Solar Icon & Metric */}

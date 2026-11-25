@@ -202,7 +202,7 @@ export function InteractiveFaq() {
     <section
       ref={sectionRef}
       id="faq"
-      className="relative min-h-screen py-16 sm:py-20 px-4 sm:px-8 max-w-7xl mx-auto border-t border-white/5 flex flex-col justify-center overflow-hidden"
+      className="relative min-h-screen py-16 sm:py-20 px-4 sm:px-8 max-w-7xl mx-auto border-t border-white/5 flex flex-col justify-center overflow-x-clip"
     >
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center w-full [perspective:1200px]">
         {/* Left Column: Minimalist Heading & Subtitle */}

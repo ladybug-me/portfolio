@@ -63,10 +63,21 @@ export function App() {
       ScrollTrigger.refresh()
     }
 
+    let resizeRaf = 0
+    const ro = new ResizeObserver(() => {
+      cancelAnimationFrame(resizeRaf)
+      resizeRaf = requestAnimationFrame(handleResize)
+    })
+    if (containerRef.current) {
+      ro.observe(containerRef.current)
+    }
+
     window.addEventListener('resize', handleResize)
 
     return () => {
       delete (window as unknown as { __lenis?: Lenis }).__lenis
+      cancelAnimationFrame(resizeRaf)
+      ro.disconnect()
       window.removeEventListener('resize', handleResize)
       gsap.ticker.remove(updateTicker)
       lenis.destroy()

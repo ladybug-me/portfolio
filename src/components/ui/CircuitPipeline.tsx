@@ -278,9 +278,20 @@ export function CircuitPipeline() {
       init()
     }
 
+    let snapRaf = 0
+    const cardObserver = new ResizeObserver(() => {
+      cancelAnimationFrame(snapRaf)
+      snapRaf = requestAnimationFrame(init)
+    })
+    cardsRef.current.forEach((card) => {
+      if (card) cardObserver.observe(card)
+    })
+
     window.addEventListener('resize', rebuildSnapshots)
     return () => {
       isMounted = false
+      cancelAnimationFrame(snapRaf)
+      cardObserver.disconnect()
       window.removeEventListener('resize', rebuildSnapshots)
     }
   }, [rebuildSnapshots])
