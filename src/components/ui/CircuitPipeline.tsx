@@ -352,6 +352,10 @@ export function CircuitPipeline() {
         1,
         entryProgressRef.current * 0.18 + scrollProgressRef.current * 0.82
       )
+      // Reserve the final ~15% of progress so the last card's text finishes
+      // animating before the pinned section unpins and page scroll resumes.
+      const assembleEnd = 0.85
+      const assembleProgress = Math.min(1, progress / assembleEnd)
       const totalCards = MILESTONES.length
       const isMobile = contRect.width < 768
 
@@ -360,14 +364,14 @@ export function CircuitPipeline() {
         const snap = snapshotsRef.current[idx]
         if (!snap) return
 
-        // Map scroll progress cleanly to each container's formation segment [0, 1]
+        // Map assembly progress cleanly to each container's formation segment [0, 1]
         // Container 0 starts slightly engaged (0.06) at scroll=0 so particles are visible on arrival
         const segStart = idx / totalCards
         const segEnd = (idx + 1) / totalCards
         const rawT =
           idx === 0
-            ? Math.max(0.06, progress / segEnd)
-            : (progress - segStart) / (segEnd - segStart)
+            ? Math.max(0.06, assembleProgress / segEnd)
+            : (assembleProgress - segStart) / (segEnd - segStart)
         const localT = Math.max(0, Math.min(1, rawT))
 
         // Strict invisibility rule: upcoming container must not be visible at all
@@ -385,9 +389,20 @@ export function CircuitPipeline() {
         if (localT >= 0.90 || snap.particles.length === 0) {
           card.style.opacity = '1'
           card.style.visibility = 'visible'
+          const textTl = textTimelinesRef.current[idx]
           if (!textPlayedRef.current[idx]) {
             textPlayedRef.current[idx] = true
-            textTimelinesRef.current[idx]?.play()
+            textTl?.play()
+          }
+          // Ensure the last card's text animation completes before unpinning
+          if (idx === totalCards - 1 && textTl) {
+            const minTextProgress = Math.max(
+              0,
+              Math.min(1, (scrollProgressRef.current - 0.80) / 0.16)
+            )
+            if (textTl.progress() < minTextProgress) {
+              textTl.progress(minTextProgress)
+            }
           }
           return
         }
@@ -558,7 +573,7 @@ export function CircuitPipeline() {
         scrollTrigger: {
           trigger: containerRef.current,
           start: 'top top',
-          end: () => `+=${2400 + getPinnedOverflow(containerRef.current)}`,
+          end: () => `+=${2800 + getPinnedOverflow(containerRef.current)}`,
           pin: true,
           scrub: 0.5,
           anticipatePin: 1,
@@ -569,7 +584,7 @@ export function CircuitPipeline() {
             syncPinnedOverflow(containerRef.current, innerRef.current, self.progress)
             const step = Math.min(
               MILESTONES.length - 1,
-              Math.floor(self.progress * MILESTONES.length)
+              Math.floor(Math.min(1, self.progress / 0.82) * MILESTONES.length)
             )
             setActiveStep((prev) => (prev !== step ? step : prev))
           },
@@ -589,7 +604,7 @@ export function CircuitPipeline() {
           duration: MILESTONES.length,
         },
         0
-      )
+      ).to({}, { duration: 0.88 })
     },
     { scope: containerRef }
   )
