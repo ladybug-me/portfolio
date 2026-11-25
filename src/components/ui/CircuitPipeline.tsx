@@ -281,7 +281,11 @@ export function CircuitPipeline() {
     }
 
     let snapRaf = 0
-    const cardObserver = new ResizeObserver(() => {
+    let lastCardWidth = cardsRef.current[0]?.getBoundingClientRect().width ?? 0
+    const cardObserver = new ResizeObserver((entries) => {
+      const nextWidth = entries[0]?.contentRect.width ?? lastCardWidth
+      if (Math.abs(nextWidth - lastCardWidth) < 2) return
+      lastCardWidth = nextWidth
       cancelAnimationFrame(snapRaf)
       snapRaf = requestAnimationFrame(init)
     })
@@ -289,12 +293,19 @@ export function CircuitPipeline() {
       if (card) cardObserver.observe(card)
     })
 
-    window.addEventListener('resize', rebuildSnapshots)
+    let lastWinWidth = window.innerWidth
+    const handleSnapResize = () => {
+      if (window.innerWidth === lastWinWidth) return
+      lastWinWidth = window.innerWidth
+      rebuildSnapshots()
+    }
+
+    window.addEventListener('resize', handleSnapResize)
     return () => {
       isMounted = false
       cancelAnimationFrame(snapRaf)
       cardObserver.disconnect()
-      window.removeEventListener('resize', rebuildSnapshots)
+      window.removeEventListener('resize', handleSnapResize)
     }
   }, [rebuildSnapshots])
 
@@ -314,9 +325,22 @@ export function CircuitPipeline() {
 
     let animId: number
 
-    const syncCanvasSize = () => {
+    let lastCanvasBoxW = 0
+    let lastCanvasBoxH = 0
+    const syncCanvasSize = (force = false) => {
       const rect = container.getBoundingClientRect()
       const dpr = Math.min(window.devicePixelRatio || 1, 2)
+      // Ignore small vertical-only mobile URL-bar resizes to avoid wiping the 2D canvas mid-scroll
+      if (
+        !force &&
+        lastCanvasBoxW > 0 &&
+        Math.abs(rect.width - lastCanvasBoxW) < 2 &&
+        Math.abs(rect.height - lastCanvasBoxH) < 120
+      ) {
+        return
+      }
+      lastCanvasBoxW = rect.width
+      lastCanvasBoxH = rect.height
       const targetW = Math.max(1, Math.round(rect.width * dpr))
       const targetH = Math.max(1, Math.round(rect.height * dpr))
       if (canvas.width !== targetW || canvas.height !== targetH) {
@@ -327,10 +351,11 @@ export function CircuitPipeline() {
       }
     }
 
-    syncCanvasSize()
-    const resizeObserver = new ResizeObserver(syncCanvasSize)
+    syncCanvasSize(true)
+    const resizeObserver = new ResizeObserver(() => syncCanvasSize(false))
     resizeObserver.observe(container)
-    window.addEventListener('resize', syncCanvasSize)
+    const handleCanvasResize = () => syncCanvasSize(false)
+    window.addEventListener('resize', handleCanvasResize)
 
     const render = () => {
       animId = requestAnimationFrame(render)
@@ -483,7 +508,7 @@ export function CircuitPipeline() {
     return () => {
       cancelAnimationFrame(animId)
       resizeObserver.disconnect()
-      window.removeEventListener('resize', syncCanvasSize)
+      window.removeEventListener('resize', handleCanvasResize)
     }
   }, [])
 
@@ -591,7 +616,7 @@ export function CircuitPipeline() {
           onRefresh: (self) => {
             scrollProgressRef.current = self.progress
             needsRenderRef.current = true
-            syncPinnedOverflow(containerRef.current, innerRef.current, self.progress)
+            syncPinnedOverflow(containerRef.current, innerRef.current, self.progress, true)
           },
         },
       })
@@ -654,7 +679,7 @@ export function CircuitPipeline() {
                 ref={(el) => {
                   cardsRef.current[idx] = el
                 }}
-                className={`relative flex flex-col p-6 rounded-2xl border backdrop-blur-xl ${
+                className={`relative flex flex-col p-6 rounded-2xl border backdrop-blur-md sm:backdrop-blur-xl ${
                   isCurrent
                     ? 'bg-[#091520]/95 border-cyan-400 shadow-[0_0_24px_rgba(0,242,254,0.2)]'
                     : isReached

@@ -6,7 +6,7 @@ export function PetCanvas() {
   const [isChasing, setIsChasing] = useState(false)
 
   return (
-    <div className="fixed inset-0 w-full h-screen pointer-events-none z-20 overflow-hidden">
+    <div className="fixed inset-x-0 top-0 w-full h-[100lvh] pointer-events-none z-20 overflow-hidden">
       {isChasing && (
         <div
           role="status"

@@ -85,13 +85,13 @@ export function InteractiveFaq() {
         return tl
       })
 
-      // Initial stacked card entry states
+      // Initial stacked card entry states (keep opacity at 1 on backdrop-blur cards)
       cardRefs.current.forEach((card, idx) => {
         if (!card) return
         if (idx === 0) {
-          gsap.set(card, { y: 0, opacity: 1, rotateX: 0 })
+          gsap.set(card, { y: 0 })
         } else {
-          gsap.set(card, { y: 36, opacity: 0.22, rotateX: -8 })
+          gsap.set(card, { y: 12 })
         }
       })
 
@@ -126,7 +126,7 @@ export function InteractiveFaq() {
           setActiveIdx((prev) => (prev !== newIdx ? newIdx : prev))
         },
         onRefresh: (self) => {
-          syncPinnedOverflow(sectionRef.current, innerRef.current, self.progress)
+          syncPinnedOverflow(sectionRef.current, innerRef.current, self.progress, true)
         },
       })
     },
@@ -150,9 +150,7 @@ export function InteractiveFaq() {
       if (isCurrent) {
         gsap.to(card, {
           y: 0,
-          opacity: 1,
-          rotateX: 0,
-          duration: 0.5,
+          duration: 0.45,
           ease: 'power3.out',
           overwrite: 'auto',
         })
@@ -169,9 +167,7 @@ export function InteractiveFaq() {
       } else if (isReached) {
         gsap.to(card, {
           y: 0,
-          opacity: 0.65,
-          rotateX: 0,
-          duration: 0.4,
+          duration: 0.35,
           ease: 'power2.out',
           overwrite: 'auto',
         })
@@ -184,10 +180,8 @@ export function InteractiveFaq() {
         })
       } else {
         gsap.to(card, {
-          y: 32,
-          opacity: 0.22,
-          rotateX: -8,
-          duration: 0.4,
+          y: 12,
+          duration: 0.35,
           ease: 'power2.out',
           overwrite: 'auto',
         })
@@ -234,12 +228,12 @@ export function InteractiveFaq() {
                 ref={(el) => {
                   cardRefs.current[idx] = el
                 }}
-                className={`rounded-2xl p-6 sm:p-7 border backdrop-blur-2xl transform-gpu will-change-transform transition-[background-color,border-color,box-shadow] duration-300 ${
+                className={`rounded-2xl p-6 sm:p-7 border backdrop-blur-md sm:backdrop-blur-2xl will-change-transform transition-[background-color,border-color,box-shadow] duration-300 ${
                   isCurrent
-                    ? 'bg-[#0d111a]/80 border-cyan-400/55 shadow-[0_20px_50px_rgba(0,0,0,0.65)]'
+                    ? 'bg-[#0d111a]/85 border-cyan-400/55 shadow-[0_20px_50px_rgba(0,0,0,0.65)]'
                     : isReached
-                      ? 'bg-[#0d111a]/55 border-white/10'
-                      : 'bg-white/[0.02] border-white/5'
+                      ? 'bg-[#0d111a]/65 border-white/15'
+                      : 'bg-[#090d14]/45 border-white/10'
                 }`}
               >
                 <span

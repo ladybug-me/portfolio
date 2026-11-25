@@ -3,13 +3,20 @@ import gsap from 'gsap'
 
 const panQuickToCache = new WeakMap<HTMLElement, gsap.QuickToFunc>()
 const cardScrollTargets = new WeakMap<HTMLElement, number>()
+const overflowCache = new WeakMap<HTMLElement, number>()
 
 /**
  * Returns vertical overflow beyond the viewport height for a pinned section.
+ * Caches the measurement so per-frame scroll updates avoid synchronous reflows.
  */
-export function getPinnedOverflow(container: HTMLElement | null): number {
+export function getPinnedOverflow(container: HTMLElement | null, measure = true): number {
   if (!container) return 0
-  return Math.max(0, container.scrollHeight - window.innerHeight)
+  if (!measure && overflowCache.has(container)) {
+    return overflowCache.get(container) ?? 0
+  }
+  const overflow = Math.max(0, container.scrollHeight - window.innerHeight)
+  overflowCache.set(container, overflow)
+  return overflow
 }
 
 /**
@@ -19,11 +26,20 @@ export function getPinnedOverflow(container: HTMLElement | null): number {
 export function syncPinnedOverflow(
   container: HTMLElement | null,
   inner: HTMLElement | null,
-  progress: number
+  progress: number,
+  refresh = false
 ) {
   if (!container || !inner) return
-  const overflow = getPinnedOverflow(container)
-  const targetY = overflow > 0 ? -overflow * progress : 0
+  const overflow = getPinnedOverflow(container, refresh)
+  if (overflow <= 0) {
+    if (panQuickToCache.has(inner)) {
+      panQuickToCache.delete(inner)
+      gsap.set(inner, { y: 0, clearProps: 'transform' })
+    }
+    return
+  }
+
+  const targetY = -overflow * progress
 
   let quickY = panQuickToCache.get(inner)
   if (!quickY) {

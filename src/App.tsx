@@ -30,6 +30,9 @@ const ContactSection = lazy(() =>
 )
 
 gsap.registerPlugin(ScrollTrigger, useGSAP)
+ScrollTrigger.config({
+  ignoreMobileResize: true,
+})
 
 export function App() {
   const containerRef = useRef<HTMLDivElement>(null)
@@ -58,15 +61,31 @@ export function App() {
     gsap.ticker.add(updateTicker)
     gsap.ticker.lagSmoothing(0)
 
-    const handleResize = () => {
-      lenis.resize()
-      ScrollTrigger.refresh()
+    let lastWidth = window.innerWidth
+    let refreshTimer: ReturnType<typeof setTimeout> | null = null
+
+    const scheduleRefresh = () => {
+      if (refreshTimer) clearTimeout(refreshTimer)
+      refreshTimer = setTimeout(() => {
+        lenis.resize()
+        ScrollTrigger.refresh()
+      }, 220)
     }
 
-    let resizeRaf = 0
+    const handleResize = () => {
+      // Ignore vertical-only mobile address-bar resizes to prevent pin/layout flicker mid-scroll
+      if (window.innerWidth === lastWidth) return
+      lastWidth = window.innerWidth
+      scheduleRefresh()
+    }
+
+    let lastContainerHeight = containerRef.current?.scrollHeight ?? 0
     const ro = new ResizeObserver(() => {
-      cancelAnimationFrame(resizeRaf)
-      resizeRaf = requestAnimationFrame(handleResize)
+      const nextHeight = containerRef.current?.scrollHeight ?? 0
+      if (Math.abs(nextHeight - lastContainerHeight) > 80) {
+        lastContainerHeight = nextHeight
+        scheduleRefresh()
+      }
     })
     if (containerRef.current) {
       ro.observe(containerRef.current)
@@ -76,7 +95,7 @@ export function App() {
 
     return () => {
       delete (window as unknown as { __lenis?: Lenis }).__lenis
-      cancelAnimationFrame(resizeRaf)
+      if (refreshTimer) clearTimeout(refreshTimer)
       ro.disconnect()
       window.removeEventListener('resize', handleResize)
       gsap.ticker.remove(updateTicker)

@@ -50,8 +50,7 @@ export function KineticTextScrub({ className = '' }: KineticTextScrubProps) {
         rotation: 0,
         display: 'inline-block',
         transformOrigin: 'center center',
-        textShadow: `0 0 0px rgba(${palette.primaryRgb}, 0)`,
-        willChange: 'transform, color, text-shadow',
+        willChange: 'transform, color',
         backfaceVisibility: 'hidden',
       })
 
@@ -65,13 +64,11 @@ export function KineticTextScrub({ className = '' }: KineticTextScrubProps) {
           scrub: window.innerWidth < 992 ? 0.6 : 0.75,
           anticipatePin: 1,
           invalidateOnRefresh: true,
-          fastScrollEnd: true,
-          preventOverlaps: true,
           onUpdate: (self) => {
             syncPinnedOverflow(container, innerRef.current, self.progress)
           },
           onRefresh: (self) => {
-            syncPinnedOverflow(container, innerRef.current, self.progress)
+            syncPinnedOverflow(container, innerRef.current, self.progress, true)
           },
         },
       })
@@ -89,7 +86,6 @@ export function KineticTextScrub({ className = '' }: KineticTextScrubProps) {
             color: palette.mid,
             scale: 1.15,
             rotation: () => gsap.utils.random(-4, 4),
-            textShadow: `0 0 20px ${palette.primary}, 0 0 38px rgba(${palette.primaryRgb}, 0.9), 0.8px 0.8px 0 ${palette.primary}, -0.8px -0.8px 0 ${palette.primary}`,
             duration: 3.5,
             ease: 'power1.out',
           },
@@ -103,7 +99,6 @@ export function KineticTextScrub({ className = '' }: KineticTextScrubProps) {
             color: palette.primary,
             scale: 1,
             rotation: 0,
-            textShadow: `0 0 14px rgba(${palette.primaryRgb}, 0.45)`,
             duration: 3.5,
             ease: 'power1.inOut',
           },
@@ -145,7 +140,7 @@ export function KineticTextScrub({ className = '' }: KineticTextScrubProps) {
                   {word.split('').map((char, charIdx) => (
                     <span
                       key={charIdx}
-                      className="about-char inline-block will-change-[transform,color,text-shadow] text-white"
+                      className="about-char inline-block will-change-[transform,color] text-white"
                       style={{
                         display: 'inline-block',
                         transformOrigin: 'center center',

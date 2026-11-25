@@ -95,16 +95,17 @@ export function SkillsMatrix() {
             syncPinnedOverflow(sectionRef.current, innerRef.current, self.progress)
           },
           onRefresh: (self) => {
-            syncPinnedOverflow(sectionRef.current, innerRef.current, self.progress)
+            syncPinnedOverflow(sectionRef.current, innerRef.current, self.progress, true)
           },
         },
       })
 
-      // Initial positions: Card 0 is front & zoomed in; Cards 1..N start offscreen to the right
+      // Initial positions: Card 0 is front; Cards 1..N start offscreen right at opacity 1 (no backdrop-blur opacity fade flicker)
       gsap.set(cards[0], {
         xPercent: 0,
         scale: 1,
         opacity: 1,
+        visibility: 'visible',
         zIndex: 10,
       })
 
@@ -112,19 +113,19 @@ export function SkillsMatrix() {
         gsap.set(cards[i], {
           xPercent: 115,
           scale: 1,
-          opacity: 0,
+          opacity: 1,
+          visibility: 'hidden',
           zIndex: 10 + i,
         })
       }
 
-      // Horizontal deck stacking timeline (keep scale locked at 1 so typography never resizes)
+      // Horizontal deck stacking timeline (keep scale and opacity locked at 1 to prevent backdrop-blur flicker)
       cards.forEach((card, i) => {
         if (i === 0) return
 
         const stepTime = (i - 1) * 1
 
-        // Preceding cards shift left to form clean stacked edge tabs
-        // Avoid CSS `filter` on backdrop-blur elements (prevents black compositor artifact)
+        // Preceding cards shift left and darken cleanly without lowering layer opacity
         for (let prev = 0; prev < i; prev++) {
           const depth = i - prev
           tl.to(
@@ -132,7 +133,7 @@ export function SkillsMatrix() {
             {
               xPercent: -2.5 * depth,
               scale: 1,
-              opacity: Math.max(0.18, 0.42 - (depth - 1) * 0.12),
+              backgroundColor: depth === 1 ? 'rgba(9, 13, 22, 0.88)' : 'rgba(6, 9, 16, 0.94)',
               ease: 'power2.inOut',
               duration: 1,
             },
@@ -140,11 +141,16 @@ export function SkillsMatrix() {
           )
         }
 
-        // Current card slides in from right at constant 1:1 typography scale
-        tl.to(
+        // Current card slides in from right at constant 1:1 scale & full opacity
+        tl.fromTo(
           card,
           {
+            xPercent: 115,
+            visibility: 'hidden',
+          },
+          {
             xPercent: 0,
+            visibility: 'visible',
             scale: 1,
             opacity: 1,
             ease: 'power2.out',
@@ -180,7 +186,7 @@ export function SkillsMatrix() {
           <article
             key={idx}
             onWheel={handleBoundedCardWheel}
-            className="horizontal-stack-card absolute inset-0 w-full h-full rounded-2xl sm:rounded-3xl bg-[#0d111a]/70 p-5 sm:p-10 lg:p-12 border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.6)] backdrop-blur-2xl will-change-transform flex overflow-y-auto overflow-x-hidden group hover:border-cyan-400/40 transition-colors duration-300"
+            className="horizontal-stack-card absolute inset-0 w-full h-full rounded-2xl sm:rounded-3xl bg-[#0d111a]/75 p-5 sm:p-10 lg:p-12 border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.6)] backdrop-blur-md sm:backdrop-blur-2xl will-change-transform flex overflow-y-auto overflow-x-hidden group hover:border-cyan-400/40 transition-colors duration-300"
           >
             <div className="w-full my-auto grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 lg:gap-10 items-start lg:items-center">
               {/* Left Column: Centered Solar Icon & Metric */}

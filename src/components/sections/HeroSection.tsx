@@ -224,7 +224,6 @@ export function HeroSection({ ready = true }: HeroSectionProps) {
             xPercent: -35,
             scale: 1.05,
             opacity: 0,
-            filter: 'blur(12px)',
             ease: 'power1.in',
           },
           0
@@ -235,7 +234,6 @@ export function HeroSection({ ready = true }: HeroSectionProps) {
             xPercent: 35,
             scale: 1.05,
             opacity: 0,
-            filter: 'blur(12px)',
             ease: 'power1.in',
           },
           0
@@ -246,7 +244,6 @@ export function HeroSection({ ready = true }: HeroSectionProps) {
             yPercent: 45,
             scale: 0.92,
             opacity: 0,
-            filter: 'blur(8px)',
             ease: 'power1.in',
           },
           0

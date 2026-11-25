@@ -8,7 +8,7 @@ export function HeroCanvas() {
   const palette = usePalette()
 
   return (
-    <div className="fixed inset-0 w-full h-screen pointer-events-none z-0 overflow-hidden">
+    <div className="fixed inset-x-0 top-0 w-full h-[100lvh] pointer-events-none z-0 overflow-hidden">
       <Suspense fallback={null}>
         <Canvas
           camera={{ position: [0, 0, 5], fov: 45 }}
