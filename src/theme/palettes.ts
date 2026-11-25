@@ -1,6 +1,6 @@
 import { useSyncExternalStore } from 'react'
 
-export type PaletteId = 'cyan' | 'amber' | 'crimson' | 'violet'
+export type PaletteId = 'cyan' | 'amber' | 'crimson' | 'violet' | 'monochrome'
 
 export interface PaletteConfig {
   id: PaletteId
@@ -58,6 +58,17 @@ export const PALETTES: PaletteConfig[] = [
     bgSecondary: '#110e1c',
     primaryRgb: '168, 85, 247',
     secondaryRgb: '56, 189, 248',
+  },
+  {
+    id: 'monochrome',
+    name: 'Monochrome',
+    primary: '#f4f4f5',
+    secondary: '#a1a1aa',
+    mid: '#d4d4d8',
+    bgPrimary: '#08090b',
+    bgSecondary: '#14161a',
+    primaryRgb: '244, 244, 245',
+    secondaryRgb: '161, 161, 170',
   },
 ]
 

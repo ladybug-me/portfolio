@@ -18,6 +18,10 @@ test_no_hardcoded_cyan_glows_in_ui_and_sections() {
 test_cards_use_palette_surface_token() {
     assert_file_contains "$REPO_ROOT/src/index.css" "--bg-secondary-rgb:" \
         "index.css must expose --bg-secondary-rgb per palette"
+    assert_file_contains "$REPO_ROOT/src/index.css" '[data-palette="monochrome"]' \
+        "index.css must define monochrome grey/white palette variables"
+    assert_file_contains "$REPO_ROOT/src/theme/palettes.ts" "id: 'monochrome'" \
+        "palettes.ts must register the monochrome palette"
     assert_file_contains "$REPO_ROOT/src/components/ui/CircuitPipeline.tsx" "top-1/2 -translate-y-1/2" \
         "CircuitPipeline.tsx SVG line must anchor vertically at the container center"
     assert_file_not_contains "$REPO_ROOT/src/components/ui/KineticTextScrub.tsx" "revertOnUpdate: true" \

@@ -71,6 +71,25 @@
     --color-emerald-400: #38bdf8;
   }
 
+  [data-palette="monochrome"] {
+    --bg-primary: #08090b;
+    --bg-secondary: #14161a;
+    --bg-secondary-rgb: 20, 22, 26;
+    --accent-cyan: #f4f4f5;
+    --accent-green: #a1a1aa;
+    --accent-cyan-rgb: 244, 244, 245;
+    --accent-green-rgb: 161, 161, 170;
+    --color-cyan-200: #fafafa;
+    --color-cyan-300: #e4e4e7;
+    --color-cyan-400: #f4f4f5;
+    --color-cyan-500: #a1a1aa;
+    --color-cyan-950: #18181b;
+    --color-teal-300: #d4d4d8;
+    --color-teal-400: #a1a1aa;
+    --color-emerald-300: #d4d4d8;
+    --color-emerald-400: #a1a1aa;
+  }
+
   body {
     background-color: var(--bg-primary);
     color: var(--text-primary);
