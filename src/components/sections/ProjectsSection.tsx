@@ -11,34 +11,29 @@ interface ShowcaseProject {
   number: string
   title: string
   badge: string
-  stat: string
-  statLabel: string
   summary: string
   tags: string[]
   link?: string
-  icon?: string
+  media: string
 }
 
 const showcaseProjects: ShowcaseProject[] = [
   {
     id: 'solar-defect',
-    number: '01',
+    number: '1',
     title: 'Edge-Based Solar Panel Inspection',
     badge: "9th ICRTAC'26 Accepted Paper",
-    stat: 'YOLOv11-seg',
-    statLabel: 'Jetson & Pi Inference',
+    media: '/assets/spd/spd.png',
     summary:
       'Trained instance segmentation networks on custom thermal imagery to isolate micro-cracks, dust, and hotspots. Deployed directly to Raspberry Pi and Nvidia Jetson Nano to calculate electrical efficiency loss in real time.',
     tags: ['C++', 'CUDA', 'Python', 'YOLOv11-seg', 'Jetson Nano', 'Raspberry Pi'],
   },
   {
     id: 'caelestia-kde',
-    number: '02',
+    number: '2',
     title: 'Caelestia KDE Shell Architecture',
     badge: 'Owner & Maintainer',
-    icon: '/assets/icons/caelestia.svg',
-    stat: '<5ms IPC',
-    statLabel: '<5ms IPC • Direct C++ Loop',
+    media: '/assets/caelestia/animatedlogo.svg',
     summary:
       'A morphing desktop shell for modern Linux distributions. Replaced Python D-Bus layers with native C++ asynchronous sockets, removing compositor stutter and stabilizing window transitions under heavy load.',
     tags: ['C++', 'QML', 'Wayland', 'D-Bus IPC', 'Bash', 'Linux Compositors'],
@@ -46,11 +41,10 @@ const showcaseProjects: ShowcaseProject[] = [
   },
   {
     id: 'faiss-engine',
-    number: '03',
+    number: '3',
     title: 'High-Volume FAISS Vector Pipeline',
     badge: 'Psyduck Engine • Open Source',
-    stat: '44,441 Items',
-    statLabel: 'Sub-100ms Query Latency',
+    media: '/assets/psyduck/psyduck.gif',
     summary:
       'Local semantic retrieval pipeline. Combines Ollama models for intent extraction with Sentence Transformers and FAISS index partitions, querying structured catalog data over an automated SQLite pipeline.',
     tags: ['FAISS', 'FastAPI', 'Ollama', 'Sentence Transformers', 'SQLite', 'Python'],
@@ -58,12 +52,10 @@ const showcaseProjects: ShowcaseProject[] = [
   },
   {
     id: 'grudge-art-online',
-    number: '04',
+    number: '4',
     title: 'Grudge Art Online • AI Game Engine',
     badge: "DevSoc'26 Top 15 Finalist",
-    icon: '/assets/icons/devsoc.jpg',
-    stat: '48h Sprint',
-    statLabel: '48h Sprint • Game AI',
+    media: '/assets/icons/devsoc.jpg',
     summary:
       'Interactive game engine built during a 48-hour sprint. Linked Unity clients to local Flask backends and the Backboard API, driving real-time dialogues with autonomous game characters.',
     tags: ['Unity', 'C#', 'Flask', 'Python', 'Backboard API', 'Game AI'],
@@ -116,32 +108,21 @@ export function ProjectsSection() {
           <article
             key={proj.id}
             style={{ top: `calc(max(60px, min(85px, 9vh)) + ${idx * 16}px)` }}
-            className="stacked-project-card sticky glass-panel p-6 sm:p-8 lg:p-12 rounded-2xl sm:rounded-3xl border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.6)] backdrop-blur-2xl will-change-transform grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start group"
+            className="stacked-project-card sticky glass-panel p-6 sm:p-8 lg:p-12 rounded-2xl sm:rounded-3xl border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.6)] backdrop-blur-2xl will-change-transform grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-stretch group"
           >
-            {/* Left: Project Index & Big Stat Callout */}
-            <div className="lg:col-span-4 flex flex-row lg:flex-col justify-between items-center lg:items-start">
-              <span className="text-4xl sm:text-6xl lg:text-7xl font-extrabold font-mono text-cyan-500/30 group-hover:text-cyan-400 transition-colors block mb-0 lg:mb-6">
+            {/* Left: Enlarged Centered Thumb & Non-Overlapping Bottom-Left Numbering */}
+            <div className="lg:col-span-4 flex flex-col justify-between gap-4 h-full">
+              <div className="flex-1 w-full flex items-center justify-center">
+                <img
+                  src={proj.media}
+                  alt={proj.title}
+                  className="w-auto max-w-[260px] sm:max-w-[320px] max-h-48 sm:max-h-56 object-contain mx-auto"
+                />
+              </div>
+
+              <span className="self-start shrink-0 text-3xl sm:text-4xl lg:text-5xl font-extrabold font-mono text-cyan-500/30 group-hover:text-cyan-400 transition-colors leading-none select-none">
                 {proj.number}
               </span>
-
-              <div className="p-3 sm:p-4 rounded-xl bg-slate-900/80 border border-white/10 w-fit min-w-[140px] flex flex-col justify-center">
-                {proj.icon ? (
-                  <div className="mb-2">
-                    <img
-                      src={proj.icon}
-                      alt={proj.title}
-                      className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl object-contain shadow-[0_0_15px_rgba(0,242,254,0.2)]"
-                    />
-                  </div>
-                ) : (
-                  <span className="text-xl sm:text-2xl lg:text-3xl font-bold font-mono text-white block mb-0.5">
-                    {proj.stat}
-                  </span>
-                )}
-                <span className="text-[10px] sm:text-xs text-cyan-400 font-mono tracking-wider uppercase block">
-                  {proj.statLabel}
-                </span>
-              </div>
             </div>
 
             {/* Right: Title, Narrative & Meta */}

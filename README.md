@@ -1,32 +1,74 @@
-# React + TypeScript + Vite
+# Rajveer Singh — Portfolio
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Interactive 3D portfolio for **Rajveer Singh** (Systems & Edge AI Engineer), built with React 19, Three.js, GSAP, Lenis, and Tailwind CSS v4.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **3D WebGL Scenes**: Fullscreen shader backdrop (`HeroCanvas` with `NeuralCore` and `DistantOrbitParticles`) alongside an autonomous, shadow-mapped 3D companion (`PetCanvas` with `SphericalPet`).
+- **Scroll Choreography**: Smooth scrolling via Lenis synchronized with GSAP `ScrollTrigger` animations, masked typography reveals, and `prefers-reduced-motion` fallbacks.
+- **Interactive UI**: Custom cursor, section navigator, scroll-linked kinetic text illumination (`KineticTextScrub`), and scroll-drawn SVG circuit pipeline (`CircuitPipeline`).
+- **Content Sections**: Hero overview, sticky stacked project showcase, technical capabilities matrix, interactive FAQ accordion, and contact section.
 
-## React Compiler
+## Tech Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **Framework**: React 19, TypeScript, Vite
+- **3D & Shaders**: Three.js, React Three Fiber, Drei
+- **Animation & Scroll**: GSAP (`@gsap/react`, `ScrollTrigger`, `SplitText`), Lenis
+- **Styling & Icons**: Tailwind CSS v4 (`@tailwindcss/vite`), Iconify
+- **Linting**: Oxlint
 
-## Expanding the Oxlint configuration
+## Project Structure
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```text
+├── public/
+│   └── assets/          # Static media, project visuals, and Resume.pdf
+├── src/
+│   ├── components/
+│   │   ├── canvas/      # React Three Fiber scenes (HeroCanvas, PetCanvas, NeuralCore, SphericalPet)
+│   │   ├── sections/    # Page sections (Hero, Projects, Skills, FAQ, Contact)
+│   │   └── ui/          # Interactive UI primitives (CustomCursor, CircuitPipeline, SectionNavigator)
+│   ├── App.tsx          # Lenis + GSAP setup and section composition
+│   ├── main.tsx         # Application entry point
+│   └── index.css        # Global styles and Tailwind CSS v4 configuration
+├── index.html
+├── package.json
+└── vite.config.ts
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+## Getting Started
+
+### Prerequisites
+
+- Node.js 20+
+- npm
+
+### Installation
+
+```bash
+git clone https://github.com/ladybug-me/portfolio.git
+cd portfolio
+npm install
+```
+
+### Development
+
+Start the local Vite development server:
+
+```bash
+npm run dev
+```
+
+### Production Build & Preview
+
+Type-check, bundle for production, and preview locally:
+
+```bash
+npm run build
+npm run preview
+```
+
+### Linting
+
+```bash
+npm run lint
+```
