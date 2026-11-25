@@ -25,30 +25,113 @@ interface ProjectGalleryModalProps {
   onClose: () => void
 }
 
-export function ProjectGalleryModal({ project, onClose }: ProjectGalleryModalProps) {
-  const [activeIndex, setActiveIndex] = useState(0)
-  const [direction, setDirection] = useState<1 | -1>(1)
-
-  const overlayRef = useRef<HTMLDivElement>(null)
-  const stageRef = useRef<HTMLDivElement>(null)
-  const mediaWrapRef = useRef<HTMLDivElement>(null)
+function FloatingMediaCard({
+  item,
+  single,
+  onSelect,
+}: {
+  item: GalleryMediaItem
+  single: boolean
+  onSelect: () => void
+}) {
+  const cardRef = useRef<HTMLButtonElement>(null)
   const rotateXTo = useRef<gsap.QuickToFunc | null>(null)
   const rotateYTo = useRef<gsap.QuickToFunc | null>(null)
+
+  useGSAP(
+    () => {
+      if (!cardRef.current) return
+      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      if (prefersReducedMotion) return
+
+      rotateXTo.current = gsap.quickTo(cardRef.current, 'rotationX', {
+        duration: 0.35,
+        ease: 'power3.out',
+      })
+      rotateYTo.current = gsap.quickTo(cardRef.current, 'rotationY', {
+        duration: 0.35,
+        ease: 'power3.out',
+      })
+    },
+    { scope: cardRef }
+  )
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLButtonElement>) => {
+    if (!cardRef.current || !rotateXTo.current || !rotateYTo.current) return
+    const rect = cardRef.current.getBoundingClientRect()
+    const nx = (e.clientX - rect.left) / rect.width - 0.5
+    const ny = (e.clientY - rect.top) / rect.height - 0.5
+    rotateXTo.current(-ny * 14)
+    rotateYTo.current(nx * 16)
+  }
+
+  const handleMouseLeave = () => {
+    rotateXTo.current?.(0)
+    rotateYTo.current?.(0)
+  }
+
+  const sizeClass = single
+    ? 'w-[86vw] sm:w-[76vw] max-h-[75vh]'
+    : 'w-[84vw] sm:w-[44vw] lg:w-[29vw] max-h-[36vh] sm:max-h-[41vh]'
+
+  return (
+    <button
+      ref={cardRef}
+      type="button"
+      onClick={(e) => {
+        e.stopPropagation()
+        onSelect()
+      }}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      aria-label={item.label}
+      className={`gallery-grid-item group relative cursor-pointer focus:outline-none will-change-transform [transform-style:preserve-3d] transition-all duration-300 ease-out hover:scale-[1.04] rounded-2xl border border-white/20 hover:border-cyan-400/60 overflow-hidden bg-slate-950/30 shadow-[0_20px_50px_rgba(0,0,0,0.65)] hover:shadow-[0_24px_60px_rgba(34,211,238,0.28)] flex items-center justify-center ${sizeClass}`}
+    >
+      {item.type === 'video' ? (
+        <video
+          src={item.src}
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="w-full h-full object-contain"
+        />
+      ) : (
+        <img
+          src={item.src}
+          alt={item.label}
+          className="w-full h-full object-contain"
+        />
+      )}
+    </button>
+  )
+}
+
+export function ProjectGalleryModal({ project, onClose }: ProjectGalleryModalProps) {
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null)
+
+  const overlayRef = useRef<HTMLDivElement>(null)
+  const gridRef = useRef<HTMLDivElement>(null)
+  const magnifiedRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const prevOverflow = document.body.style.overflow
     document.body.style.overflow = 'hidden'
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose()
-      if (project.gallery.length > 1) {
-        if (e.key === 'ArrowRight') {
-          setDirection(1)
-          setActiveIndex((prev) => (prev + 1) % project.gallery.length)
+      if (e.key === 'Escape') {
+        if (selectedIndex !== null) {
+          setSelectedIndex(null)
+        } else {
+          onClose()
         }
-        if (e.key === 'ArrowLeft') {
-          setDirection(-1)
-          setActiveIndex((prev) => (prev - 1 + project.gallery.length) % project.gallery.length)
+      }
+      if (selectedIndex !== null) {
+        if (e.key === 'ArrowRight' && selectedIndex < project.gallery.length - 1) {
+          setSelectedIndex(selectedIndex + 1)
+        }
+        if (e.key === 'ArrowLeft' && selectedIndex > 0) {
+          setSelectedIndex(selectedIndex - 1)
         }
       }
     }
@@ -58,128 +141,75 @@ export function ProjectGalleryModal({ project, onClose }: ProjectGalleryModalPro
       document.body.style.overflow = prevOverflow
       window.removeEventListener('keydown', handleKeyDown)
     }
-  }, [project.gallery.length, onClose])
+  }, [selectedIndex, project.gallery.length, onClose])
 
-  // Blurred backdrop & staggered minimal entrance
+  // Stage 1: Floating unblurred grid entrance
   useGSAP(
     () => {
-      if (!overlayRef.current) return
+      if (selectedIndex !== null || !gridRef.current) return
       const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
       if (prefersReducedMotion) return
-
-      const tl = gsap.timeline({ defaults: { ease: 'expo.out' } })
-
-      tl.fromTo(
-        overlayRef.current,
-        { autoAlpha: 0 },
-        { autoAlpha: 1, duration: 0.35, ease: 'power2.out' }
-      )
-        .fromTo(
-          '.gallery-header-item',
-          { y: -16, autoAlpha: 0 },
-          { y: 0, autoAlpha: 1, duration: 0.45, stagger: 0.06, ease: 'power3.out' },
-          0.1
-        )
-        .fromTo(
-          '.gallery-thumb-item',
-          { y: 20, scale: 0.72, autoAlpha: 0 },
-          {
-            y: 0,
-            scale: 1,
-            autoAlpha: 1,
-            duration: 0.5,
-            stagger: { each: 0.045, from: 'center' },
-            ease: 'back.out(1.6)',
-            clearProps: 'transform',
-          },
-          0.18
-        )
-    },
-    { scope: overlayRef, dependencies: [project.id] }
-  )
-
-  // Kinetic 3D iris-wipe media transition
-  useGSAP(
-    () => {
-      if (!mediaWrapRef.current) return
-      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-      if (prefersReducedMotion) return
-
-      const clipStart =
-        direction === 1
-          ? 'polygon(18% 0%, 100% 0%, 100% 100%, 18% 100%)'
-          : 'polygon(0% 0%, 82% 0%, 82% 100%, 0% 100%)'
 
       gsap.fromTo(
-        mediaWrapRef.current,
+        '.gallery-grid-item',
         {
           autoAlpha: 0,
-          x: direction * 64,
-          scale: 0.88,
-          rotationY: direction * -10,
-          clipPath: clipStart,
+          scale: 0.75,
+          y: 36,
+          rotationX: 12,
         },
         {
           autoAlpha: 1,
-          x: 0,
           scale: 1,
-          rotationY: 0,
-          clipPath: 'polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)',
+          y: 0,
+          rotationX: 0,
           duration: 0.55,
+          stagger: { each: 0.06, from: 'center' },
+          ease: 'back.out(1.4)',
+          clearProps: 'transform',
+        }
+      )
+    },
+    { scope: overlayRef, dependencies: [project.id, selectedIndex] }
+  )
+
+  // Stage 2: 75% magnified reveal (no mouse tilt)
+  useGSAP(
+    () => {
+      if (selectedIndex === null || !magnifiedRef.current) return
+      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      if (prefersReducedMotion) return
+
+      gsap.fromTo(
+        magnifiedRef.current,
+        {
+          autoAlpha: 0,
+          scale: 0.8,
+          clipPath: 'inset(10% 8% 10% 8% round 16px)',
+        },
+        {
+          autoAlpha: 1,
+          scale: 1,
+          clipPath: 'inset(0% 0% 0% 0% round 16px)',
+          duration: 0.45,
           ease: 'expo.out',
           clearProps: 'transform,clipPath',
         }
       )
     },
-    { scope: stageRef, dependencies: [project.id, activeIndex] }
+    { scope: overlayRef, dependencies: [project.id, selectedIndex] }
   )
 
-  // Interactive 3D tilt on stage hover
-  useGSAP(
-    () => {
-      if (!mediaWrapRef.current) return
-      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-      if (prefersReducedMotion) return
+  const selectedItem = selectedIndex !== null ? project.gallery[selectedIndex] : null
+  const hasPrev = selectedIndex !== null && selectedIndex > 0
+  const hasNext = selectedIndex !== null && selectedIndex < project.gallery.length - 1
 
-      rotateXTo.current = gsap.quickTo(mediaWrapRef.current, 'rotationX', {
-        duration: 0.45,
-        ease: 'power3.out',
-      })
-      rotateYTo.current = gsap.quickTo(mediaWrapRef.current, 'rotationY', {
-        duration: 0.45,
-        ease: 'power3.out',
-      })
-    },
-    { scope: stageRef, dependencies: [project.id] }
-  )
-
-  const currentItem = project.gallery[activeIndex] ?? project.gallery[0]
-  if (!currentItem) return null
-
-  const hasMultiple = project.gallery.length > 1
-
-  const goPrev = () => {
-    setDirection(-1)
-    setActiveIndex((prev) => (prev - 1 + project.gallery.length) % project.gallery.length)
-  }
-
-  const goNext = () => {
-    setDirection(1)
-    setActiveIndex((prev) => (prev + 1) % project.gallery.length)
-  }
-
-  const handleStageMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!stageRef.current || !rotateXTo.current || !rotateYTo.current) return
-    const rect = stageRef.current.getBoundingClientRect()
-    const nx = (e.clientX - rect.left) / rect.width - 0.5
-    const ny = (e.clientY - rect.top) / rect.height - 0.5
-    rotateXTo.current(-ny * 8)
-    rotateYTo.current(nx * 10)
-  }
-
-  const handleStageLeave = () => {
-    rotateXTo.current?.(0)
-    rotateYTo.current?.(0)
+  const handleEmptySpaceClick = () => {
+    if (selectedIndex !== null) {
+      setSelectedIndex(null)
+    } else {
+      onClose()
+    }
   }
 
   return createPortal(
@@ -188,130 +218,89 @@ export function ProjectGalleryModal({ project, onClose }: ProjectGalleryModalPro
       role="dialog"
       aria-modal="true"
       aria-label={`${project.title} gallery`}
-      onClick={onClose}
-      className="fixed inset-0 z-[100] flex flex-col justify-between bg-slate-950/80 backdrop-blur-2xl p-5 sm:p-8 lg:p-12 [perspective:1400px]"
+      onClick={handleEmptySpaceClick}
+      className={`fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 [perspective:1400px] transition-[backdrop-filter,background-color] duration-300 ${
+        selectedItem ? 'bg-slate-950/20 backdrop-blur-sm' : 'bg-transparent'
+      }`}
     >
-      {/* Minimal Floating Header */}
-      <div
-        onClick={(e) => e.stopPropagation()}
-        className="flex items-center justify-between gap-4 max-w-6xl w-full mx-auto"
-      >
-        <div className="gallery-header-item flex items-baseline gap-3 min-w-0">
-          <span className="text-base sm:text-lg font-extrabold font-mono text-cyan-400 shrink-0">
-            {project.number}
-          </span>
-          <span className="text-sm sm:text-base font-medium text-white truncate">{project.title}</span>
-          <span className="hidden sm:inline text-xs font-mono text-cyan-300/75 uppercase tracking-wider">
-            / {currentItem.label}
-          </span>
-        </div>
-
-        <div className="gallery-header-item flex items-center gap-4 shrink-0">
-          {hasMultiple && (
-            <span className="text-xs font-mono text-slate-400">
-              {String(activeIndex + 1).padStart(2, '0')} / {String(project.gallery.length).padStart(2, '0')}
-            </span>
+      {selectedItem ? (
+        <>
+          {hasPrev && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation()
+                setSelectedIndex((prev) => (prev !== null && prev > 0 ? prev - 1 : prev))
+              }}
+              aria-label="Previous media"
+              className="group fixed inset-y-0 left-0 z-20 w-[12vw] sm:w-[14vw] flex items-center justify-start pl-2 sm:pl-5 text-white/55 hover:text-cyan-300 transition-all duration-200 cursor-pointer focus:outline-none"
+            >
+              <Icon
+                icon="mdi:chevron-left"
+                className="w-14 h-14 sm:w-20 sm:h-20 drop-shadow-[0_4px_20px_rgba(0,0,0,0.65)] group-hover:scale-110 transition-transform duration-200"
+              />
+            </button>
           )}
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="Close gallery"
-            className="w-9 h-9 rounded-full bg-white/5 hover:bg-cyan-400/20 text-slate-300 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
-          >
-            <Icon icon="mdi:close" className="w-5 h-5" />
-          </button>
-        </div>
-      </div>
 
-      {/* Floating Media Stage (No Container) */}
-      <div
-        ref={stageRef}
-        onClick={(e) => e.stopPropagation()}
-        onMouseMove={handleStageMove}
-        onMouseLeave={handleStageLeave}
-        className="relative flex-1 flex items-center justify-center my-4 [perspective:1200px]"
-      >
-        {hasMultiple && (
-          <button
-            type="button"
-            onClick={goPrev}
-            aria-label="Previous media"
-            className="absolute left-0 sm:left-4 z-20 w-10 h-10 rounded-full bg-white/5 hover:bg-cyan-400/20 text-slate-200 hover:text-white flex items-center justify-center transition-colors cursor-pointer backdrop-blur-md"
+          <div
+            ref={magnifiedRef}
+            onClick={(e) => e.stopPropagation()}
+            className="flex items-center justify-center will-change-transform rounded-2xl border border-white/25 overflow-hidden bg-slate-950/30 shadow-[0_25px_70px_rgba(0,0,0,0.75)]"
           >
-            <Icon icon="mdi:chevron-left" className="w-6 h-6" />
-          </button>
-        )}
+            {selectedItem.type === 'video' ? (
+              <video
+                key={selectedItem.src}
+                src={selectedItem.src}
+                controls
+                autoPlay
+                loop
+                muted
+                playsInline
+                className="max-w-[75vw] max-h-[75vh] object-contain"
+              />
+            ) : (
+              <img
+                key={selectedItem.src}
+                src={selectedItem.src}
+                alt={selectedItem.label}
+                className="max-w-[75vw] max-h-[75vh] object-contain"
+              />
+            )}
+          </div>
 
-        <div
-          ref={mediaWrapRef}
-          className="flex items-center justify-center will-change-transform [transform-style:preserve-3d]"
-        >
-          {currentItem.type === 'video' ? (
-            <video
-              key={currentItem.src}
-              src={currentItem.src}
-              controls
-              autoPlay
-              loop
-              muted
-              playsInline
-              className="max-w-[88vw] max-h-[68vh] rounded-xl shadow-[0_25px_70px_rgba(0,0,0,0.7)] object-contain"
-            />
-          ) : (
-            <img
-              key={currentItem.src}
-              src={currentItem.src}
-              alt={currentItem.label}
-              className="max-w-[88vw] max-h-[68vh] rounded-xl object-contain drop-shadow-[0_20px_50px_rgba(0,0,0,0.65)]"
-            />
+          {hasNext && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation()
+                setSelectedIndex((prev) =>
+                  prev !== null && prev < project.gallery.length - 1 ? prev + 1 : prev
+                )
+              }}
+              aria-label="Next media"
+              className="group fixed inset-y-0 right-0 z-20 w-[12vw] sm:w-[14vw] flex items-center justify-end pr-2 sm:pr-5 text-white/55 hover:text-cyan-300 transition-all duration-200 cursor-pointer focus:outline-none"
+            >
+              <Icon
+                icon="mdi:chevron-right"
+                className="w-14 h-14 sm:w-20 sm:h-20 drop-shadow-[0_4px_20px_rgba(0,0,0,0.65)] group-hover:scale-110 transition-transform duration-200"
+              />
+            </button>
           )}
-        </div>
-
-        {hasMultiple && (
-          <button
-            type="button"
-            onClick={goNext}
-            aria-label="Next media"
-            className="absolute right-0 sm:right-4 z-20 w-10 h-10 rounded-full bg-white/5 hover:bg-cyan-400/20 text-slate-200 hover:text-white flex items-center justify-center transition-colors cursor-pointer backdrop-blur-md"
-          >
-            <Icon icon="mdi:chevron-right" className="w-6 h-6" />
-          </button>
-        )}
-      </div>
-
-      {/* Minimal Floating Thumb Strip */}
-      {hasMultiple ? (
-        <div
-          onClick={(e) => e.stopPropagation()}
-          className="flex items-center justify-center gap-3 overflow-x-auto py-1"
-        >
-          {project.gallery.map((item, idx) => {
-            const isActive = idx === activeIndex
-            return (
-              <button
-                key={item.src}
-                type="button"
-                onClick={() => {
-                  setDirection(idx >= activeIndex ? 1 : -1)
-                  setActiveIndex(idx)
-                }}
-                aria-label={`View ${item.label}`}
-                className={`gallery-thumb-item shrink-0 w-16 h-11 sm:w-20 sm:h-14 rounded-lg overflow-hidden transition-all duration-300 cursor-pointer flex items-center justify-center ${isActive
-                    ? 'scale-105 opacity-100 ring-2 ring-cyan-400 shadow-[0_0_20px_rgba(34,211,238,0.4)]'
-                    : 'opacity-45 hover:opacity-90'
-                  }`}
-              >
-                {item.type === 'video' ? (
-                  <Icon icon="mdi:play-circle-outline" className="w-6 h-6 text-cyan-300" />
-                ) : (
-                  <img src={item.src} alt={item.label} className="w-full h-full object-contain" />
-                )}
-              </button>
-            )
-          })}
-        </div>
+        </>
       ) : (
-        <div />
+        <div
+          ref={gridRef}
+          className="flex flex-wrap items-center justify-center gap-5 sm:gap-7 max-w-[94vw] max-h-[90vh] w-full [perspective:1200px]"
+        >
+          {project.gallery.map((item, idx) => (
+            <FloatingMediaCard
+              key={item.src}
+              item={item}
+              single={project.gallery.length === 1}
+              onSelect={() => setSelectedIndex(idx)}
+            />
+          ))}
+        </div>
       )}
     </div>,
     document.body

@@ -136,16 +136,13 @@ export function ProjectsSection() {
                     type="button"
                     onClick={() => setActiveProject(proj)}
                     aria-label={`Open ${proj.title} media gallery`}
-                    className="group/thumb relative flex flex-col items-center justify-center cursor-pointer focus:outline-none"
+                    className="group/thumb relative flex items-center justify-center cursor-pointer focus:outline-none"
                   >
                     <img
                       src={proj.media}
                       alt={proj.title}
                       className="w-auto max-w-[260px] sm:max-w-[320px] max-h-48 sm:max-h-56 object-contain mx-auto transition-all duration-300 ease-out group-hover/thumb:scale-[1.12] group-hover/thumb:-translate-y-1.5 group-hover/thumb:drop-shadow-[0_0_26px_rgba(34,211,238,0.45)]"
                     />
-                    <span className="mt-3 px-3 py-1 rounded-full text-[10px] font-mono tracking-widest uppercase text-cyan-300 bg-slate-950/80 border border-cyan-400/30 opacity-0 translate-y-1.5 group-hover/thumb:opacity-100 group-hover/thumb:translate-y-0 transition-all duration-300 pointer-events-none">
-                      View Gallery ({proj.gallery.length}) ↗
-                    </span>
                   </button>
                 ) : (
                   <img
