@@ -1,12 +1,7 @@
-import { useRef, useState } from 'react'
-import gsap from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { useGSAP } from '@gsap/react'
+import { useState } from 'react'
 import { MaskedText } from '../ui/MaskedText'
 import { ProjectGalleryModal, type GalleryMediaItem } from '../ui/ProjectGalleryModal'
 import { handleBoundedCardWheel } from '../../utils/scrollPan'
-
-gsap.registerPlugin(ScrollTrigger)
 
 interface ShowcaseProject {
   id: string
@@ -82,38 +77,10 @@ const showcaseProjects: ShowcaseProject[] = [
 ]
 
 export function ProjectsSection() {
-  const containerRef = useRef<HTMLDivElement>(null)
   const [activeProject, setActiveProject] = useState<ShowcaseProject | null>(null)
 
-  useGSAP(
-    () => {
-      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-      if (prefersReducedMotion) return
-
-      const cards = gsap.utils.toArray<HTMLElement>('.stacked-project-card')
-
-      // Animate card scale-down as subsequent cards stack over them
-      cards.forEach((card, index) => {
-        if (index === cards.length - 1) return // Last card doesn't scale down
-
-        gsap.to(card, {
-          scale: 0.94 - index * 0.02,
-          opacity: 0.6,
-          ease: 'none',
-          scrollTrigger: {
-            trigger: cards[index + 1],
-            start: 'top 75%',
-            end: 'top 30%',
-            scrub: true,
-          },
-        })
-      })
-    },
-    { scope: containerRef }
-  )
-
   return (
-    <section ref={containerRef} id="projects" className="py-20 sm:py-28 lg:py-32 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+    <section id="projects" className="py-20 sm:py-28 lg:py-32 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
       {/* Editorial Section Headline */}
       <div className="mb-12 sm:mb-16 lg:mb-20">
         <h2 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight text-white">

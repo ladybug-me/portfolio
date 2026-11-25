@@ -42,6 +42,16 @@ export function handleBoundedCardWheel(e: React.WheelEvent<HTMLElement>) {
   const maxScroll = el.scrollHeight - el.clientHeight
   if (maxScroll <= 1) return
 
+  const style = window.getComputedStyle(el)
+  if (style.position === 'sticky') {
+    const stickyTop = parseFloat(style.top)
+    if (!Number.isNaN(stickyTop)) {
+      const rectTop = el.getBoundingClientRect().top
+      if (e.deltaY > 0 && rectTop > stickyTop + 2) return
+      if (e.deltaY < 0 && rectTop < stickyTop - 2) return
+    }
+  }
+
   const currentTarget = cardScrollTargets.get(el) ?? el.scrollTop
   const scrollingDown = e.deltaY > 0
   const scrollingUp = e.deltaY < 0
