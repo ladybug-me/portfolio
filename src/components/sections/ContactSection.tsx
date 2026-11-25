@@ -134,7 +134,7 @@ export function ContactSection() {
           </a>
 
           <a
-            href="/assets/Resume.pdf"
+            href={`${import.meta.env.BASE_URL}assets/Resume.pdf`}
             target="_blank"
             rel="noopener noreferrer"
             className="px-7 py-5 sm:px-8 sm:py-6 rounded-2xl bg-[#0d111a]/75 backdrop-blur-2xl border border-white/15 hover:border-cyan-400/60 hover:bg-[#0d111a]/90 flex items-center gap-5 text-white hover:text-cyan-300 transition-colors duration-200 group cursor-pointer"

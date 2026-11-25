@@ -66,7 +66,7 @@ export function Navbar() {
 
             {/* Resume Download CTA */}
             <a
-              href="/assets/Resume.pdf"
+              href={`${import.meta.env.BASE_URL}assets/Resume.pdf`}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-mono font-medium text-cyan-300 bg-cyan-950/40 border border-cyan-500/30 hover:bg-cyan-500/20 hover:border-cyan-400 transition-all shadow-[0_0_15px_rgba(0,242,254,0.1)]"

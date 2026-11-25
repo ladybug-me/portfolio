@@ -201,7 +201,7 @@ export function HeroSection() {
             <div className="tilted-badge-1-wrap absolute -top-4 sm:-top-8 left-6 sm:left-1/4 will-change-transform">
               <div className="tilted-badge-1-inner px-3 sm:px-4 py-1 sm:py-1.5 rounded-full bg-slate-900/90 border border-cyan-400/50 text-cyan-300 font-mono text-[11px] sm:text-xs font-semibold shadow-[0_4px_24px_rgba(0,242,254,0.3)] -rotate-6 backdrop-blur-md flex items-center gap-2">
                 <img
-                  src="/assets/icons/caelestia.svg"
+                  src={`${import.meta.env.BASE_URL}assets/icons/caelestia.svg`}
                   alt=""
                   className="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full object-contain"
                 />
@@ -220,7 +220,7 @@ export function HeroSection() {
             <div className="tilted-badge-3-wrap absolute top-[46%] sm:top-[52%] left-2 sm:left-8 will-change-transform">
               <div className="tilted-badge-3-inner px-3 sm:px-4 py-1 sm:py-1.5 rounded-full bg-slate-900/90 border border-white/25 text-slate-200 font-mono text-[11px] sm:text-xs font-semibold shadow-[0_4px_20px_rgba(255,255,255,0.15)] -rotate-3 backdrop-blur-md flex items-center gap-2">
                 <img
-                  src="/assets/icons/devsoc.jpg"
+                  src={`${import.meta.env.BASE_URL}assets/icons/devsoc.jpg`}
                   alt=""
                   className="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full object-cover"
                 />

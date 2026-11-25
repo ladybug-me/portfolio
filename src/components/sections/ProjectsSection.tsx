@@ -23,7 +23,7 @@ const showcaseProjects: ShowcaseProject[] = [
     number: '1',
     title: 'Edge-Based Solar Panel Inspection',
     badge: "9th ICRTAC'26 Accepted Paper",
-    media: '/assets/spd/spd.png',
+    media: `${import.meta.env.BASE_URL}assets/spd/spd.png`,
     summary:
       'Trained instance segmentation networks on custom thermal imagery to isolate micro-cracks, dust, and hotspots. Deployed directly to Raspberry Pi and Nvidia Jetson Nano to calculate electrical efficiency loss in real time.',
     tags: ['C++', 'CUDA', 'Python', 'YOLOv11-seg', 'Jetson Nano', 'Raspberry Pi'],
@@ -33,7 +33,7 @@ const showcaseProjects: ShowcaseProject[] = [
     number: '2',
     title: 'Caelestia KDE Shell Architecture',
     badge: 'Owner & Maintainer',
-    media: '/assets/caelestia/animatedlogo.svg',
+    media: `${import.meta.env.BASE_URL}assets/caelestia/animatedlogo.svg`,
     summary:
       'A morphing desktop shell for modern Linux distributions. Replaced Python D-Bus layers with native C++ asynchronous sockets, removing compositor stutter and stabilizing window transitions under heavy load.',
     tags: ['C++', 'QML', 'Wayland', 'D-Bus IPC', 'Bash', 'Linux Compositors'],
@@ -44,7 +44,7 @@ const showcaseProjects: ShowcaseProject[] = [
     number: '3',
     title: 'High-Volume FAISS Vector Pipeline',
     badge: 'Psyduck Engine • Open Source',
-    media: '/assets/psyduck/psyduck.gif',
+    media: `${import.meta.env.BASE_URL}assets/psyduck/psyduck.gif`,
     summary:
       'Local semantic retrieval pipeline. Combines Ollama models for intent extraction with Sentence Transformers and FAISS index partitions, querying structured catalog data over an automated SQLite pipeline.',
     tags: ['FAISS', 'FastAPI', 'Ollama', 'Sentence Transformers', 'SQLite', 'Python'],
@@ -55,7 +55,7 @@ const showcaseProjects: ShowcaseProject[] = [
     number: '4',
     title: 'Grudge Art Online • AI Game Engine',
     badge: "DevSoc'26 Top 15 Finalist",
-    media: '/assets/icons/devsoc.jpg',
+    media: `${import.meta.env.BASE_URL}assets/icons/devsoc.jpg`,
     summary:
       'Interactive game engine built during a 48-hour sprint. Linked Unity clients to local Flask backends and the Backboard API, driving real-time dialogues with autonomous game characters.',
     tags: ['Unity', 'C#', 'Flask', 'Python', 'Backboard API', 'Game AI'],
