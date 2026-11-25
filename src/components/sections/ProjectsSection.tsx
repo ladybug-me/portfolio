@@ -127,7 +127,7 @@ export function ProjectsSection() {
                     <img
                       src={proj.media}
                       alt={proj.title}
-                      className="w-auto max-w-[260px] sm:max-w-[320px] max-h-48 sm:max-h-56 object-contain mx-auto transition-all duration-300 ease-out group-hover:scale-[1.12] group-hover:-translate-y-1.5 group-hover:drop-shadow-[0_0_26px_rgba(var(--accent-cyan-rgb),0.45)]"
+                      className="w-auto max-w-[260px] sm:max-w-[320px] max-h-48 sm:max-h-56 object-contain mx-auto transition-all duration-300 ease-out group-hover:scale-[1.12] group-hover:-translate-y-1.5 group-hover:drop-shadow-[0_0_26px_rgba(var(--accent-cyan-rgb),0.45)] group-has-[.repo-link:hover]:scale-100 group-has-[.repo-link:hover]:translate-y-0 group-has-[.repo-link:hover]:drop-shadow-none"
                     />
                     <span className="sm:hidden text-[11px] font-mono text-cyan-300/80 tracking-wide">
                       Tap to view gallery
@@ -142,7 +142,7 @@ export function ProjectsSection() {
                 )}
               </div>
 
-              <span className="self-start shrink-0 text-3xl sm:text-4xl lg:text-5xl font-extrabold font-mono text-cyan-500/30 group-hover:text-cyan-400 transition-colors leading-none select-none">
+              <span className="self-start shrink-0 text-3xl sm:text-4xl lg:text-5xl font-extrabold font-mono text-cyan-500/30 group-hover:text-cyan-400 group-has-[.repo-link:hover]:text-cyan-500/30 transition-colors leading-none select-none">
                 {proj.number}
               </span>
             </div>
@@ -154,7 +154,7 @@ export function ProjectsSection() {
                   {proj.badge}
                 </span>
 
-                <h3 className="text-xl sm:text-3xl lg:text-4xl font-bold text-white mb-4 sm:mb-6 group-hover:text-cyan-400 transition-colors leading-tight">
+                <h3 className="text-xl sm:text-3xl lg:text-4xl font-bold text-white mb-4 sm:mb-6 group-hover:text-cyan-400 group-has-[.repo-link:hover]:text-white transition-colors leading-tight">
                   <MaskedText text={proj.title} wordClassName="project-card-title" />
                 </h3>
 
@@ -164,8 +164,8 @@ export function ProjectsSection() {
               </div>
 
               {/* Tags & Action Link */}
-              <div className="flex flex-wrap items-center justify-between gap-4 pt-4 sm:pt-6 border-t border-white/5">
-                <div className="flex flex-wrap gap-1.5 sm:gap-2">
+              <div className="flex flex-wrap sm:flex-nowrap items-center justify-between gap-4 pt-4 sm:pt-6 border-t border-white/5">
+                <div className="flex flex-wrap gap-1.5 sm:gap-2 min-w-0">
                   {proj.tags.map((tag, tIdx) => (
                     <span
                       key={tIdx}
@@ -182,7 +182,7 @@ export function ProjectsSection() {
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={(e) => e.stopPropagation()}
-                    className="inline-flex items-center gap-2.5 py-1.5 text-sm sm:text-base font-mono font-semibold tracking-wide text-cyan-300 hover:text-white transition-colors"
+                    className="repo-link ml-auto shrink-0 whitespace-nowrap inline-flex items-center gap-2.5 py-1.5 text-sm sm:text-base font-mono font-semibold tracking-wide text-white hover:text-cyan-400 transition-colors"
                   >
                     <span>VIEW REPOSITORY</span>
                     <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
