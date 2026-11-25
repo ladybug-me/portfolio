@@ -4,6 +4,7 @@
   :root {
     --bg-primary: #07090e;
     --bg-secondary: #0d111a;
+    --bg-secondary-rgb: 13, 17, 26;
     --accent-cyan: #00f2fe;
     --accent-green: #00ffa3;
     --accent-cyan-rgb: 0, 242, 254;
@@ -16,6 +17,7 @@
   [data-palette="amber"] {
     --bg-primary: #0b0907;
     --bg-secondary: #16120c;
+    --bg-secondary-rgb: 22, 18, 12;
     --accent-cyan: #ffb703;
     --accent-green: #fb8500;
     --accent-cyan-rgb: 255, 183, 3;
@@ -34,6 +36,7 @@
   [data-palette="crimson"] {
     --bg-primary: #0b070a;
     --bg-secondary: #170d14;
+    --bg-secondary-rgb: 23, 13, 20;
     --accent-cyan: #ff2a6d;
     --accent-green: #ff758f;
     --accent-cyan-rgb: 255, 42, 109;
@@ -52,6 +55,7 @@
   [data-palette="violet"] {
     --bg-primary: #08070e;
     --bg-secondary: #110e1c;
+    --bg-secondary-rgb: 17, 14, 28;
     --accent-cyan: #a855f7;
     --accent-green: #38bdf8;
     --accent-cyan-rgb: 168, 85, 247;
@@ -215,7 +219,7 @@
 
 /* Glassmorphism helpers */
 .glass-panel {
-  background: rgba(13, 17, 26, 0.7);
+  background: rgba(var(--bg-secondary-rgb), 0.78);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.08);
@@ -226,7 +230,7 @@
 }
 @media (hover: hover) {
   .glass-panel-hover:hover {
-    background: rgba(18, 24, 38, 0.85);
+    background: rgba(var(--bg-secondary-rgb), 0.9);
     border-color: rgba(var(--accent-cyan-rgb), 0.3);
     transform: translateY(-2px);
     box-shadow: 0 10px 30px -10px rgba(var(--accent-cyan-rgb), 0.15);

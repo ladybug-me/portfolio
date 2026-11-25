@@ -228,12 +228,12 @@ export function InteractiveFaq() {
                 ref={(el) => {
                   cardRefs.current[idx] = el
                 }}
-                className={`rounded-2xl p-6 sm:p-7 border backdrop-blur-md sm:backdrop-blur-2xl will-change-transform transition-[background-color,border-color,box-shadow] duration-300 ${
+                className={`rounded-2xl p-6 sm:p-7 border bg-[rgba(var(--bg-secondary-rgb),0.88)] backdrop-blur-md sm:backdrop-blur-2xl will-change-transform transition-[background-color,border-color,box-shadow] duration-300 ${
                   isCurrent
-                    ? 'bg-[#0d111a]/85 border-cyan-400/55 shadow-[0_20px_50px_rgba(0,0,0,0.65)]'
+                    ? 'border-cyan-400/55 shadow-[0_20px_50px_rgba(0,0,0,0.65)]'
                     : isReached
-                      ? 'bg-[#0d111a]/65 border-white/15'
-                      : 'bg-[#090d14]/45 border-white/10'
+                      ? 'border-white/15'
+                      : 'border-white/10'
                 }`}
               >
                 <span

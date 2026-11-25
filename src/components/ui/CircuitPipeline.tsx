@@ -73,16 +73,16 @@ function buildCardPixelSnapshot(
   if (!ctx) return { width: w, height: h, particles: [] }
 
   // 1. Draw rounded glass card substrate & glowing border
+  const activePalette = getActivePalette()
   const radius = 16
   ctx.beginPath()
   ctx.roundRect(1, 1, w - 2, h - 2, radius)
   const bgGrad = ctx.createLinearGradient(0, 0, 0, h)
-  bgGrad.addColorStop(0, 'rgba(9, 21, 32, 0.96)')
-  bgGrad.addColorStop(1, 'rgba(5, 11, 20, 0.90)')
+  bgGrad.addColorStop(0, activePalette.bgSecondary)
+  bgGrad.addColorStop(1, activePalette.bgPrimary)
   ctx.fillStyle = bgGrad
   ctx.fill()
 
-  const activePalette = getActivePalette()
   ctx.lineWidth = 1.5
   ctx.strokeStyle = `rgba(${activePalette.primaryRgb}, 0.75)`
   ctx.stroke()
@@ -648,46 +648,47 @@ export function CircuitPipeline() {
       />
 
       <div ref={innerRef} className="relative w-full max-w-7xl mx-auto my-auto py-12 sm:py-16 px-4 sm:px-8 will-change-transform">
-        {/* Scroll-drawn SVG pipeline line */}
-        <div className="hidden lg:block absolute top-[44px] left-16 right-16 z-0 pointer-events-none">
-          <svg viewBox="0 0 1000 60" fill="none" className="w-full h-auto overflow-visible">
-            <path
-              d="M 20,30 Q 250,55 500,30 T 980,30"
-              stroke="rgba(255, 255, 255, 0.08)"
-              strokeWidth="3"
-              strokeDasharray="6 6"
-            />
-            <path
-              ref={pathRef}
-              d="M 20,30 Q 250,55 500,30 T 980,30"
-              stroke={palette.primary}
-              strokeWidth="4"
-              strokeLinecap="round"
-              style={{ filter: `drop-shadow(0 0 10px ${palette.primary})` }}
-            />
-          </svg>
-        </div>
+        <div className="relative">
+          {/* Scroll-drawn SVG pipeline line anchored vertically at container center */}
+          <div className="hidden lg:block absolute top-1/2 -translate-y-1/2 left-12 right-12 z-0 pointer-events-none">
+            <svg viewBox="0 0 1000 60" fill="none" className="w-full h-auto overflow-visible">
+              <path
+                d="M 20,30 Q 250,55 500,30 T 980,30"
+                stroke="rgba(255, 255, 255, 0.08)"
+                strokeWidth="3"
+                strokeDasharray="6 6"
+              />
+              <path
+                ref={pathRef}
+                d="M 20,30 Q 250,55 500,30 T 980,30"
+                stroke={palette.primary}
+                strokeWidth="4"
+                strokeLinecap="round"
+                style={{ filter: `drop-shadow(0 0 10px ${palette.primary})` }}
+              />
+            </svg>
+          </div>
 
-        {/* Milestone checkpoints - 4 containers strictly assembling from pixel particles */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 relative z-10">
-          {MILESTONES.map((m, idx) => {
-            const isReached = idx <= activeStep
-            const isCurrent = idx === activeStep
+          {/* Milestone checkpoints - 4 containers strictly assembling from pixel particles */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 relative z-10">
+            {MILESTONES.map((m, idx) => {
+              const isReached = idx <= activeStep
+              const isCurrent = idx === activeStep
 
-            return (
-              <div
-                key={m.num}
-                ref={(el) => {
-                  cardsRef.current[idx] = el
-                }}
-                className={`relative flex flex-col p-6 rounded-2xl border backdrop-blur-md sm:backdrop-blur-xl ${
-                  isCurrent
-                    ? 'bg-[#091520]/95 border-cyan-400 shadow-[0_0_24px_rgba(var(--accent-cyan-rgb),0.2)]'
-                    : isReached
-                      ? 'bg-[#050b14]/85 border-cyan-500/35'
-                      : 'bg-[#050b14]/40 border-white/5'
-                }`}
-              >
+              return (
+                <div
+                  key={m.num}
+                  ref={(el) => {
+                    cardsRef.current[idx] = el
+                  }}
+                  className={`relative flex flex-col p-6 rounded-2xl border bg-[rgba(var(--bg-secondary-rgb),0.92)] backdrop-blur-md sm:backdrop-blur-xl ${
+                    isCurrent
+                      ? 'border-cyan-400 shadow-[0_0_24px_rgba(var(--accent-cyan-rgb),0.2)]'
+                      : isReached
+                        ? 'border-cyan-500/35'
+                        : 'border-white/10'
+                  }`}
+                >
                 <div>
                   <div className="flex items-center justify-between mb-4">
                     <span
@@ -718,8 +719,9 @@ export function CircuitPipeline() {
                   </p>
                 </div>
               </div>
-            )
-          })}
+              )
+            })}
+          </div>
         </div>
       </div>
     </section>
