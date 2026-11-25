@@ -183,7 +183,12 @@ function buildCardPixelSnapshot(
   }
 
   // Extract raw pixel data and sample into discrete particles
-  const imgData = ctx.getImageData(0, 0, w, h).data
+  let imgData: Uint8ClampedArray | null = null
+  try {
+    imgData = ctx.getImageData(0, 0, w, h).data
+  } catch {
+    return { width: w, height: h, particles: [] }
+  }
   const bgParticles: PixelParticle[] = []
   const featureParticles: PixelParticle[] = []
   const bgStep = 4
@@ -381,8 +386,8 @@ export function CircuitPipeline() {
           return
         }
 
-        // Completely assembled: lock crisp live DOM card and trigger GSAP SplitText reveal
-        if (localT >= 0.90) {
+        // Completely assembled, or canvas pixel sampling blocked by privacy shield: lock crisp live DOM card
+        if (localT >= 0.90 || snap.particles.length === 0) {
           card.style.opacity = '1'
           card.style.visibility = 'visible'
           if (!textPlayedRef.current[idx]) {
