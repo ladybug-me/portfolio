@@ -31,32 +31,24 @@ const MILESTONES = [
     title: 'C / C++',
     desc: 'Native Wayland IPC, compositor loops, and deterministic memory layouts.',
     tag: 'SYSTEMS',
-    status: 'NATIVE / RING 0',
-    ready: 'COMPILED',
   },
   {
     num: '02',
     title: 'PYTHON',
     desc: 'YOLOv11 vision pipelines, FastAPI services, and FAISS vector indexing.',
     tag: 'AI & BACKEND',
-    status: 'ML / ASYNC',
-    ready: 'ACTIVE',
   },
   {
     num: '03',
     title: 'JAVA / SQL',
     desc: 'Strongly typed OOP architectures and structured relational schemas.',
     tag: 'CORE & DATA',
-    status: 'JVM / RELATIONAL',
-    ready: 'VERIFIED',
   },
   {
     num: '04',
     title: 'QML / BASH',
     desc: 'Declarative Linux shell UI in Caelestia and automated system scripting.',
     tag: 'SHELL & UI',
-    status: 'WAYLAND / CLI',
-    ready: 'ONLINE',
   },
 ]
 
@@ -149,39 +141,6 @@ function buildCardPixelSnapshot(
   }
 
   // Title and description load via GSAP SplitText upon container lock
-  // Footer Divider & Status Telemetry
-  const footerBox = relBox('[data-piece="footer"]')
-  if (footerBox) {
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.12)'
-    ctx.fillRect(footerBox.x, footerBox.y, footerBox.w, 1)
-  }
-
-  const dotBox = relBox('[data-piece="dot"]')
-  if (dotBox) {
-    ctx.beginPath()
-    ctx.arc(dotBox.x + dotBox.w / 2, dotBox.y + dotBox.h / 2, dotBox.w / 2, 0, Math.PI * 2)
-    ctx.fillStyle = '#22d3ee'
-    ctx.fill()
-  }
-
-  const statusBox = relBox('[data-piece="status"]')
-  if (statusBox) {
-    ctx.fillStyle = '#94a3b8'
-    ctx.font = `500 ${statusBox.style.fontSize || '10px'} ${statusBox.style.fontFamily}`
-    ctx.textAlign = 'left'
-    ctx.textBaseline = 'top'
-    ctx.fillText(milestone.status, statusBox.x, statusBox.y)
-  }
-
-  const readyBox = relBox('[data-piece="ready"]')
-  if (readyBox) {
-    ctx.fillStyle = '#34d399'
-    ctx.font = `600 ${readyBox.style.fontSize || '9px'} ${readyBox.style.fontFamily}`
-    ctx.textAlign = 'left'
-    ctx.textBaseline = 'top'
-    ctx.fillText(milestone.ready, readyBox.x, readyBox.y)
-  }
-
   // Extract raw pixel data and sample into discrete particles
   let imgData: Uint8ClampedArray | null = null
   try {
@@ -635,7 +594,7 @@ export function CircuitPipeline() {
                 ref={(el) => {
                   cardsRef.current[idx] = el
                 }}
-                className={`relative flex flex-col justify-between p-6 rounded-2xl border backdrop-blur-xl ${
+                className={`relative flex flex-col p-6 rounded-2xl border backdrop-blur-xl ${
                   isCurrent
                     ? 'bg-[#091520]/95 border-cyan-400 shadow-[0_0_24px_rgba(0,242,254,0.2)]'
                     : isReached
@@ -671,28 +630,6 @@ export function CircuitPipeline() {
                   >
                     {m.desc}
                   </p>
-                </div>
-
-                <div
-                  data-piece="footer"
-                  className="mt-6 pt-4 border-t border-white/10 flex items-center justify-between font-mono text-[10px]"
-                >
-                  <div className="flex items-center gap-1.5 text-slate-400">
-                    <span
-                      data-piece="dot"
-                      className={`w-1.5 h-1.5 rounded-full bg-cyan-400 ${
-                        isCurrent ? 'shadow-[0_0_8px_#00f2fe]' : ''
-                      }`}
-                    />
-                    <span data-piece="status">{m.status}</span>
-                  </div>
-
-                  <span
-                    data-piece="ready"
-                    className="text-emerald-400 text-[9px] uppercase tracking-wider font-semibold"
-                  >
-                    {m.ready}
-                  </span>
                 </div>
               </div>
             )
