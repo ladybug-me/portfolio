@@ -1,4 +1,4 @@
-import { Suspense, lazy, useEffect, useRef, useState } from 'react'
+import { Suspense, lazy, useCallback, useEffect, useRef, useState } from 'react'
 import Lenis from 'lenis'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
@@ -34,9 +34,28 @@ ScrollTrigger.config({
   ignoreMobileResize: true,
 })
 
+function SectionsReadySentinel({ onReady }: { onReady: () => void }) {
+  useEffect(() => {
+    onReady()
+  }, [onReady])
+  return null
+}
+
 export function App() {
   const containerRef = useRef<HTMLDivElement>(null)
   const [bootDone, setBootDone] = useState(false)
+  const [canvasReady, setCanvasReady] = useState(false)
+  const [mainSectionsReady, setMainSectionsReady] = useState(false)
+  const [contactReady, setContactReady] = useState(false)
+
+  const handleCanvasReady = useCallback(() => setCanvasReady(true), [])
+  const handleMainSectionsReady = useCallback(() => setMainSectionsReady(true), [])
+  const handleContactReady = useCallback(() => setContactReady(true), [])
+  const handleBootComplete = useCallback(() => {
+    setBootDone(true)
+    ScrollTrigger.sort()
+    ScrollTrigger.refresh()
+  }, [])
 
   useEffect(() => {
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -163,10 +182,8 @@ export function App() {
       {/* Boot Screen: Minimalist Dark Linux Init */}
       {!bootDone && (
         <BootLoader
-          onComplete={() => {
-            setBootDone(true)
-            ScrollTrigger.refresh()
-          }}
+          appReady={canvasReady && mainSectionsReady && contactReady}
+          onComplete={handleBootComplete}
         />
       )}
 
@@ -174,7 +191,7 @@ export function App() {
       <CustomCursor />
 
       {/* Instant 3D Background Shape */}
-      <HeroCanvas />
+      <HeroCanvas onReady={handleCanvasReady} />
 
       {/* Deferred 3D Pet Companion */}
       <Suspense fallback={null}>
@@ -198,11 +215,13 @@ export function App() {
           <ProjectsSection />
           <SkillsMatrix />
           <InteractiveFaq />
+          <SectionsReadySentinel onReady={handleMainSectionsReady} />
         </Suspense>
       </main>
       <div className="relative z-30">
         <Suspense fallback={null}>
           <ContactSection />
+          <SectionsReadySentinel onReady={handleContactReady} />
         </Suspense>
       </div>
     </div>

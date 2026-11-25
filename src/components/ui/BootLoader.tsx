@@ -6,6 +6,7 @@ import { getActivePalette } from '../../theme/palettes'
 gsap.registerPlugin(useGSAP)
 
 interface BootLoaderProps {
+  appReady?: boolean
   onComplete: () => void
 }
 
@@ -19,40 +20,35 @@ const BOOT_STEPS = [
 
 const SEGMENT_COUNT = 24
 const GLITCH_RECTS = Array.from({ length: 10 }, (_, i) => i)
+const MAX_WAIT_FAILSAFE_MS = 8000
 
-export function BootLoader({ onComplete }: BootLoaderProps) {
+export function BootLoader({ appReady = true, onComplete }: BootLoaderProps) {
   const rootRef = useRef<HTMLDivElement>(null)
   const percentRef = useRef<HTMLSpanElement>(null)
   const statusTextRef = useRef<HTMLSpanElement>(null)
   const segmentRefs = useRef<(HTMLDivElement | null)[]>([])
   const glitchTlRef = useRef<gsap.core.Timeline | null>(null)
+  const progressObjRef = useRef({ value: 0 })
+  const stageOneDoneRef = useRef(false)
+  const finishingRef = useRef(false)
   const hasExitedRef = useRef(false)
+  const [domReady, setDomReady] = useState(false)
   const [readyToExit, setReadyToExit] = useState(false)
 
-  // Hand off from static #boot-splash and lock scroll while booting
+  const resourcesReady = domReady && appReady
+
+  // Hand off smoothly after first painted frame and wait for document/fonts readiness
   useEffect(() => {
-    document.getElementById('boot-splash')?.remove()
+    const rafId = requestAnimationFrame(() => {
+      document.getElementById('boot-splash')?.remove()
+    })
 
     const prevOverflow = document.body.style.overflow
     document.body.style.overflow = 'hidden'
     const lenis = (window as unknown as { __lenis?: { stop: () => void; start: () => void } }).__lenis
     lenis?.stop()
 
-    let minElapsed = false
-    let pageReady = false
-
-    const tryReady = () => {
-      if (minElapsed && pageReady) {
-        setReadyToExit(true)
-      }
-    }
-
-    const remainingMinMs = Math.max(0, 2000 - performance.now())
-    const minTimer = window.setTimeout(() => {
-      minElapsed = true
-      tryReady()
-    }, remainingMinMs)
-
+    let isCancelled = false
     const waitFonts = document.fonts?.ready ?? Promise.resolve()
     const waitLoad =
       document.readyState === 'complete'
@@ -60,27 +56,70 @@ export function BootLoader({ onComplete }: BootLoaderProps) {
         : new Promise<void>((resolve) => window.addEventListener('load', () => resolve(), { once: true }))
 
     Promise.all([waitFonts, waitLoad]).then(() => {
-      pageReady = true
-      tryReady()
+      if (!isCancelled) setDomReady(true)
     })
 
+    const failsafeTimer = window.setTimeout(() => {
+      if (!isCancelled) {
+        setDomReady(true)
+        setReadyToExit(true)
+      }
+    }, MAX_WAIT_FAILSAFE_MS)
+
     return () => {
-      window.clearTimeout(minTimer)
+      isCancelled = true
+      cancelAnimationFrame(rafId)
+      window.clearTimeout(failsafeTimer)
       document.body.style.overflow = prevOverflow
       lenis?.start()
     }
   }, [])
 
-  // Rectangular progress bar + flickering glitch choreography
+  const syncVisualProgress = (pctRaw: number, waitingForResources = false) => {
+    const pct = Math.max(0, Math.min(100, Math.round(pctRaw)))
+    if (percentRef.current) {
+      percentRef.current.textContent = `${String(pct).padStart(3, '0')}%`
+    }
+
+    const litCount = Math.round((pct / 100) * SEGMENT_COUNT)
+    segmentRefs.current.forEach((seg, idx) => {
+      if (!seg) return
+      const isLit = idx < litCount
+      const active = getActivePalette()
+      seg.style.opacity = isLit ? '1' : '0.12'
+      seg.style.backgroundColor = isLit
+        ? idx >= SEGMENT_COUNT - 4
+          ? active.secondary
+          : active.primary
+        : '#1e293b'
+    })
+
+    if (!statusTextRef.current) return
+    const nextText = waitingForResources
+      ? 'Init System: Waiting for modules & graphics...'
+      : BOOT_STEPS[Math.min(BOOT_STEPS.length - 1, Math.floor((pct / 100) * BOOT_STEPS.length))]
+
+    if (statusTextRef.current.textContent !== nextText) {
+      statusTextRef.current.textContent = nextText
+      gsap.fromTo(
+        statusTextRef.current,
+        { autoAlpha: 0, x: -6 },
+        { autoAlpha: 1, x: 0, duration: 0.18, ease: 'power2.out', overwrite: 'auto' }
+      )
+    }
+  }
+
+  // Stage 1: Deterministic boot animation from mount (0% -> 92%) regardless of slow page load
   useGSAP(
     () => {
       if (!rootRef.current) return
       const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-      if (prefersReducedMotion) return
+      if (prefersReducedMotion) {
+        stageOneDoneRef.current = true
+        return
+      }
 
-      const progressObj = { value: 0 }
-      let lastLitCount = -1
-      let lastStepIdx = -1
+      const progressObj = progressObjRef.current
 
       // Continuous rectangular glitch flicker loop
       glitchTlRef.current = gsap
@@ -118,44 +157,16 @@ export function BootLoader({ onComplete }: BootLoaderProps) {
         .to(
           progressObj,
           {
-            value: 100,
-            duration: 1.85,
+            value: 92,
+            duration: 1.45,
             ease: 'power2.inOut',
             onUpdate: () => {
-              const pct = Math.round(progressObj.value)
-              if (percentRef.current) {
-                percentRef.current.textContent = `${String(pct).padStart(3, '0')}%`
-              }
-
-              const litCount = Math.round((pct / 100) * SEGMENT_COUNT)
-              if (litCount !== lastLitCount) {
-                lastLitCount = litCount
-                segmentRefs.current.forEach((seg, idx) => {
-                  if (!seg) return
-                  const isLit = idx < litCount
-                  const active = getActivePalette()
-                  seg.style.opacity = isLit ? '1' : '0.12'
-                  seg.style.backgroundColor = isLit
-                    ? idx >= SEGMENT_COUNT - 4
-                      ? active.secondary
-                      : active.primary
-                    : '#1e293b'
-                })
-              }
-
-              const stepIdx = Math.min(
-                BOOT_STEPS.length - 1,
-                Math.floor((pct / 100) * BOOT_STEPS.length)
-              )
-              if (stepIdx !== lastStepIdx && statusTextRef.current) {
-                lastStepIdx = stepIdx
-                statusTextRef.current.textContent = BOOT_STEPS[stepIdx]
-                gsap.fromTo(
-                  statusTextRef.current,
-                  { autoAlpha: 0, x: -6 },
-                  { autoAlpha: 1, x: 0, duration: 0.18, ease: 'power2.out', overwrite: 'auto' }
-                )
-              }
+              syncVisualProgress(progressObj.value)
+            },
+            onComplete: () => {
+              stageOneDoneRef.current = true
+              if (finishingRef.current) return
+              syncVisualProgress(92, true)
             },
           },
           0.08
@@ -163,6 +174,49 @@ export function BootLoader({ onComplete }: BootLoaderProps) {
     },
     { scope: rootRef }
   )
+
+  // Stage 2: Complete 92% -> 100% only when BOTH boot animation stage 1 AND all page resources are ready
+  useEffect(() => {
+    if (!resourcesReady) return
+
+    let checkTimer: number | null = null
+    const finishBoot = () => {
+      if (finishingRef.current) return
+      if (!stageOneDoneRef.current) {
+        checkTimer = window.setTimeout(finishBoot, 60)
+        return
+      }
+      finishingRef.current = true
+
+      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      if (prefersReducedMotion) {
+        setReadyToExit(true)
+        return
+      }
+
+      gsap.to(progressObjRef.current, {
+        value: 100,
+        duration: 0.35,
+        ease: 'power2.out',
+        onUpdate: () => {
+          syncVisualProgress(progressObjRef.current.value)
+        },
+        onComplete: () => {
+          syncVisualProgress(100)
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+              setReadyToExit(true)
+            })
+          })
+        },
+      })
+    }
+
+    finishBoot()
+    return () => {
+      if (checkTimer !== null) window.clearTimeout(checkTimer)
+    }
+  }, [resourcesReady])
 
   // Glitch burst + compositor shutter exit once min 2s & page assets are ready
   useGSAP(
@@ -226,7 +280,7 @@ export function BootLoader({ onComplete }: BootLoaderProps) {
       role="status"
       aria-live="polite"
       aria-label="System booting"
-      className="fixed inset-0 z-[9998] flex items-center justify-center bg-[#07090e] px-6 select-none"
+      className="fixed inset-0 z-[9998] flex items-center justify-center bg-[var(--bg-primary)] px-6 select-none"
     >
       <div className="boot-shell relative w-full max-w-xl font-mono text-xs sm:text-sm">
         {/* Top Terminal Prompt + Percentage */}

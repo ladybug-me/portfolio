@@ -73,4 +73,13 @@ test_touch_interactions_and_mobile_navigator() {
         "ProjectGalleryModal.tsx must support touch swipe navigation"
 }
 
+test_bootloader_waits_for_mount_and_app_readiness() {
+    assert_file_not_contains "$REPO_ROOT/src/components/ui/BootLoader.tsx" "performance.now()" \
+        "BootLoader.tsx must measure visible duration from mount rather than navigation start"
+    assert_file_contains "$REPO_ROOT/src/components/ui/BootLoader.tsx" "stageOneDoneRef" \
+        "BootLoader.tsx must complete its mounted boot bar animation before exiting"
+    assert_file_contains "$REPO_ROOT/src/App.tsx" "mainSectionsReady && contactReady" \
+        "App.tsx must wait for WebGL canvas and lazy sections before dismissing BootLoader"
+}
+
 run_tests

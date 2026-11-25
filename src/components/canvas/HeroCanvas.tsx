@@ -4,7 +4,11 @@ import { NeuralCore } from './NeuralCore'
 import { DistantOrbitParticles } from './DistantOrbitParticles'
 import { usePalette } from '../../theme/palettes'
 
-export function HeroCanvas() {
+interface HeroCanvasProps {
+  onReady?: () => void
+}
+
+export function HeroCanvas({ onReady }: HeroCanvasProps) {
   const palette = usePalette()
 
   return (
@@ -18,6 +22,9 @@ export function HeroCanvas() {
             alpha: true,
             powerPreference: 'high-performance',
             stencil: false,
+          }}
+          onCreated={() => {
+            requestAnimationFrame(() => onReady?.())
           }}
           className="w-full h-full"
         >
