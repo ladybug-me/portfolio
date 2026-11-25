@@ -242,6 +242,9 @@ export function ProjectGalleryModal({ project, onClose }: ProjectGalleryModalPro
   useGSAP(
     () => {
       if (selectedIndex === null || !magnifiedRef.current) return
+      if (overlayRef.current) {
+        overlayRef.current.scrollTop = 0
+      }
       const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
       if (prefersReducedMotion) return
 
