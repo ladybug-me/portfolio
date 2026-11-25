@@ -1,6 +1,6 @@
 # Rajveer Singh — Portfolio
 
-Interactive 3D portfolio for **Rajveer Singh** (Systems & Edge AI Engineer), built with React 19, Three.js, GSAP, Lenis, and Tailwind CSS v4.
+Interactive 3D portfolio built with React 19, Three.js, GSAP, Lenis, and Tailwind CSS v4.
 
 ## Features
 
