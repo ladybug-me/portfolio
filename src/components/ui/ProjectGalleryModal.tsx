@@ -179,6 +179,8 @@ export function ProjectGalleryModal({ project, onClose }: ProjectGalleryModalPro
   useEffect(() => {
     const prevOverflow = document.body.style.overflow
     document.body.style.overflow = 'hidden'
+    const lenis = (window as unknown as { __lenis?: { stop: () => void; start: () => void } }).__lenis
+    lenis?.stop()
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
@@ -201,6 +203,7 @@ export function ProjectGalleryModal({ project, onClose }: ProjectGalleryModalPro
     window.addEventListener('keydown', handleKeyDown)
     return () => {
       document.body.style.overflow = prevOverflow
+      lenis?.start()
       window.removeEventListener('keydown', handleKeyDown)
     }
   }, [selectedIndex, project.gallery.length, animateCloseGrid])
@@ -280,9 +283,14 @@ export function ProjectGalleryModal({ project, onClose }: ProjectGalleryModalPro
       role="dialog"
       aria-modal="true"
       aria-label={`${project.title} gallery`}
+      data-lenis-prevent
       onClick={handleEmptySpaceClick}
+      onWheel={(e) => e.stopPropagation()}
+      onTouchMove={(e) => e.stopPropagation()}
       className={`fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 [perspective:1400px] transition-[backdrop-filter,background-color] duration-300 ${
-        selectedItem ? 'bg-slate-950/20 backdrop-blur-sm' : 'bg-transparent'
+        selectedItem
+          ? 'overflow-hidden bg-slate-950/20 backdrop-blur-sm'
+          : 'overflow-y-auto overscroll-contain bg-transparent'
       }`}
     >
       {selectedItem ? (
@@ -352,7 +360,7 @@ export function ProjectGalleryModal({ project, onClose }: ProjectGalleryModalPro
       ) : (
         <div
           ref={gridRef}
-          className="flex flex-wrap items-center justify-center gap-5 sm:gap-7 max-w-[94vw] max-h-[90vh] w-full [perspective:1200px]"
+          className="flex flex-wrap items-center justify-center gap-4 sm:gap-7 max-w-[94vw] w-full my-auto py-4 [perspective:1200px]"
         >
           {project.gallery.map((item, idx) => (
             <FloatingMediaCard
