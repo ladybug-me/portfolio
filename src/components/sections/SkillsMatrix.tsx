@@ -161,11 +161,11 @@ export function SkillsMatrix() {
     <section
       ref={sectionRef}
       id="skills"
-      className="relative min-h-screen py-20 px-4 sm:px-8 border-t border-white/5 flex flex-col justify-center overflow-x-clip"
+      className="relative min-h-screen py-10 sm:py-16 px-4 sm:px-8 border-t border-white/5 flex flex-col justify-center overflow-x-clip"
     >
       <div ref={innerRef} className="w-full will-change-transform">
         {/* Editorial Header */}
-        <div className="max-w-5xl mx-auto w-full mb-8">
+        <div className="max-w-5xl mx-auto w-full mb-5 sm:mb-8">
           <h2 className="text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tight text-white">
             <MaskedText text="SYSTEM TOOLING" wordClassName="skills-title-word" />
           </h2>
@@ -174,15 +174,15 @@ export function SkillsMatrix() {
         {/* Horizontal Stack Stage (Minimalist Glassmorphic Deck) */}
         <div
           ref={stackWrapperRef}
-          className="relative max-w-5xl w-full mx-auto min-h-[520px] sm:min-h-[440px] lg:min-h-[420px] h-[min(560px,82vh)]"
+          className="relative max-w-5xl w-full mx-auto min-h-[520px] sm:min-h-[440px] lg:min-h-[420px] h-[min(560px,78vh)]"
         >
         {categories.map((cat, idx) => (
           <article
             key={idx}
             onWheel={handleBoundedCardWheel}
-            className="horizontal-stack-card absolute inset-0 w-full h-full rounded-2xl sm:rounded-3xl bg-[#0d111a]/70 p-5 sm:p-10 lg:p-12 border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.6)] backdrop-blur-2xl will-change-transform flex items-center overflow-y-auto overflow-x-hidden overscroll-contain group hover:border-cyan-400/40 transition-colors duration-300"
+            className="horizontal-stack-card absolute inset-0 w-full h-full rounded-2xl sm:rounded-3xl bg-[#0d111a]/70 p-5 sm:p-10 lg:p-12 border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.6)] backdrop-blur-2xl will-change-transform flex overflow-y-auto overflow-x-hidden overscroll-contain group hover:border-cyan-400/40 transition-colors duration-300"
           >
-            <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 lg:gap-10 items-start lg:items-center">
+            <div className="w-full my-auto grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 lg:gap-10 items-start lg:items-center">
               {/* Left Column: Centered Solar Icon & Metric */}
               <div className="lg:col-span-4 flex lg:flex-col items-center justify-between lg:justify-center gap-3 sm:gap-4 text-center">
                 <div className="w-12 h-12 sm:w-20 sm:h-20 lg:w-24 lg:h-24 rounded-xl sm:rounded-2xl bg-cyan-500/[0.08] border border-cyan-400/25 flex items-center justify-center text-cyan-300 shadow-[0_0_28px_rgba(0,242,254,0.14)] group-hover:border-cyan-300/50 group-hover:text-cyan-200 transition-colors duration-300">
