@@ -152,7 +152,7 @@ export function App() {
       {/* Foreground Content Layers */}
       <SectionNavigator />
       <main className="relative z-10">
-        <HeroSection />
+        <HeroSection ready={bootDone} />
 
         {/* Scroll-Linked Word Illumination Statement */}
         <KineticTextScrub text="WE STRIP DEAD ABSTRACTIONS OUT OF THE DESKTOP. WE RUN HARD INFERENCE ON COLD SILICON. LATENCY IS A DEFECT." />

@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import { Icon } from '@iconify/react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
@@ -6,16 +6,22 @@ import { useGSAP } from '@gsap/react'
 
 gsap.registerPlugin(ScrollTrigger)
 
-export function HeroSection() {
+interface HeroSectionProps {
+  ready?: boolean
+}
+
+export function HeroSection({ ready = true }: HeroSectionProps) {
   const heroRef = useRef<HTMLDivElement>(null)
+  const inTlRef = useRef<gsap.core.Timeline | null>(null)
 
   useGSAP(
     () => {
       const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
       if (prefersReducedMotion) return
 
-      // 1. Entrance Choreography (Animate IN - targets inner elements)
-      const inTl = gsap.timeline({ delay: 0.1 })
+      // 1. Entrance Choreography (Paused until boot loader completes)
+      const inTl = gsap.timeline({ paused: true, delay: 0.05 })
+      inTlRef.current = inTl
 
       inTl
         .from('.hero-line-1-inner', {
@@ -185,6 +191,12 @@ export function HeroSection() {
     },
     { scope: heroRef }
   )
+
+  useEffect(() => {
+    if (ready) {
+      inTlRef.current?.play()
+    }
+  }, [ready])
 
   return (
     <section
