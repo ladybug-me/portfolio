@@ -103,18 +103,21 @@ export function InteractiveFaq() {
 
       ScrollTrigger.create({
         trigger: sectionRef.current,
+        start: 'top 65%',
+        once: true,
+        onEnter: () => {
+          answerTimelinesRef.current[0]?.play()
+        },
+      })
+
+      ScrollTrigger.create({
+        trigger: sectionRef.current,
         start: 'top top',
         end: () => `+=${getScrollDistance()}`,
         pin: true,
         scrub: 0.5,
         anticipatePin: 1,
         invalidateOnRefresh: true,
-        onEnter: () => {
-          if (prevActiveRef.current === -1) {
-            prevActiveRef.current = 0
-            answerTimelinesRef.current[0]?.restart()
-          }
-        },
         onUpdate: (self) => {
           const newIdx = Math.min(Math.floor(self.progress * totalItems), totalItems - 1)
           setActiveIdx((prev) => (prev !== newIdx ? newIdx : prev))
