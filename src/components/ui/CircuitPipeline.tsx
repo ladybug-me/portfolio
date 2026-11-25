@@ -244,6 +244,7 @@ export function CircuitPipeline() {
   const cardsRef = useRef<(HTMLDivElement | null)[]>([])
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [activeStep, setActiveStep] = useState<number>(0)
+  const entryProgressRef = useRef<number>(0)
   const scrollProgressRef = useRef<number>(0)
   const snapshotsRef = useRef<CardSnapshot[]>([])
   const needsRenderRef = useRef<boolean>(true)
@@ -325,7 +326,10 @@ export function CircuitPipeline() {
       ctx.clearRect(0, 0, canvas.width, canvas.height)
       ctx.restore()
 
-      const progress = scrollProgressRef.current
+      const progress = Math.min(
+        1,
+        entryProgressRef.current * 0.18 + scrollProgressRef.current * 0.82
+      )
       const totalCards = MILESTONES.length
       const isMobile = contRect.width < 768
 
@@ -509,6 +513,23 @@ export function CircuitPipeline() {
           card.style.opacity = '0'
           card.style.visibility = 'hidden'
         }
+      })
+
+      // Pre-engage card 0 pixel construction once #pipeline scrolls halfway into view
+      ScrollTrigger.create({
+        trigger: containerRef.current,
+        start: 'top 55%',
+        end: 'top top',
+        scrub: true,
+        invalidateOnRefresh: true,
+        onUpdate: (self) => {
+          entryProgressRef.current = self.progress
+          needsRenderRef.current = true
+        },
+        onRefresh: (self) => {
+          entryProgressRef.current = self.progress
+          needsRenderRef.current = true
+        },
       })
 
       const tl = gsap.timeline({
