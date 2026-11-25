@@ -4,6 +4,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useGSAP } from '@gsap/react'
 import { MaskedText } from '../ui/MaskedText'
 import { ProjectGalleryModal, type GalleryMediaItem } from '../ui/ProjectGalleryModal'
+import { handleBoundedCardWheel } from '../../utils/scrollPan'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -126,7 +127,8 @@ export function ProjectsSection() {
           <article
             key={proj.id}
             style={{ top: `calc(max(60px, min(85px, 9vh)) + ${idx * 16}px)` }}
-            className="stacked-project-card sticky glass-panel p-6 sm:p-8 lg:p-12 rounded-2xl sm:rounded-3xl border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.6)] backdrop-blur-2xl will-change-transform grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-stretch group"
+            onWheel={handleBoundedCardWheel}
+            className="stacked-project-card sticky glass-panel p-6 sm:p-8 lg:p-12 rounded-2xl sm:rounded-3xl border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.6)] backdrop-blur-2xl will-change-transform grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-stretch group max-h-[calc(100dvh-96px)] overflow-y-auto overflow-x-hidden overscroll-contain"
           >
             {/* Left: Enlarged Centered Thumb & Non-Overlapping Bottom-Left Numbering */}
             <div className="lg:col-span-4 flex flex-col justify-between gap-4 h-full">
