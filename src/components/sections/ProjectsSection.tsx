@@ -80,7 +80,7 @@ export function ProjectsSection() {
   const [activeProject, setActiveProject] = useState<ShowcaseProject | null>(null)
 
   return (
-    <section id="projects" className="py-20 sm:py-28 lg:py-32 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+    <section id="projects" className="pt-20 sm:pt-28 lg:pt-32 pb-8 sm:pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
       {/* Editorial Section Headline */}
       <div className="mb-12 sm:mb-16 lg:mb-20">
         <h2 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight text-white">
@@ -89,13 +89,16 @@ export function ProjectsSection() {
       </div>
 
       {/* Sticky Stacking Cards (Deck Presentation) */}
-      <div className="relative space-y-8 sm:space-y-12 pb-24">
+      <div className="relative space-y-8 sm:space-y-12 pb-36 sm:pb-48">
         {showcaseProjects.map((proj, idx) => (
           <article
             key={proj.id}
-            style={{ top: `calc(max(60px, min(85px, 9vh)) + ${idx * 16}px)` }}
+            style={{
+              top: `calc(max(60px, min(85px, 9vh)) + ${idx * 16}px)`,
+              maxHeight: `calc(100dvh - max(60px, min(85px, 9vh)) - ${idx * 16}px - 16px)`,
+            }}
             onWheel={handleBoundedCardWheel}
-            className="stacked-project-card sticky glass-panel p-6 sm:p-8 lg:p-12 rounded-2xl sm:rounded-3xl border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.6)] backdrop-blur-md sm:backdrop-blur-2xl will-change-transform grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-stretch group max-h-[calc(100dvh-96px)] overflow-y-auto overflow-x-hidden"
+            className="stacked-project-card sticky glass-panel p-6 sm:p-8 lg:p-12 rounded-2xl sm:rounded-3xl border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.6)] backdrop-blur-md sm:backdrop-blur-2xl will-change-transform grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-stretch group overflow-y-auto overflow-x-hidden"
           >
             {/* Left: Enlarged Centered Thumb & Non-Overlapping Bottom-Left Numbering */}
             <div className="lg:col-span-4 flex flex-col justify-between gap-4 h-full">

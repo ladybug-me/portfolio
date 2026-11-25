@@ -18,6 +18,8 @@ test_mobile_resize_scrolltrigger_guard() {
 test_pinned_overflow_cached_and_no_card_overscroll_trap() {
     assert_file_contains "$REPO_ROOT/src/utils/scrollPan.ts" "overflowCache" \
         "scrollPan.ts must cache pinned overflow measurements across scroll frames"
+    assert_file_contains "$REPO_ROOT/src/utils/scrollPan.ts" "hasDownDistance" \
+        "scrollPan.ts must keep page scroll blocked until card scrollTop animation reaches its boundary"
     assert_file_not_contains "$REPO_ROOT/src/components/sections/ProjectsSection.tsx" "data-lenis-prevent" \
         "ProjectsSection.tsx cards must not use data-lenis-prevent (blocks page wheel scroll)"
     assert_file_not_contains "$REPO_ROOT/src/components/sections/ProjectsSection.tsx" "overscroll-contain" \

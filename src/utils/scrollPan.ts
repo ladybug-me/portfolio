@@ -71,20 +71,31 @@ export function handleBoundedCardWheel(e: React.WheelEvent<HTMLElement>) {
   const currentTarget = cardScrollTargets.get(el) ?? el.scrollTop
   const scrollingDown = e.deltaY > 0
   const scrollingUp = e.deltaY < 0
-  const canScrollDown = scrollingDown && currentTarget < maxScroll - 1
-  const canScrollUp = scrollingUp && currentTarget > 1
+  const hasDownDistance = currentTarget < maxScroll - 1 || el.scrollTop < maxScroll - 2
+  const hasUpDistance = currentTarget > 1 || el.scrollTop > 2
+  const canScrollDown = scrollingDown && hasDownDistance
+  const canScrollUp = scrollingUp && hasUpDistance
 
   if (canScrollDown || canScrollUp) {
     e.preventDefault()
     e.stopPropagation()
+
+    // Stop active Lenis smooth-scroll inertia so the page doesn't drift past sticky bounds
+    const win = window as unknown as {
+      __lenis?: { scrollTo?: (target: number, opts?: { immediate?: boolean }) => void }
+    }
+    win.__lenis?.scrollTo?.(window.scrollY, { immediate: true })
+
     const nextTarget = Math.max(0, Math.min(maxScroll, currentTarget + e.deltaY))
-    cardScrollTargets.set(el, nextTarget)
-    gsap.to(el, {
-      scrollTop: nextTarget,
-      duration: 0.35,
-      ease: 'power2.out',
-      overwrite: 'auto',
-    })
+    if (nextTarget !== currentTarget) {
+      cardScrollTargets.set(el, nextTarget)
+      gsap.to(el, {
+        scrollTop: nextTarget,
+        duration: 0.35,
+        ease: 'power2.out',
+        overwrite: 'auto',
+      })
+    }
   } else {
     cardScrollTargets.delete(el)
   }
