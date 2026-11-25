@@ -8,9 +8,41 @@
   <title>Rajveer Singh | ladybug-me</title>
   <meta name="description"
     content="Systems engineer architecting low-latency Linux compositors, embedded CUDA runtimes, and vector search pipelines. 9th ICRTAC'26 author." />
+  <style>
+    #boot-splash {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: #07090e;
+      color: #94a3b8;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13px;
+      padding: 24px;
+    }
+    #boot-splash-cursor {
+      display: inline-block;
+      width: 8px;
+      height: 15px;
+      margin-left: 6px;
+      vertical-align: middle;
+      background-color: #22d3ee;
+      animation: boot-blink 0.9s steps(2, start) infinite;
+    }
+    @keyframes boot-blink {
+      to {
+        opacity: 0;
+      }
+    }
+  </style>
 </head>
 
 <body class="bg-[#07090e] text-[#f0f6fc] antialiased">
+  <div id="boot-splash" aria-hidden="true">
+    <span>[&nbsp;&nbsp;&nbsp;&nbsp;0.000000] booting kernel...<span id="boot-splash-cursor"></span></span>
+  </div>
   <div id="root"></div>
   <script type="module" src="/src/main.tsx"></script>
 </body>

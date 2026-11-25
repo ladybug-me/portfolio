@@ -1,25 +1,40 @@
-import { useEffect, useRef } from 'react'
+import { Suspense, lazy, useEffect, useRef, useState } from 'react'
 import Lenis from 'lenis'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useGSAP } from '@gsap/react'
 
-import { HeroCanvas } from './components/canvas/HeroCanvas'
-import { PetCanvas } from './components/canvas/PetCanvas'
 import { CustomCursor } from './components/ui/CustomCursor'
 import { SectionNavigator } from './components/ui/SectionNavigator'
+import { BootLoader } from './components/ui/BootLoader'
 import { HeroSection } from './components/sections/HeroSection'
 import { KineticTextScrub } from './components/ui/KineticTextScrub'
 import { CircuitPipeline } from './components/ui/CircuitPipeline'
-import { ProjectsSection } from './components/sections/ProjectsSection'
-import { SkillsMatrix } from './components/sections/SkillsMatrix'
-import { InteractiveFaq } from './components/sections/InteractiveFaq'
-import { ContactSection } from './components/sections/ContactSection'
+
+const HeroCanvas = lazy(() =>
+  import('./components/canvas/HeroCanvas').then((m) => ({ default: m.HeroCanvas }))
+)
+const PetCanvas = lazy(() =>
+  import('./components/canvas/PetCanvas').then((m) => ({ default: m.PetCanvas }))
+)
+const ProjectsSection = lazy(() =>
+  import('./components/sections/ProjectsSection').then((m) => ({ default: m.ProjectsSection }))
+)
+const SkillsMatrix = lazy(() =>
+  import('./components/sections/SkillsMatrix').then((m) => ({ default: m.SkillsMatrix }))
+)
+const InteractiveFaq = lazy(() =>
+  import('./components/sections/InteractiveFaq').then((m) => ({ default: m.InteractiveFaq }))
+)
+const ContactSection = lazy(() =>
+  import('./components/sections/ContactSection').then((m) => ({ default: m.ContactSection }))
+)
 
 gsap.registerPlugin(ScrollTrigger, useGSAP)
 
 export function App() {
   const containerRef = useRef<HTMLDivElement>(null)
+  const [bootDone, setBootDone] = useState(false)
 
   useEffect(() => {
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -115,14 +130,24 @@ export function App() {
       ref={containerRef}
       className="relative min-h-screen bg-[#07090e] text-[#f0f6fc] selection:bg-cyan-400 selection:text-black"
     >
+      {/* Boot Screen: Minimalist Dark Linux Init */}
+      {!bootDone && (
+        <BootLoader
+          onComplete={() => {
+            setBootDone(true)
+            ScrollTrigger.refresh()
+          }}
+        />
+      )}
+
       {/* Interactive Cybernetic Mouse Follower */}
       <CustomCursor />
 
-      {/* Autonomous 3D Spherical Pet Companion */}
-      <PetCanvas />
-
-      {/* Fullscreen 3D Shader Background with GSAP-Scrubbed Orbit */}
-      <HeroCanvas />
+      {/* Deferred 3D WebGL Canvases */}
+      <Suspense fallback={null}>
+        <PetCanvas />
+        <HeroCanvas />
+      </Suspense>
 
       {/* Foreground Content Layers */}
       <SectionNavigator />
@@ -135,17 +160,17 @@ export function App() {
         {/* Scroll-Drawn Circuit Pipeline */}
         <CircuitPipeline />
 
-        {/* Sticky Deck Project Showcase */}
-        <ProjectsSection />
-
-        {/* Technical Capabilities Matrix */}
-        <SkillsMatrix />
-
-        {/* Interactive Pill-Accordion Q&A */}
-        <InteractiveFaq />
+        {/* Deferred Below-the-Fold Sections */}
+        <Suspense fallback={null}>
+          <ProjectsSection />
+          <SkillsMatrix />
+          <InteractiveFaq />
+        </Suspense>
       </main>
       <div className="relative z-30">
-        <ContactSection />
+        <Suspense fallback={null}>
+          <ContactSection />
+        </Suspense>
       </div>
     </div>
   )
