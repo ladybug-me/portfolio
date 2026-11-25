@@ -318,14 +318,14 @@ export function ProjectGalleryModal({ project, onClose }: ProjectGalleryModalPro
                 loop
                 muted
                 playsInline
-                className="max-w-[75vw] max-h-[75vh] object-contain"
+                className="max-w-[88vw] sm:max-w-[75vw] max-h-[75vh] object-contain"
               />
             ) : (
               <img
                 key={selectedItem.src}
                 src={selectedItem.src}
                 alt={selectedItem.label}
-                className="max-w-[75vw] max-h-[75vh] object-contain"
+                className="max-w-[88vw] sm:max-w-[75vw] max-h-[75vh] object-contain"
               />
             )}
           </div>

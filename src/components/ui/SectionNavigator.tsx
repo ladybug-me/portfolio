@@ -212,7 +212,7 @@ export function SectionNavigator() {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       aria-label="Section Navigator"
-      className={`fixed right-4 sm:right-7 top-1/2 -translate-y-1/2 z-50 pointer-events-auto select-none outline-none transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform ${isVisible
+      className={`hidden md:block fixed right-4 sm:right-7 top-1/2 -translate-y-1/2 z-50 pointer-events-auto select-none outline-none transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform ${isVisible
         ? 'translate-x-0 opacity-100'
         : 'translate-x-2 sm:translate-x-3 opacity-30 hover:opacity-100'
         }`}

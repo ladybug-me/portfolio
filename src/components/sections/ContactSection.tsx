@@ -74,10 +74,10 @@ export function ContactSection() {
     >
       <div className="max-w-7xl mx-auto w-full lg:pr-36 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-14 lg:gap-16">
         {/* Left: Huge Minimalist Headline & Direct Email */}
-        <div className="max-w-2xl">
+        <div className="max-w-2xl w-full">
           <h2
             ref={headingRef}
-            className="text-5xl sm:text-7xl lg:text-8xl font-black tracking-tight text-white leading-[0.95] mb-8"
+            className="text-4xl sm:text-7xl lg:text-8xl font-black tracking-tight text-white leading-[0.95] mb-6 sm:mb-8"
           >
             LET&apos;S BUILD.
           </h2>
@@ -85,10 +85,10 @@ export function ContactSection() {
           <a
             ref={emailRef}
             href="mailto:rajveer2027singh@gmail.com"
-            className="inline-flex items-center gap-3 font-mono text-lg sm:text-2xl lg:text-3xl text-cyan-300 hover:text-cyan-200 transition-colors pointer-events-auto relative z-20"
+            className="inline-flex items-center gap-2.5 sm:gap-3 font-mono text-sm sm:text-2xl lg:text-3xl text-cyan-300 hover:text-cyan-200 transition-colors pointer-events-auto relative z-20 break-all sm:break-normal"
           >
             <span>rajveer2027singh@gmail.com</span>
-            <svg className="w-6 h-6 sm:w-7 sm:h-7 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5 sm:w-7 sm:h-7 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
             </svg>
           </a>

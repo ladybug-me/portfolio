@@ -195,8 +195,31 @@ export function HeroSection() {
       <div className="max-w-[1500px] mx-auto w-full relative">
         {/* Abstract Monumental Typography Canvas */}
         <div className="relative mb-8 sm:mb-12 select-none">
-          {/* Floating Tilted Badges - Layered across abstract letterforms */}
-          <div className="absolute inset-0 pointer-events-none z-20">
+          {/* Mobile Non-Overlapping Badges */}
+          <div className="flex sm:hidden flex-wrap gap-2 mb-5">
+            <span className="px-2.5 py-1 rounded-full bg-slate-900/90 border border-cyan-400/50 text-cyan-300 font-mono text-[10px] font-semibold flex items-center gap-1.5">
+              <img
+                src={`${import.meta.env.BASE_URL}assets/icons/caelestia.svg`}
+                alt=""
+                className="w-3 h-3 rounded-full object-contain"
+              />
+              <span>Caelestia KDE Maintainer</span>
+            </span>
+            <span className="px-2.5 py-1 rounded-full bg-slate-900/90 border border-emerald-400/50 text-emerald-300 font-mono text-[10px] font-semibold">
+              ★ 9th ICRTAC'26 Paper Author
+            </span>
+            <span className="px-2.5 py-1 rounded-full bg-slate-900/90 border border-white/25 text-slate-200 font-mono text-[10px] font-semibold flex items-center gap-1.5">
+              <img
+                src={`${import.meta.env.BASE_URL}assets/icons/devsoc.jpg`}
+                alt=""
+                className="w-3 h-3 rounded-full object-cover"
+              />
+              <span>DevSoc'26 Top 15 Team</span>
+            </span>
+          </div>
+
+          {/* Floating Tilted Badges - Desktop/Tablet only */}
+          <div className="hidden sm:block absolute inset-0 pointer-events-none z-20">
             {/* Badge 1: Top-Center */}
             <div className="tilted-badge-1-wrap absolute -top-4 sm:-top-8 left-6 sm:left-1/4 will-change-transform">
               <div className="tilted-badge-1-inner px-3 sm:px-4 py-1 sm:py-1.5 rounded-full bg-slate-900/90 border border-cyan-400/50 text-cyan-300 font-mono text-[11px] sm:text-xs font-semibold shadow-[0_4px_24px_rgba(0,242,254,0.3)] -rotate-6 backdrop-blur-md flex items-center gap-2">
@@ -233,21 +256,21 @@ export function HeroSection() {
           <h1 className="flex flex-col tracking-[-0.05em] leading-[0.82] font-black uppercase">
             {/* Line 1: RAJVEER (Solid Brilliant Titanium) */}
             <div className="hero-line-1-wrap overflow-hidden py-1 will-change-transform">
-              <span className="hero-line-1-inner block text-[13.5vw] sm:text-[14.5vw] lg:text-[15.5vw] text-white will-change-transform">
+              <span className="hero-line-1-inner block text-[13vw] sm:text-[14.5vw] lg:text-[15.5vw] text-white will-change-transform">
                 RAJVEER
               </span>
             </div>
 
             {/* Line 2: SINGH (Hollow Electric Cyan Contour) */}
             <div className="hero-line-2-wrap overflow-hidden py-1 will-change-transform">
-              <span className="hero-line-2-inner block text-[13.5vw] sm:text-[14.5vw] lg:text-[15.5vw] text-transparent text-stroke-cyan text-right pr-2 sm:pr-8 will-change-transform drop-shadow-[0_0_24px_rgba(0,242,254,0.35)]">
+              <span className="hero-line-2-inner block text-[13vw] sm:text-[14.5vw] lg:text-[15.5vw] text-transparent text-stroke-cyan text-right pr-2 sm:pr-8 will-change-transform drop-shadow-[0_0_24px_rgba(0,242,254,0.35)]">
                 SINGH
               </span>
             </div>
 
             {/* Line 3: Architectural Sub-Monument */}
             <div className="hero-line-3-wrap overflow-hidden pt-3 sm:pt-5 will-change-transform">
-              <span className="hero-line-3-inner block text-[3.2vw] sm:text-[3.8vw] lg:text-[4.2vw] font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-teal-300 to-emerald-400 will-change-transform">
+              <span className="hero-line-3-inner block text-[3.6vw] sm:text-[3.8vw] lg:text-[4.2vw] font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-teal-300 to-emerald-400 will-change-transform">
                 LINUX RUNTIMES & EDGE COMPUTE
               </span>
             </div>

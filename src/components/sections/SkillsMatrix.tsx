@@ -159,44 +159,44 @@ export function SkillsMatrix() {
       {/* Horizontal Stack Stage (Minimalist Glassmorphic Deck) */}
       <div
         ref={stackWrapperRef}
-        className="relative max-w-5xl w-full mx-auto h-[500px] sm:h-[440px] lg:h-[420px] max-h-[75vh]"
+        className="relative max-w-5xl w-full mx-auto h-[520px] sm:h-[440px] lg:h-[420px] max-h-[82vh]"
       >
         {categories.map((cat, idx) => (
           <article
             key={idx}
-            className="horizontal-stack-card absolute inset-0 w-full h-full rounded-2xl sm:rounded-3xl bg-[#0d111a]/70 p-6 sm:p-10 lg:p-12 border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.6)] backdrop-blur-2xl will-change-transform flex items-center overflow-hidden group hover:border-cyan-400/40 transition-colors duration-300"
+            className="horizontal-stack-card absolute inset-0 w-full h-full rounded-2xl sm:rounded-3xl bg-[#0d111a]/70 p-5 sm:p-10 lg:p-12 border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.6)] backdrop-blur-2xl will-change-transform flex items-center overflow-hidden group hover:border-cyan-400/40 transition-colors duration-300"
           >
-            <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10 items-start lg:items-center">
+            <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 lg:gap-10 items-start lg:items-center">
               {/* Left Column: Centered Solar Icon & Metric */}
-              <div className="lg:col-span-4 flex lg:flex-col items-center justify-between lg:justify-center gap-4 text-center">
-                <div className="w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 rounded-2xl bg-cyan-500/[0.08] border border-cyan-400/25 flex items-center justify-center text-cyan-300 shadow-[0_0_28px_rgba(0,242,254,0.14)] group-hover:border-cyan-300/50 group-hover:text-cyan-200 transition-colors duration-300">
-                  <Icon icon={cat.icon} className="w-9 h-9 sm:w-11 sm:h-11 lg:w-12 lg:h-12" />
+              <div className="lg:col-span-4 flex lg:flex-col items-center justify-between lg:justify-center gap-3 sm:gap-4 text-center">
+                <div className="w-12 h-12 sm:w-20 sm:h-20 lg:w-24 lg:h-24 rounded-xl sm:rounded-2xl bg-cyan-500/[0.08] border border-cyan-400/25 flex items-center justify-center text-cyan-300 shadow-[0_0_28px_rgba(0,242,254,0.14)] group-hover:border-cyan-300/50 group-hover:text-cyan-200 transition-colors duration-300">
+                  <Icon icon={cat.icon} className="w-7 h-7 sm:w-11 sm:h-11 lg:w-12 lg:h-12" />
                 </div>
-                <span className="text-sm sm:text-base font-mono font-semibold uppercase tracking-widest text-cyan-300/90 lg:mt-2 text-center">
+                <span className="text-xs sm:text-base font-mono font-semibold uppercase tracking-widest text-cyan-300/90 lg:mt-2 text-center">
                   {cat.stat}
                 </span>
               </div>
 
               {/* Right Column: Bold Typographic Hierarchy & Container Chips */}
               <div className="lg:col-span-8">
-                <span className="block text-sm sm:text-base font-mono font-semibold uppercase tracking-[0.2em] text-slate-400 mb-2 sm:mb-3">
+                <span className="block text-xs sm:text-base font-mono font-semibold uppercase tracking-[0.2em] text-slate-400 mb-1.5 sm:mb-3">
                   {cat.domain}
                 </span>
 
-                <h3 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white tracking-tight mb-3 sm:mb-4 group-hover:text-cyan-300 transition-colors duration-300 leading-tight">
+                <h3 className="text-xl sm:text-3xl lg:text-4xl font-extrabold text-white tracking-tight mb-2.5 sm:mb-4 group-hover:text-cyan-300 transition-colors duration-300 leading-tight">
                   {cat.title}
                 </h3>
 
-                <p className="text-base sm:text-lg text-slate-300 leading-relaxed max-w-2xl mb-6">
+                <p className="text-sm sm:text-lg text-slate-300 leading-relaxed max-w-2xl mb-4 sm:mb-6">
                   {cat.subtitle}
                 </p>
 
                 {/* Minimalist Glass Containers for Tooling & Languages */}
-                <div className="pt-4 sm:pt-5 border-t border-white/10 flex flex-wrap items-center gap-2.5 sm:gap-3">
+                <div className="pt-3.5 sm:pt-5 border-t border-white/10 flex flex-wrap items-center gap-2 sm:gap-3">
                   {cat.skills.map((skill, sIdx) => (
                     <span
                       key={sIdx}
-                      className="px-3.5 py-1.5 rounded-lg text-sm sm:text-base font-mono font-medium bg-white/[0.05] text-slate-100 border border-white/15 backdrop-blur-md group-hover:border-cyan-400/35 hover:border-cyan-300 hover:text-cyan-300 transition-colors duration-200"
+                      className="px-2.5 py-1 sm:px-3.5 sm:py-1.5 rounded-lg text-xs sm:text-base font-mono font-medium bg-white/[0.05] text-slate-100 border border-white/15 backdrop-blur-md group-hover:border-cyan-400/35 hover:border-cyan-300 hover:text-cyan-300 transition-colors duration-200"
                     >
                       {skill}
                     </span>
