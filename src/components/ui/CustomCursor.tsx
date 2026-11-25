@@ -78,6 +78,10 @@ export function CustomCursor() {
     }
 
     const handlePointerMove = (e: PointerEvent) => {
+      if (e.pointerType === 'touch') {
+        handleMouseLeave()
+        return
+      }
       mouseX = e.clientX
       mouseY = e.clientY
 
@@ -113,6 +117,11 @@ export function CustomCursor() {
     }
 
     const handlePointerDown = (e: PointerEvent) => {
+      if (e.pointerType === 'touch') {
+        handleMouseLeave()
+        spawnWateryWave(e.clientX, e.clientY)
+        return
+      }
       isClicking = true
       fastFlapUntil = performance.now() + 650
       spawnWateryWave(e.clientX, e.clientY)

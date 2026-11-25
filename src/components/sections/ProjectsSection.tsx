@@ -105,13 +105,16 @@ export function ProjectsSection() {
                     type="button"
                     onClick={() => setActiveProject(proj)}
                     aria-label={`Open ${proj.title} media gallery`}
-                    className="group/thumb relative flex items-center justify-center cursor-pointer focus:outline-none"
+                    className="group/thumb relative flex flex-col items-center justify-center gap-2 cursor-pointer focus:outline-none active:scale-95 transition-transform duration-150"
                   >
                     <img
                       src={proj.media}
                       alt={proj.title}
                       className="w-auto max-w-[260px] sm:max-w-[320px] max-h-48 sm:max-h-56 object-contain mx-auto transition-all duration-300 ease-out group-hover/thumb:scale-[1.12] group-hover/thumb:-translate-y-1.5 group-hover/thumb:drop-shadow-[0_0_26px_rgba(34,211,238,0.45)]"
                     />
+                    <span className="sm:hidden text-[11px] font-mono text-cyan-300/80 tracking-wide">
+                      Tap to view gallery
+                    </span>
                   </button>
                 ) : (
                   <img

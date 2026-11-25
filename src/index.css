@@ -77,6 +77,10 @@
     selection-background-color: var(--accent-cyan);
     selection-color: #000;
   }
+  a, button, [role="button"], input, textarea, select, label {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
 }
 
 /* Custom themed cursor: hide default OS pointer on fine-pointer desktop devices */
@@ -220,11 +224,13 @@
 .glass-panel-hover {
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
-.glass-panel-hover:hover {
-  background: rgba(18, 24, 38, 0.85);
-  border-color: rgba(var(--accent-cyan-rgb), 0.3);
-  transform: translateY(-2px);
-  box-shadow: 0 10px 30px -10px rgba(var(--accent-cyan-rgb), 0.15);
+@media (hover: hover) {
+  .glass-panel-hover:hover {
+    background: rgba(18, 24, 38, 0.85);
+    border-color: rgba(var(--accent-cyan-rgb), 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px -10px rgba(var(--accent-cyan-rgb), 0.15);
+  }
 }
 
 /* Typography stroke utilities for monumental abstract art */

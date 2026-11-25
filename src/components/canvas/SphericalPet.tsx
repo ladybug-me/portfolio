@@ -105,33 +105,26 @@ export function SphericalPet({ onFollowingChange }: SphericalPetProps) {
 
   // Track global pointer events across entire window
   useEffect(() => {
-    const handlePointerMove = (e: PointerEvent) => {
-      const nx = (e.clientX / window.innerWidth) * 2 - 1
-      const ny = -(e.clientY / window.innerHeight) * 2 + 1
-      targetCursor.current.set(
-        nx * (viewport.width / 2) * 0.9,
-        ny * (viewport.height / 2) * 0.85,
-        0
-      )
+    let touchStart: { x: number; y: number; time: number } | null = null
+
+    const updateTargetFromClient = (clientX: number, clientY: number) => {
+      const nx = (clientX / window.innerWidth) * 2 - 1
+      const ny = -(clientY / window.innerHeight) * 2 + 1
+      const worldX = nx * (viewport.width / 2) * 0.9
+      const worldY = ny * (viewport.height / 2) * 0.85
+      targetCursor.current.set(worldX, worldY, 0)
+      return { worldX, worldY }
     }
 
-    const handlePointerDown = (e: PointerEvent) => {
-      const targetTag = (e.target as HTMLElement)?.tagName?.toLowerCase()
-      if (targetTag === 'input' || targetTag === 'textarea') return
-
-      const nx = (e.clientX / window.innerWidth) * 2 - 1
-      const ny = -(e.clientY / window.innerHeight) * 2 + 1
-
-      const clickWorldX = nx * (viewport.width / 2) * 0.9
-      const clickWorldY = ny * (viewport.height / 2) * 0.85
-
-      targetCursor.current.set(clickWorldX, clickWorldY, 0)
+    const triggerPetInteraction = (clientX: number, clientY: number, isTouch: boolean) => {
+      const { worldX: clickWorldX, worldY: clickWorldY } = updateTargetFromClient(clientX, clientY)
       const distToPet = Math.hypot(clickWorldX - pos.current.x, clickWorldY - pos.current.y)
+      const hitRadius = isTouch ? 0.48 : 0.32
       const now = performance.now()
       const isSecondClickOfDbl = now - lastEmptyClickTime.current < 420 && lastEmptyClickTime.current > 0
 
       if (isSecondClickOfDbl) {
-        // Guaranteed double-click on empty space: ENABLE automatic following
+        // Guaranteed double-tap/click on empty space: ENABLE automatic following
         isFollowing.current = true
         onFollowingChange?.(true)
         lastEmptyClickTime.current = 0
@@ -142,8 +135,8 @@ export function SphericalPet({ onFollowingChange }: SphericalPetProps) {
         return
       }
 
-      if (distToPet < 0.32) {
-        // Click directly on pet: STOP following
+      if (distToPet < hitRadius) {
+        // Tap/click directly on pet: STOP following
         isFollowing.current = false
         onFollowingChange?.(false)
         vel.current.set(0, 0, 0)
@@ -151,7 +144,7 @@ export function SphericalPet({ onFollowingChange }: SphericalPetProps) {
         clickPulseTimer.current = 0.8
         lastEmptyClickTime.current = 0
       } else {
-        // Single click on empty space: consistent natural jump towards click X (decoupled from mouse Y height)
+        // Single tap/click on empty space: natural jump towards tap X
         lastEmptyClickTime.current = now
         const dx = clickWorldX - pos.current.x
 
@@ -161,6 +154,39 @@ export function SphericalPet({ onFollowingChange }: SphericalPetProps) {
         squash.current.set(0.88, 1.18, 0.88)
         clickPulseTimer.current = 0.6
       }
+    }
+
+    const handlePointerMove = (e: PointerEvent) => {
+      updateTargetFromClient(e.clientX, e.clientY)
+    }
+
+    const handlePointerDown = (e: PointerEvent) => {
+      const targetTag = (e.target as HTMLElement)?.tagName?.toLowerCase()
+      if (targetTag === 'input' || targetTag === 'textarea') return
+
+      if (e.pointerType === 'touch') {
+        touchStart = { x: e.clientX, y: e.clientY, time: performance.now() }
+        updateTargetFromClient(e.clientX, e.clientY)
+        return
+      }
+
+      triggerPetInteraction(e.clientX, e.clientY, false)
+    }
+
+    const handlePointerUp = (e: PointerEvent) => {
+      if (e.pointerType !== 'touch' || !touchStart) return
+      const moved = Math.hypot(e.clientX - touchStart.x, e.clientY - touchStart.y)
+      const elapsed = performance.now() - touchStart.time
+      touchStart = null
+
+      // Ignore scroll/drag swipes; only respond to genuine finger taps
+      if (moved < 12 && elapsed < 450) {
+        triggerPetInteraction(e.clientX, e.clientY, true)
+      }
+    }
+
+    const handlePointerCancel = () => {
+      touchStart = null
     }
 
     const handleDblClick = (e: MouseEvent) => {
@@ -175,11 +201,15 @@ export function SphericalPet({ onFollowingChange }: SphericalPetProps) {
 
     window.addEventListener('pointermove', handlePointerMove, { passive: true })
     window.addEventListener('pointerdown', handlePointerDown, { passive: true })
+    window.addEventListener('pointerup', handlePointerUp, { passive: true })
+    window.addEventListener('pointercancel', handlePointerCancel, { passive: true })
     window.addEventListener('dblclick', handleDblClick, { passive: true })
 
     return () => {
       window.removeEventListener('pointermove', handlePointerMove)
       window.removeEventListener('pointerdown', handlePointerDown)
+      window.removeEventListener('pointerup', handlePointerUp)
+      window.removeEventListener('pointercancel', handlePointerCancel)
       window.removeEventListener('dblclick', handleDblClick)
     }
   }, [viewport.width, viewport.height, onFollowingChange])

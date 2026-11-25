@@ -15,7 +15,7 @@ export function PaletteSwitcher() {
   useEffect(() => {
     if (!isOpen) return
 
-    const handleOutside = (e: MouseEvent) => {
+    const handleOutside = (e: PointerEvent) => {
       if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) {
         setIsOpen(false)
       }
@@ -24,10 +24,10 @@ export function PaletteSwitcher() {
       if (e.key === 'Escape') setIsOpen(false)
     }
 
-    window.addEventListener('mousedown', handleOutside)
+    window.addEventListener('pointerdown', handleOutside)
     window.addEventListener('keydown', handleKey)
     return () => {
-      window.removeEventListener('mousedown', handleOutside)
+      window.removeEventListener('pointerdown', handleOutside)
       window.removeEventListener('keydown', handleKey)
     }
   }, [isOpen])
@@ -57,7 +57,7 @@ export function PaletteSwitcher() {
         onClick={() => setIsOpen((prev) => !prev)}
         aria-label="Color palette switcher"
         aria-expanded={isOpen}
-        className="w-12 h-12 rounded-full bg-[#0d111a]/80 backdrop-blur-2xl border border-white/20 hover:border-cyan-400/60 text-cyan-300 hover:text-white flex items-center justify-center transition-all duration-200 cursor-pointer shadow-[0_8px_30px_rgba(0,0,0,0.5)] hover:scale-105"
+        className="w-12 h-12 rounded-full bg-[#0d111a]/80 backdrop-blur-2xl border border-white/20 hover:border-cyan-400/60 text-cyan-300 hover:text-white flex items-center justify-center transition-all duration-200 cursor-pointer shadow-[0_8px_30px_rgba(0,0,0,0.5)] hover:scale-105 active:scale-95"
       >
         <Icon icon="mdi:palette" className="w-6 h-6" />
       </button>
@@ -67,7 +67,7 @@ export function PaletteSwitcher() {
           ref={menuRef}
           role="menu"
           aria-label="Select color palette"
-          className="mt-3 w-80 sm:w-96 rounded-3xl bg-[#0d111a]/65 backdrop-blur-3xl border border-white/20 p-3 sm:p-4 shadow-[0_24px_80px_rgba(0,0,0,0.85)] flex flex-col gap-2"
+          className="mt-3 w-[calc(100vw-2rem)] max-w-sm sm:w-96 rounded-3xl bg-[#0d111a]/65 backdrop-blur-3xl border border-white/20 p-3 sm:p-4 shadow-[0_24px_80px_rgba(0,0,0,0.85)] flex flex-col gap-2"
         >
           {PALETTES.map((p) => {
             const isSelected = p.id === palette.id

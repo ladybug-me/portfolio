@@ -103,7 +103,7 @@ function FloatingMediaCard({
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       aria-label={item.label}
-      className={`gallery-grid-item group relative cursor-pointer focus:outline-none will-change-transform [transform-style:preserve-3d] transition-[border-color,box-shadow] duration-300 rounded-2xl border border-white/20 hover:border-cyan-400/60 overflow-hidden bg-slate-950/30 shadow-[0_20px_50px_rgba(0,0,0,0.65)] hover:shadow-[0_24px_60px_rgba(34,211,238,0.28)] flex items-center justify-center ${sizeClass}`}
+      className={`gallery-grid-item group relative cursor-pointer focus:outline-none will-change-transform [transform-style:preserve-3d] transition-[border-color,box-shadow,transform] duration-300 active:scale-[0.97] rounded-2xl border border-white/20 hover:border-cyan-400/60 overflow-hidden bg-slate-950/30 shadow-[0_20px_50px_rgba(0,0,0,0.65)] hover:shadow-[0_24px_60px_rgba(34,211,238,0.28)] flex items-center justify-center ${sizeClass}`}
     >
       {item.type === 'video' ? (
         <video
@@ -132,6 +132,7 @@ export function ProjectGalleryModal({ project, onClose }: ProjectGalleryModalPro
   const gridRef = useRef<HTMLDivElement>(null)
   const magnifiedRef = useRef<HTMLDivElement>(null)
   const isAnimatingOut = useRef(false)
+  const touchSwipeStartRef = useRef<{ x: number; y: number } | null>(null)
 
   const animateCloseGrid = useCallback(() => {
     if (isAnimatingOut.current) return
@@ -280,6 +281,36 @@ export function ProjectGalleryModal({ project, onClose }: ProjectGalleryModalPro
     }
   }
 
+  const handleMagnifiedTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (e.touches.length !== 1) return
+    touchSwipeStartRef.current = {
+      x: e.touches[0].clientX,
+      y: e.touches[0].clientY,
+    }
+  }
+
+  const handleMagnifiedTouchEnd = (e: React.TouchEvent<HTMLDivElement>) => {
+    const start = touchSwipeStartRef.current
+    touchSwipeStartRef.current = null
+    if (!start || e.changedTouches.length === 0) return
+
+    const dx = e.changedTouches[0].clientX - start.x
+    const dy = e.changedTouches[0].clientY - start.y
+
+    if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy)) {
+      if (dx < 0 && hasNext) {
+        setSelectedIndex((prev) => (prev !== null && prev < project.gallery.length - 1 ? prev + 1 : prev))
+      } else if (dx > 0 && hasPrev) {
+        setSelectedIndex((prev) => (prev !== null && prev > 0 ? prev - 1 : prev))
+      }
+      return
+    }
+
+    if (dy > 80 && Math.abs(dy) > Math.abs(dx)) {
+      animateBackToGrid()
+    }
+  }
+
   return createPortal(
     <div
       ref={overlayRef}
@@ -296,6 +327,21 @@ export function ProjectGalleryModal({ project, onClose }: ProjectGalleryModalPro
           : 'overflow-y-auto overscroll-contain bg-transparent'
       }`}
     >
+      {/* Touch-friendly top-right close / back button */}
+      <button
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation()
+          handleEmptySpaceClick()
+        }}
+        aria-label={selectedItem ? 'Back to gallery grid' : 'Close gallery'}
+        className="fixed top-4 right-4 sm:top-6 sm:right-6 z-30 w-11 h-11 rounded-full bg-[#0d111a]/80 backdrop-blur-xl border border-white/20 text-white/80 hover:text-cyan-300 hover:border-cyan-400/60 active:scale-95 flex items-center justify-center transition-all duration-150 cursor-pointer shadow-[0_8px_24px_rgba(0,0,0,0.6)]"
+      >
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+
       {selectedItem ? (
         <>
           {hasPrev && (
@@ -306,7 +352,7 @@ export function ProjectGalleryModal({ project, onClose }: ProjectGalleryModalPro
                 setSelectedIndex((prev) => (prev !== null && prev > 0 ? prev - 1 : prev))
               }}
               aria-label="Previous media"
-              className="group fixed inset-y-0 left-0 z-20 w-[12vw] sm:w-[14vw] flex items-center justify-start pl-2 sm:pl-5 text-white/55 hover:text-cyan-300 transition-all duration-200 cursor-pointer focus:outline-none"
+              className="group fixed inset-y-0 left-0 z-20 w-[12vw] sm:w-[14vw] flex items-center justify-start pl-2 sm:pl-5 text-white/55 hover:text-cyan-300 active:scale-95 transition-all duration-200 cursor-pointer focus:outline-none"
             >
               <Icon
                 icon="mdi:chevron-left"
@@ -318,7 +364,9 @@ export function ProjectGalleryModal({ project, onClose }: ProjectGalleryModalPro
           <div
             ref={magnifiedRef}
             onClick={(e) => e.stopPropagation()}
-            className="flex items-center justify-center will-change-transform rounded-2xl border border-white/25 overflow-hidden bg-slate-950/30 shadow-[0_25px_70px_rgba(0,0,0,0.75)]"
+            onTouchStart={handleMagnifiedTouchStart}
+            onTouchEnd={handleMagnifiedTouchEnd}
+            className="flex items-center justify-center will-change-transform rounded-2xl border border-white/25 overflow-hidden bg-slate-950/30 shadow-[0_25px_70px_rgba(0,0,0,0.75)] touch-pan-y"
           >
             {selectedItem.type === 'video' ? (
               <video

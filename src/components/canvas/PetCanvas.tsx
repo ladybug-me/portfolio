@@ -13,7 +13,7 @@ export function PetCanvas() {
           aria-live="polite"
           className="fixed top-5 left-1/2 -translate-x-1/2 z-40 pointer-events-none px-4 py-1.5 rounded-full bg-[#0d111a]/75 backdrop-blur-xl border border-cyan-400/35 text-xs sm:text-sm font-mono text-cyan-300 tracking-wide shadow-[0_8px_24px_rgba(0,0,0,0.45)] whitespace-nowrap"
         >
-          Click the pet to exit chase mode
+          Tap or click the pet to exit chase mode
         </div>
       )}
       <Suspense fallback={null}>

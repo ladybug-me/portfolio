@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Icon } from '@iconify/react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
@@ -15,6 +15,7 @@ export function HeroSection({ ready = true }: HeroSectionProps) {
   const heroRef = useRef<HTMLDivElement>(null)
   const inTlRef = useRef<gsap.core.Timeline | null>(null)
   const triggerMorphRef = useRef<(() => void) | null>(null)
+  const [isEducationOpen, setIsEducationOpen] = useState(false)
 
   useGSAP(
     () => {
@@ -400,15 +401,37 @@ export function HeroSection({ ready = true }: HeroSectionProps) {
           </h1>
         </div>
 
-        {/* Content Wrapper for Magnified Minimalist Education (Subtext & Full Address on Hover) */}
+        {/* Content Wrapper for Magnified Minimalist Education (Hover on desktop, Tap on touch) */}
         <div className="hero-content-wrap will-change-transform pointer-events-auto relative z-20">
-          <div className="hero-manifesto-inner group pt-6 sm:pt-8 border-t border-white/15 max-w-6xl flex flex-col md:flex-row md:items-start justify-between gap-6 md:gap-12 cursor-default">
-            {/* Left: Institution + Hover-Revealed Degree & CGPA */}
+          <div
+            role="button"
+            tabIndex={0}
+            aria-expanded={isEducationOpen}
+            onClick={() => setIsEducationOpen((prev) => !prev)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault()
+                setIsEducationOpen((prev) => !prev)
+              }
+            }}
+            className="hero-manifesto-inner group pt-6 sm:pt-8 border-t border-white/15 max-w-6xl flex flex-col md:flex-row md:items-start justify-between gap-6 md:gap-12 cursor-pointer focus:outline-none"
+          >
+            {/* Left: Institution + Hover/Tap-Revealed Degree & CGPA */}
             <div>
-              <div className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white tracking-tight group-hover:text-cyan-300 transition-colors duration-300">
+              <div
+                className={`text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight transition-colors duration-300 ${
+                  isEducationOpen ? 'text-cyan-300' : 'text-white group-hover:text-cyan-300'
+                }`}
+              >
                 Vellore Institute of Technology
               </div>
-              <div className="max-h-0 opacity-0 overflow-hidden group-hover:max-h-28 group-hover:opacity-100 group-hover:mt-3 transition-[max-height,opacity,margin-top] duration-300 ease-out">
+              <div
+                className={`overflow-hidden transition-[max-height,opacity,margin-top] duration-300 ease-out ${
+                  isEducationOpen
+                    ? 'max-h-28 opacity-100 mt-3'
+                    : 'max-h-0 opacity-0 group-hover:max-h-28 group-hover:opacity-100 group-hover:mt-3'
+                }`}
+              >
                 <p className="text-base sm:text-lg lg:text-xl text-slate-200 font-medium leading-snug">
                   B.Tech in Computer Science and Engineering, Core (2nd Year)
                   <span className="text-cyan-300 font-mono font-bold ml-3">CGPA 8.83</span>
@@ -416,17 +439,30 @@ export function HeroSection({ ready = true }: HeroSectionProps) {
               </div>
             </div>
 
-            {/* Right: Location Icon + Hover-Revealed Full Address & Dates */}
+            {/* Right: Location Icon + Hover/Tap-Revealed Full Address & Dates */}
             <div className="md:text-right shrink-0">
-              <div className="inline-flex items-center gap-2 text-xl sm:text-2xl lg:text-3xl font-bold text-slate-200 group-hover:text-cyan-300 transition-colors duration-300">
+              <div
+                className={`inline-flex items-center gap-2 text-xl sm:text-2xl lg:text-3xl font-bold transition-colors duration-300 ${
+                  isEducationOpen ? 'text-cyan-300' : 'text-slate-200 group-hover:text-cyan-300'
+                }`}
+              >
                 <Icon
                   icon="mdi:map-marker"
                   className="w-6 h-6 sm:w-7 sm:h-7 text-cyan-400 shrink-0"
                   aria-hidden="true"
                 />
                 <span>Vellore</span>
+                <span className="sm:hidden text-[11px] font-mono font-normal text-cyan-400/75 ml-1">
+                  {isEducationOpen ? '−' : '+ details'}
+                </span>
               </div>
-              <div className="max-h-0 opacity-0 overflow-hidden group-hover:max-h-24 group-hover:opacity-100 group-hover:mt-3 transition-[max-height,opacity,margin-top] duration-300 ease-out font-mono text-sm sm:text-base lg:text-lg text-slate-300">
+              <div
+                className={`overflow-hidden transition-[max-height,opacity,margin-top] duration-300 ease-out font-mono text-sm sm:text-base lg:text-lg text-slate-300 ${
+                  isEducationOpen
+                    ? 'max-h-24 opacity-100 mt-3'
+                    : 'max-h-0 opacity-0 group-hover:max-h-24 group-hover:opacity-100 group-hover:mt-3'
+                }`}
+              >
                 <div>Tamil Nadu, India</div>
                 <div className="text-cyan-400/90 mt-0.5">June 2025 – Present</div>
               </div>
