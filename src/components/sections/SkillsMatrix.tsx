@@ -159,9 +159,9 @@ export function SkillsMatrix() {
     <section
       ref={sectionRef}
       id="skills"
-      className="relative min-h-screen py-10 sm:py-16 px-4 sm:px-8 border-t border-white/5 flex flex-col justify-center overflow-x-clip"
+      className="relative h-screen px-4 sm:px-8 border-t border-white/5 flex flex-col overflow-clip"
     >
-      <div ref={innerRef} className="w-full will-change-transform">
+      <div ref={innerRef} className="w-full my-auto py-8 sm:py-12 will-change-transform">
         {/* Editorial Header */}
         <div className="max-w-5xl mx-auto w-full mb-5 sm:mb-8">
           <h2 className="text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tight text-white">

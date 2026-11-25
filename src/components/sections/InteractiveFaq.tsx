@@ -202,9 +202,9 @@ export function InteractiveFaq() {
     <section
       ref={sectionRef}
       id="faq"
-      className="relative min-h-screen py-16 sm:py-20 px-4 sm:px-8 max-w-7xl mx-auto border-t border-white/5 flex flex-col justify-center overflow-x-clip"
+      className="relative h-screen px-4 sm:px-8 max-w-7xl mx-auto border-t border-white/5 flex flex-col overflow-clip"
     >
-      <div ref={innerRef} className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center w-full [perspective:1200px] will-change-transform">
+      <div ref={innerRef} className="my-auto py-10 sm:py-14 grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center w-full [perspective:1200px] will-change-transform">
         {/* Left Column: Minimalist Heading & Subtitle */}
         <div className="lg:col-span-4">
           <h2 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white mb-6 leading-tight">

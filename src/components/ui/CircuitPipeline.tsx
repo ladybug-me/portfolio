@@ -639,7 +639,7 @@ export function CircuitPipeline() {
     <section
       ref={containerRef}
       id="pipeline"
-      className="relative w-full min-h-screen py-16 sm:py-24 flex flex-col justify-center overflow-x-clip border-t border-white/5"
+      className="relative w-full h-screen flex flex-col overflow-clip border-t border-white/5"
     >
       {/* Full-width Particle Canvas Overlay: Never clips overflowing scattered particles */}
       <canvas
@@ -647,7 +647,7 @@ export function CircuitPipeline() {
         className="absolute inset-0 w-full h-full pointer-events-none z-20"
       />
 
-      <div ref={innerRef} className="relative w-full max-w-7xl mx-auto px-4 sm:px-8 will-change-transform">
+      <div ref={innerRef} className="relative w-full max-w-7xl mx-auto my-auto py-12 sm:py-16 px-4 sm:px-8 will-change-transform">
         {/* Scroll-drawn SVG pipeline line */}
         <div className="hidden lg:block absolute top-[44px] left-16 right-16 z-0 pointer-events-none">
           <svg viewBox="0 0 1000 60" fill="none" className="w-full h-auto overflow-visible">

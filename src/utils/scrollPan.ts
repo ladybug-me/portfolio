@@ -1,7 +1,7 @@
 import type React from 'react'
 import gsap from 'gsap'
 
-const panQuickToCache = new WeakMap<HTMLElement, gsap.QuickToFunc>()
+const panSetterCache = new WeakMap<HTMLElement, (value: number) => void>()
 const cardScrollTargets = new WeakMap<HTMLElement, number>()
 const overflowCache = new WeakMap<HTMLElement, number>()
 
@@ -20,8 +20,9 @@ export function getPinnedOverflow(container: HTMLElement | null, measure = true)
 }
 
 /**
- * Smoothly pans a pinned section's inner wrapper when its content exceeds
- * the viewport height (e.g., under browser text zoom or short screens).
+ * Synchronously pans a pinned section's inner wrapper in lockstep with scroll
+ * progress when its content exceeds the viewport height, preventing trailing
+ * lag or jumps at section unpin boundaries.
  */
 export function syncPinnedOverflow(
   container: HTMLElement | null,
@@ -32,8 +33,8 @@ export function syncPinnedOverflow(
   if (!container || !inner) return
   const overflow = getPinnedOverflow(container, refresh)
   if (overflow <= 0) {
-    if (panQuickToCache.has(inner)) {
-      panQuickToCache.delete(inner)
+    if (panSetterCache.has(inner)) {
+      panSetterCache.delete(inner)
       gsap.set(inner, { y: 0, clearProps: 'transform' })
     }
     return
@@ -41,12 +42,12 @@ export function syncPinnedOverflow(
 
   const targetY = -overflow * progress
 
-  let quickY = panQuickToCache.get(inner)
-  if (!quickY) {
-    quickY = gsap.quickTo(inner, 'y', { duration: 0.45, ease: 'power3.out' })
-    panQuickToCache.set(inner, quickY)
+  let setY = panSetterCache.get(inner)
+  if (!setY) {
+    setY = gsap.quickSetter(inner, 'y', 'px') as (value: number) => void
+    panSetterCache.set(inner, setY)
   }
-  quickY(targetY)
+  setY(targetY)
 }
 
 /**

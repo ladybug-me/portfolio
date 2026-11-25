@@ -118,13 +118,13 @@ export function KineticTextScrub({ className = '' }: KineticTextScrubProps) {
     <section
       ref={containerRef}
       id="statement"
-      className={`relative min-h-[100dvh] w-full flex flex-col justify-center items-center overflow-x-clip border-t border-white/5 px-2 sm:px-4 py-8 ${className}`}
+      className={`relative h-screen w-full flex flex-col items-center overflow-clip border-t border-white/5 px-2 sm:px-4 ${className}`}
     >
       {/* Accessible readable text for assistive technologies */}
       <p className="sr-only">{fullText}</p>
 
       {/* Monumental scrubbed kinetic letter stream structured like img2 */}
-      <div ref={innerRef} className="w-full flex flex-col items-center justify-center text-center will-change-transform">
+      <div ref={innerRef} className="w-full my-auto py-8 flex flex-col items-center justify-center text-center will-change-transform">
         <p
           aria-hidden="true"
           className="font-black tracking-tight sm:tracking-tighter text-center select-none uppercase w-full flex flex-col items-center justify-center"
