@@ -2,9 +2,10 @@ import { useEffect, useRef } from 'react'
 import { Icon } from '@iconify/react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { ScrambleTextPlugin } from 'gsap/ScrambleTextPlugin'
 import { useGSAP } from '@gsap/react'
 
-gsap.registerPlugin(ScrollTrigger)
+gsap.registerPlugin(ScrollTrigger, ScrambleTextPlugin)
 
 interface HeroSectionProps {
   ready?: boolean
@@ -13,65 +14,168 @@ interface HeroSectionProps {
 export function HeroSection({ ready = true }: HeroSectionProps) {
   const heroRef = useRef<HTMLDivElement>(null)
   const inTlRef = useRef<gsap.core.Timeline | null>(null)
+  const triggerMorphRef = useRef<(() => void) | null>(null)
 
   useGSAP(
     () => {
       const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
       if (prefersReducedMotion) return
 
+      let isAlias = false
+      let pendingCall: gsap.core.Tween | null = null
+      let morphTl: gsap.core.Timeline | null = null
+
+      const triggerMorph = () => {
+        pendingCall?.kill()
+        morphTl?.kill()
+        isAlias = !isAlias
+        morphTl = gsap.timeline({
+          onComplete: () => {
+            pendingCall = gsap.delayedCall(10, triggerMorph)
+          },
+        })
+
+        if (isAlias) {
+          morphTl
+            .to('.hero-line-1-inner', {
+              duration: 0.95,
+              ease: 'none',
+              scrambleText: {
+                text: 'LADYBUG',
+                chars: '01#$%&*@XZVQ',
+                revealDelay: 0.08,
+                speed: 0.45,
+              },
+            })
+            .to(
+              '.hero-line-2-inner',
+              {
+                duration: 0.95,
+                ease: 'none',
+                scrambleText: {
+                  text: 'ME',
+                  chars: '01#$%&*@XZVQ',
+                  revealDelay: 0.08,
+                  speed: 0.45,
+                },
+              },
+              '<0.1'
+            )
+        } else {
+          morphTl
+            .to('.hero-line-1-inner', {
+              duration: 0.95,
+              ease: 'none',
+              scrambleText: {
+                text: 'RAJVEER',
+                chars: '01#$%&*@XZVQ',
+                revealDelay: 0.08,
+                speed: 0.45,
+              },
+            })
+            .to(
+              '.hero-line-2-inner',
+              {
+                duration: 0.95,
+                ease: 'none',
+                scrambleText: {
+                  text: 'SINGH',
+                  chars: '01#$%&*@XZVQ',
+                  revealDelay: 0.08,
+                  speed: 0.45,
+                },
+              },
+              '<0.1'
+            )
+        }
+      }
+
+      triggerMorphRef.current = triggerMorph
+
       // 1. Entrance Choreography (Paused until boot loader completes)
-      const inTl = gsap.timeline({ paused: true, delay: 0.05 })
+      const inTl = gsap.timeline({
+        paused: true,
+        delay: 0.04,
+        onComplete: () => {
+          pendingCall = gsap.delayedCall(10, triggerMorph)
+        },
+      })
       inTlRef.current = inTl
 
       inTl
-        .from('.hero-line-1-inner', {
-          y: '140%',
-          rotateX: -45,
-          opacity: 0,
-          duration: 1.15,
-          ease: 'power4.out',
-        })
-        .from(
-          '.hero-line-2-inner',
+        .fromTo(
+          '.hero-line-1-inner',
+          { autoAlpha: 0 },
           {
-            y: '140%',
-            rotateX: 45,
-            opacity: 0,
-            duration: 1.2,
-            ease: 'power4.out',
-          },
-          '-=0.9'
+            autoAlpha: 1,
+            duration: 1.05,
+            ease: 'none',
+            scrambleText: {
+              text: 'RAJVEER',
+              chars: '01#$%&*@XZVQ',
+              revealDelay: 0.08,
+              speed: 0.45,
+            },
+          }
         )
-        .from(
-          '.hero-line-3-inner',
+        .fromTo(
+          '.hero-line-2-inner',
+          { autoAlpha: 0 },
           {
-            y: 40,
-            opacity: 0,
-            duration: 0.85,
-            ease: 'power3.out',
+            autoAlpha: 1,
+            duration: 1.05,
+            ease: 'none',
+            scrambleText: {
+              text: 'SINGH',
+              chars: '01#$%&*@XZVQ',
+              revealDelay: 0.08,
+              speed: 0.45,
+            },
           },
-          '-=0.7'
+          '-=0.75'
+        )
+        .fromTo(
+          '.hero-line-3-inner',
+          { autoAlpha: 0 },
+          {
+            autoAlpha: 1,
+            duration: 0.95,
+            ease: 'none',
+            scrambleText: {
+              text: 'LINUX RUNTIMES & EDGE COMPUTE',
+              chars: 'upperCase',
+              revealDelay: 0.1,
+              speed: 0.55,
+            },
+          },
+          '-=0.65'
         )
         .from(
           ['.tilted-badge-1-inner', '.tilted-badge-2-inner', '.tilted-badge-3-inner'],
           {
-            scale: 0,
-            opacity: 0,
-            stagger: 0.1,
-            duration: 0.75,
-            ease: 'back.out(1.8)',
+            scale: 0.4,
+            y: 16,
+            autoAlpha: 0,
+            stagger: { each: 0.08, from: 'random' },
+            duration: 0.5,
+            ease: 'back.out(2)',
           },
-          '-=0.6'
+          '-=0.55'
         )
-        .from(
+        .fromTo(
           '.hero-manifesto-inner',
           {
-            y: 25,
-            opacity: 0,
-            duration: 0.75,
-            ease: 'power3.out',
+            y: 16,
+            autoAlpha: 0,
           },
-          '-=0.5'
+          {
+            y: 0,
+            autoAlpha: 1,
+            duration: 0.6,
+            ease: 'power3.out',
+            clearProps: 'transform',
+          },
+          '-=0.45'
         )
 
       // 2. Continuous Idle Buoyancy for Tilted Badges
@@ -188,6 +292,10 @@ export function HeroSection({ ready = true }: HeroSectionProps) {
           },
           0
         )
+      return () => {
+        pendingCall?.kill()
+        morphTl?.kill()
+      }
     },
     { scope: heroRef }
   )
@@ -265,17 +373,20 @@ export function HeroSection({ ready = true }: HeroSectionProps) {
           </div>
 
           {/* Monumental Headline Display */}
-          <h1 className="flex flex-col tracking-[-0.05em] leading-[0.82] font-black uppercase">
-            {/* Line 1: RAJVEER (Solid Brilliant Titanium) */}
+          <h1
+            onClick={() => triggerMorphRef.current?.()}
+            className="flex flex-col tracking-[-0.05em] leading-[0.82] font-black uppercase cursor-pointer"
+          >
+            {/* Line 1: RAJVEER <-> LADYBUG-ME (Solid Brilliant Titanium) */}
             <div className="hero-line-1-wrap overflow-hidden py-1 will-change-transform">
-              <span className="hero-line-1-inner block text-[13vw] sm:text-[14.5vw] lg:text-[15.5vw] text-white will-change-transform">
+              <span className="hero-line-1-inner block whitespace-nowrap text-[13vw] sm:text-[14.5vw] lg:text-[15.5vw] text-white will-change-transform">
                 RAJVEER
               </span>
             </div>
 
-            {/* Line 2: SINGH (Hollow Electric Cyan Contour) */}
+            {/* Line 2: SINGH <-> RAJVEER SINGH (Hollow Electric Cyan Contour) */}
             <div className="hero-line-2-wrap overflow-hidden py-1 will-change-transform">
-              <span className="hero-line-2-inner block text-[13vw] sm:text-[14.5vw] lg:text-[15.5vw] text-transparent text-stroke-cyan text-right pr-2 sm:pr-8 will-change-transform drop-shadow-[0_0_24px_rgba(0,242,254,0.35)]">
+              <span className="hero-line-2-inner block whitespace-nowrap text-[13vw] sm:text-[14.5vw] lg:text-[15.5vw] text-transparent text-stroke-cyan text-right pr-2 sm:pr-8 will-change-transform drop-shadow-[0_0_24px_rgba(0,242,254,0.35)]">
                 SINGH
               </span>
             </div>

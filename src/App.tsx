@@ -4,6 +4,7 @@ import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useGSAP } from '@gsap/react'
 
+import { HeroCanvas } from './components/canvas/HeroCanvas'
 import { CustomCursor } from './components/ui/CustomCursor'
 import { SectionNavigator } from './components/ui/SectionNavigator'
 import { BootLoader } from './components/ui/BootLoader'
@@ -11,9 +12,6 @@ import { HeroSection } from './components/sections/HeroSection'
 import { KineticTextScrub } from './components/ui/KineticTextScrub'
 import { CircuitPipeline } from './components/ui/CircuitPipeline'
 
-const HeroCanvas = lazy(() =>
-  import('./components/canvas/HeroCanvas').then((m) => ({ default: m.HeroCanvas }))
-)
 const PetCanvas = lazy(() =>
   import('./components/canvas/PetCanvas').then((m) => ({ default: m.PetCanvas }))
 )
@@ -143,10 +141,12 @@ export function App() {
       {/* Interactive Cybernetic Mouse Follower */}
       <CustomCursor />
 
-      {/* Deferred 3D WebGL Canvases */}
+      {/* Instant 3D Background Shape */}
+      <HeroCanvas />
+
+      {/* Deferred 3D Pet Companion */}
       <Suspense fallback={null}>
         <PetCanvas />
-        <HeroCanvas />
       </Suspense>
 
       {/* Foreground Content Layers */}
