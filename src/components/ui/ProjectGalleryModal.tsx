@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Icon } from '@iconify/react'
 import gsap from 'gsap'
@@ -56,6 +56,16 @@ function FloatingMediaCard({
     { scope: cardRef }
   )
 
+  const handleMouseEnter = () => {
+    if (!cardRef.current) return
+    gsap.to(cardRef.current, {
+      scale: 1.04,
+      duration: 0.25,
+      ease: 'power2.out',
+      overwrite: 'auto',
+    })
+  }
+
   const handleMouseMove = (e: React.MouseEvent<HTMLButtonElement>) => {
     if (!cardRef.current || !rotateXTo.current || !rotateYTo.current) return
     const rect = cardRef.current.getBoundingClientRect()
@@ -68,6 +78,13 @@ function FloatingMediaCard({
   const handleMouseLeave = () => {
     rotateXTo.current?.(0)
     rotateYTo.current?.(0)
+    if (!cardRef.current) return
+    gsap.to(cardRef.current, {
+      scale: 1,
+      duration: 0.3,
+      ease: 'power2.out',
+      overwrite: 'auto',
+    })
   }
 
   const sizeClass = single
@@ -82,10 +99,11 @@ function FloatingMediaCard({
         e.stopPropagation()
         onSelect()
       }}
+      onMouseEnter={handleMouseEnter}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       aria-label={item.label}
-      className={`gallery-grid-item group relative cursor-pointer focus:outline-none will-change-transform [transform-style:preserve-3d] transition-all duration-300 ease-out hover:scale-[1.04] rounded-2xl border border-white/20 hover:border-cyan-400/60 overflow-hidden bg-slate-950/30 shadow-[0_20px_50px_rgba(0,0,0,0.65)] hover:shadow-[0_24px_60px_rgba(34,211,238,0.28)] flex items-center justify-center ${sizeClass}`}
+      className={`gallery-grid-item group relative cursor-pointer focus:outline-none will-change-transform [transform-style:preserve-3d] transition-[border-color,box-shadow] duration-300 rounded-2xl border border-white/20 hover:border-cyan-400/60 overflow-hidden bg-slate-950/30 shadow-[0_20px_50px_rgba(0,0,0,0.65)] hover:shadow-[0_24px_60px_rgba(34,211,238,0.28)] flex items-center justify-center ${sizeClass}`}
     >
       {item.type === 'video' ? (
         <video
@@ -113,6 +131,50 @@ export function ProjectGalleryModal({ project, onClose }: ProjectGalleryModalPro
   const overlayRef = useRef<HTMLDivElement>(null)
   const gridRef = useRef<HTMLDivElement>(null)
   const magnifiedRef = useRef<HTMLDivElement>(null)
+  const isAnimatingOut = useRef(false)
+
+  const animateCloseGrid = useCallback(() => {
+    if (isAnimatingOut.current) return
+    isAnimatingOut.current = true
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    const items = gridRef.current?.querySelectorAll('.gallery-grid-item')
+    if (prefersReducedMotion || !items || items.length === 0) {
+      onClose()
+      return
+    }
+    gsap.to(items, {
+      autoAlpha: 0,
+      scale: 0.78,
+      y: 28,
+      rotationX: -10,
+      duration: 0.28,
+      stagger: { each: 0.035, from: 'edges' },
+      ease: 'power3.in',
+      overwrite: 'auto',
+      onComplete: onClose,
+    })
+  }, [onClose])
+
+  const animateBackToGrid = () => {
+    if (isAnimatingOut.current) return
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (prefersReducedMotion || !magnifiedRef.current) {
+      setSelectedIndex(null)
+      return
+    }
+    isAnimatingOut.current = true
+    gsap.to(magnifiedRef.current, {
+      autoAlpha: 0,
+      scale: 0.84,
+      duration: 0.22,
+      ease: 'power2.in',
+      overwrite: 'auto',
+      onComplete: () => {
+        isAnimatingOut.current = false
+        setSelectedIndex(null)
+      },
+    })
+  }
 
   useEffect(() => {
     const prevOverflow = document.body.style.overflow
@@ -121,9 +183,9 @@ export function ProjectGalleryModal({ project, onClose }: ProjectGalleryModalPro
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         if (selectedIndex !== null) {
-          setSelectedIndex(null)
+          animateBackToGrid()
         } else {
-          onClose()
+          animateCloseGrid()
         }
       }
       if (selectedIndex !== null) {
@@ -141,7 +203,7 @@ export function ProjectGalleryModal({ project, onClose }: ProjectGalleryModalPro
       document.body.style.overflow = prevOverflow
       window.removeEventListener('keydown', handleKeyDown)
     }
-  }, [selectedIndex, project.gallery.length, onClose])
+  }, [selectedIndex, project.gallery.length, animateCloseGrid])
 
   // Stage 1: Floating unblurred grid entrance
   useGSAP(
@@ -206,9 +268,9 @@ export function ProjectGalleryModal({ project, onClose }: ProjectGalleryModalPro
 
   const handleEmptySpaceClick = () => {
     if (selectedIndex !== null) {
-      setSelectedIndex(null)
+      animateBackToGrid()
     } else {
-      onClose()
+      animateCloseGrid()
     }
   }
 
