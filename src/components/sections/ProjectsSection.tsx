@@ -72,7 +72,6 @@ const showcaseProjects: ShowcaseProject[] = [
     summary:
       'Interactive game engine built during a 48-hour sprint. Linked Unity clients to local Flask backends and the Backboard API, driving real-time dialogues with autonomous game characters.',
     tags: ['Unity', 'C#', 'Flask', 'Python', 'Backboard API', 'Game AI'],
-    link: 'https://github.com/ladybug-me',
   },
 ]
 
@@ -90,35 +89,50 @@ export function ProjectsSection() {
 
       {/* Sticky Stacking Cards (Deck Presentation) */}
       <div className="relative space-y-8 sm:space-y-12 pb-36 sm:pb-48">
-        {showcaseProjects.map((proj, idx) => (
+        {showcaseProjects.map((proj, idx) => {
+          const hasGallery = proj.gallery.length > 0
+
+          return (
           <article
             key={proj.id}
+            role={hasGallery ? 'button' : undefined}
+            tabIndex={hasGallery ? 0 : undefined}
+            aria-label={hasGallery ? `Open ${proj.title} media gallery` : undefined}
+            onClick={hasGallery ? () => setActiveProject(proj) : undefined}
+            onKeyDown={
+              hasGallery
+                ? (e) => {
+                    if (e.target !== e.currentTarget) return
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault()
+                      setActiveProject(proj)
+                    }
+                  }
+                : undefined
+            }
             style={{
               top: `calc(max(60px, min(85px, 9vh)) + ${idx * 16}px)`,
               maxHeight: `calc(100dvh - max(60px, min(85px, 9vh)) - ${idx * 16}px - 16px)`,
             }}
             onWheel={handleBoundedCardWheel}
-            className="stacked-project-card sticky glass-panel p-6 sm:p-8 lg:p-12 rounded-2xl sm:rounded-3xl border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.6)] backdrop-blur-md sm:backdrop-blur-2xl will-change-transform grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-stretch group overflow-y-auto overflow-x-hidden"
+            className={`stacked-project-card sticky glass-panel p-6 sm:p-8 lg:p-12 rounded-2xl sm:rounded-3xl border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.6)] backdrop-blur-md sm:backdrop-blur-2xl will-change-transform grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-stretch group overflow-y-auto overflow-x-hidden ${
+              hasGallery ? 'cursor-pointer focus:outline-none' : ''
+            }`}
           >
             {/* Left: Enlarged Centered Thumb & Non-Overlapping Bottom-Left Numbering */}
             <div className="lg:col-span-4 flex flex-col justify-between gap-4 h-full">
               <div className="flex-1 w-full flex items-center justify-center">
-                {proj.gallery.length > 0 ? (
-                  <button
-                    type="button"
-                    onClick={() => setActiveProject(proj)}
-                    aria-label={`Open ${proj.title} media gallery`}
-                    className="group/thumb relative flex flex-col items-center justify-center gap-2 cursor-pointer focus:outline-none active:scale-95 transition-transform duration-150"
-                  >
+                {hasGallery ? (
+                  <div className="relative flex flex-col items-center justify-center gap-2 active:scale-95 transition-transform duration-150">
                     <img
                       src={proj.media}
                       alt={proj.title}
-                      className="w-auto max-w-[260px] sm:max-w-[320px] max-h-48 sm:max-h-56 object-contain mx-auto transition-all duration-300 ease-out group-hover/thumb:scale-[1.12] group-hover/thumb:-translate-y-1.5 group-hover/thumb:drop-shadow-[0_0_26px_rgba(var(--accent-cyan-rgb),0.45)]"
+                      className="w-auto max-w-[260px] sm:max-w-[320px] max-h-48 sm:max-h-56 object-contain mx-auto transition-all duration-300 ease-out group-hover:scale-[1.12] group-hover:-translate-y-1.5 group-hover:drop-shadow-[0_0_26px_rgba(var(--accent-cyan-rgb),0.45)]"
                     />
                     <span className="sm:hidden text-[11px] font-mono text-cyan-300/80 tracking-wide">
                       Tap to view gallery
                     </span>
-                  </button>
+                  </div>
                 ) : (
                   <img
                     src={proj.media}
@@ -167,10 +181,11 @@ export function ProjectsSection() {
                     href={proj.link}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 text-xs font-mono text-cyan-400 hover:text-white transition-colors"
+                    onClick={(e) => e.stopPropagation()}
+                    className="inline-flex items-center gap-2.5 py-1.5 text-sm sm:text-base font-mono font-semibold tracking-wide text-cyan-300 hover:text-white transition-colors"
                   >
                     <span>VIEW REPOSITORY</span>
-                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
                     </svg>
                   </a>
@@ -178,7 +193,8 @@ export function ProjectsSection() {
               </div>
             </div>
           </article>
-        ))}
+          )
+        })}
       </div>
 
       {activeProject && (
