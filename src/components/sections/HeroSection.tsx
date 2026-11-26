@@ -19,8 +19,22 @@ export function HeroSection({ ready = true }: HeroSectionProps) {
 
   useGSAP(
     () => {
+      const entranceTargets = [
+        '.hero-line-1-inner',
+        '.hero-line-2-inner',
+        '.hero-line-3-inner',
+        '.tilted-badge-1-inner',
+        '.tilted-badge-2-inner',
+        '.tilted-badge-3-inner',
+        '.hero-manifesto-inner',
+      ]
       const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-      if (prefersReducedMotion) return
+      if (prefersReducedMotion) {
+        gsap.set(entranceTargets, { autoAlpha: 1 })
+        return
+      }
+
+      gsap.set(entranceTargets, { autoAlpha: 0 })
 
       let isAlias = false
       let pendingCall: gsap.core.Tween | null = null
@@ -96,7 +110,6 @@ export function HeroSection({ ready = true }: HeroSectionProps) {
       // 1. Entrance Choreography (Paused until boot loader completes)
       const inTl = gsap.timeline({
         paused: true,
-        delay: 0.04,
         onComplete: () => {
           pendingCall = gsap.delayedCall(10, triggerMorph)
         },
@@ -151,12 +164,17 @@ export function HeroSection({ ready = true }: HeroSectionProps) {
           },
           '-=0.65'
         )
-        .from(
+        .fromTo(
           ['.tilted-badge-1-inner', '.tilted-badge-2-inner', '.tilted-badge-3-inner'],
           {
             scale: 0.4,
             y: 16,
             autoAlpha: 0,
+          },
+          {
+            scale: 1,
+            y: 0,
+            autoAlpha: 1,
             stagger: { each: 0.08, from: 'random' },
             duration: 0.5,
             ease: 'back.out(2)',
@@ -300,7 +318,7 @@ export function HeroSection({ ready = true }: HeroSectionProps) {
 
   useEffect(() => {
     if (ready) {
-      inTlRef.current?.play()
+      inTlRef.current?.play(0)
     }
   }, [ready])
 
@@ -340,7 +358,7 @@ export function HeroSection({ ready = true }: HeroSectionProps) {
           <div className="hidden sm:block absolute inset-0 pointer-events-none z-20">
             {/* Badge 1: Top-Center */}
             <div className="tilted-badge-1-wrap absolute -top-4 sm:-top-8 left-6 sm:left-1/4 will-change-transform">
-              <div className="tilted-badge-1-inner px-3 sm:px-4 py-1 sm:py-1.5 rounded-full bg-slate-900/90 border border-cyan-400/50 text-cyan-300 font-mono text-[11px] sm:text-xs font-semibold shadow-[0_4px_24px_rgba(var(--accent-cyan-rgb),0.3)] -rotate-6 backdrop-blur-md flex items-center gap-2">
+              <div className="tilted-badge-1-inner opacity-0 invisible px-3 sm:px-4 py-1 sm:py-1.5 rounded-full bg-slate-900/90 border border-cyan-400/50 text-cyan-300 font-mono text-[11px] sm:text-xs font-semibold shadow-[0_4px_24px_rgba(var(--accent-cyan-rgb),0.3)] -rotate-6 backdrop-blur-md flex items-center gap-2">
                 <img
                   src={`${import.meta.env.BASE_URL}assets/icons/caelestia.svg`}
                   alt=""
@@ -352,14 +370,14 @@ export function HeroSection({ ready = true }: HeroSectionProps) {
 
             {/* Badge 2: Mid-Right */}
             <div className="tilted-badge-2-wrap absolute top-1/3 sm:top-2/5 right-2 sm:right-8 will-change-transform">
-              <div className="tilted-badge-2-inner px-3 sm:px-4 py-1 sm:py-1.5 rounded-full bg-slate-900/90 border border-emerald-400/50 text-emerald-300 font-mono text-[11px] sm:text-xs font-semibold shadow-[0_4px_24px_rgba(var(--accent-green-rgb),0.3)] rotate-6 backdrop-blur-md">
+              <div className="tilted-badge-2-inner opacity-0 invisible px-3 sm:px-4 py-1 sm:py-1.5 rounded-full bg-slate-900/90 border border-emerald-400/50 text-emerald-300 font-mono text-[11px] sm:text-xs font-semibold shadow-[0_4px_24px_rgba(var(--accent-green-rgb),0.3)] rotate-6 backdrop-blur-md">
                 ★ 9th ICRTAC'26 Paper Author
               </div>
             </div>
 
             {/* Badge 3: Empty area to the left of SINGH */}
             <div className="tilted-badge-3-wrap absolute top-[46%] sm:top-[52%] left-2 sm:left-8 will-change-transform">
-              <div className="tilted-badge-3-inner px-3 sm:px-4 py-1 sm:py-1.5 rounded-full bg-slate-900/90 border border-white/25 text-slate-200 font-mono text-[11px] sm:text-xs font-semibold shadow-[0_4px_20px_rgba(255,255,255,0.15)] -rotate-3 backdrop-blur-md flex items-center gap-2">
+              <div className="tilted-badge-3-inner opacity-0 invisible px-3 sm:px-4 py-1 sm:py-1.5 rounded-full bg-slate-900/90 border border-white/25 text-slate-200 font-mono text-[11px] sm:text-xs font-semibold shadow-[0_4px_20px_rgba(255,255,255,0.15)] -rotate-3 backdrop-blur-md flex items-center gap-2">
                 <img
                   src={`${import.meta.env.BASE_URL}assets/icons/devsoc.jpg`}
                   alt=""
@@ -377,21 +395,21 @@ export function HeroSection({ ready = true }: HeroSectionProps) {
           >
             {/* Line 1: RAJVEER <-> LADYBUG-ME (Solid Brilliant Titanium) */}
             <div className="hero-line-1-wrap overflow-hidden py-1 will-change-transform">
-              <span className="hero-line-1-inner block whitespace-nowrap text-[13vw] sm:text-[14.5vw] lg:text-[15.5vw] text-white will-change-transform">
+              <span className="hero-line-1-inner opacity-0 invisible block whitespace-nowrap text-[13vw] sm:text-[14.5vw] lg:text-[15.5vw] text-white will-change-transform">
                 RAJVEER
               </span>
             </div>
 
             {/* Line 2: SINGH <-> RAJVEER SINGH (Hollow Electric Cyan Contour) */}
             <div className="hero-line-2-wrap overflow-hidden py-1 will-change-transform">
-              <span className="hero-line-2-inner block whitespace-nowrap text-[13vw] sm:text-[14.5vw] lg:text-[15.5vw] text-transparent text-stroke-cyan text-right pr-2 sm:pr-8 will-change-transform drop-shadow-[0_0_24px_rgba(var(--accent-cyan-rgb),0.35)]">
+              <span className="hero-line-2-inner opacity-0 invisible block whitespace-nowrap text-[13vw] sm:text-[14.5vw] lg:text-[15.5vw] text-transparent text-stroke-cyan text-right pr-2 sm:pr-8 will-change-transform drop-shadow-[0_0_24px_rgba(var(--accent-cyan-rgb),0.35)]">
                 SINGH
               </span>
             </div>
 
             {/* Line 3: Architectural Sub-Monument */}
             <div className="hero-line-3-wrap overflow-hidden pt-3 sm:pt-5 will-change-transform">
-              <span className="hero-line-3-inner block text-[3.6vw] sm:text-[3.8vw] lg:text-[4.2vw] font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-teal-300 to-emerald-400 will-change-transform">
+              <span className="hero-line-3-inner opacity-0 invisible block text-[3.6vw] sm:text-[3.8vw] lg:text-[4.2vw] font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-teal-300 to-emerald-400 will-change-transform">
                 LINUX RUNTIMES & EDGE COMPUTE
               </span>
             </div>
@@ -411,7 +429,7 @@ export function HeroSection({ ready = true }: HeroSectionProps) {
                 setIsEducationOpen((prev) => !prev)
               }
             }}
-            className="hero-manifesto-inner group pt-6 sm:pt-8 border-t border-white/15 max-w-6xl flex flex-col md:flex-row md:items-start justify-between gap-6 md:gap-12 cursor-pointer focus:outline-none"
+            className="hero-manifesto-inner opacity-0 invisible group pt-6 sm:pt-8 border-t border-white/15 max-w-6xl flex flex-col md:flex-row md:items-start justify-between gap-6 md:gap-12 cursor-pointer focus:outline-none"
           >
             {/* Left: Institution + Hover/Tap-Revealed Degree & CGPA */}
             <div>
