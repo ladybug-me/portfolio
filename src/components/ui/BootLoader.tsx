@@ -6,6 +6,7 @@ import { getActivePalette } from '../../theme/palettes'
 gsap.registerPlugin(useGSAP)
 
 interface BootLoaderProps {
+  appProgress?: number
   appReady?: boolean
   onComplete: () => void
 }
@@ -22,22 +23,33 @@ const SEGMENT_COUNT = 24
 const GLITCH_RECTS = Array.from({ length: 10 }, (_, i) => i)
 const MAX_WAIT_FAILSAFE_MS = 8000
 
-export function BootLoader({ appReady = true, onComplete }: BootLoaderProps) {
+export function BootLoader({ appProgress = 1, appReady = true, onComplete }: BootLoaderProps) {
   const rootRef = useRef<HTMLDivElement>(null)
   const percentRef = useRef<HTMLSpanElement>(null)
   const statusTextRef = useRef<HTMLSpanElement>(null)
   const segmentRefs = useRef<(HTMLDivElement | null)[]>([])
   const glitchTlRef = useRef<gsap.core.Timeline | null>(null)
   const progressObjRef = useRef({ value: 0 })
-  const stageOneDoneRef = useRef(false)
-  const finishingRef = useRef(false)
   const hasExitedRef = useRef(false)
-  const [domReady, setDomReady] = useState(false)
+  const [fontsLoaded, setFontsLoaded] = useState(false)
+  const [docLoaded, setDocLoaded] = useState(() => document.readyState === 'complete')
+  const [timedOut, setTimedOut] = useState(false)
   const [readyToExit, setReadyToExit] = useState(false)
 
-  const resourcesReady = domReady && appReady
+  const targetPercent = timedOut
+    ? 100
+    : Math.min(
+        100,
+        Math.round(
+          ((fontsLoaded ? 0.2 : 0) +
+            (docLoaded ? 0.2 : 0) +
+            Math.max(0, Math.min(1, appProgress)) * 0.6) *
+            100
+        )
+      )
+  const allAssetsReady = (fontsLoaded && docLoaded && appReady) || timedOut
 
-  // Hand off smoothly after first painted frame and wait for document/fonts readiness
+  // Hand off smoothly after first painted frame and track document/fonts readiness
   useEffect(() => {
     const rafId = requestAnimationFrame(() => {
       document.getElementById('boot-splash')?.remove()
@@ -50,20 +62,22 @@ export function BootLoader({ appReady = true, onComplete }: BootLoaderProps) {
 
     let isCancelled = false
     const waitFonts = document.fonts?.ready ?? Promise.resolve()
-    const waitLoad =
-      document.readyState === 'complete'
-        ? Promise.resolve()
-        : new Promise<void>((resolve) => window.addEventListener('load', () => resolve(), { once: true }))
-
-    Promise.all([waitFonts, waitLoad]).then(() => {
-      if (!isCancelled) setDomReady(true)
+    waitFonts.then(() => {
+      if (!isCancelled) setFontsLoaded(true)
     })
 
+    if (document.readyState !== 'complete') {
+      window.addEventListener(
+        'load',
+        () => {
+          if (!isCancelled) setDocLoaded(true)
+        },
+        { once: true }
+      )
+    }
+
     const failsafeTimer = window.setTimeout(() => {
-      if (!isCancelled) {
-        setDomReady(true)
-        setReadyToExit(true)
-      }
+      if (!isCancelled) setTimedOut(true)
     }, MAX_WAIT_FAILSAFE_MS)
 
     return () => {
@@ -75,17 +89,18 @@ export function BootLoader({ appReady = true, onComplete }: BootLoaderProps) {
     }
   }, [])
 
-  const syncVisualProgress = (pctRaw: number, waitingForResources = false) => {
+  const syncVisualProgress = (pctRaw: number) => {
     const pct = Math.max(0, Math.min(100, Math.round(pctRaw)))
     if (percentRef.current) {
       percentRef.current.textContent = `${String(pct).padStart(3, '0')}%`
     }
 
-    const litCount = Math.round((pct / 100) * SEGMENT_COUNT)
+    // Use floor so 24/24 segments only light at 100%, keeping bar and percentage strictly in sync
+    const litCount = Math.floor((pct / 100) * SEGMENT_COUNT)
+    const active = getActivePalette()
     segmentRefs.current.forEach((seg, idx) => {
       if (!seg) return
       const isLit = idx < litCount
-      const active = getActivePalette()
       seg.style.opacity = isLit ? '1' : '0.12'
       seg.style.backgroundColor = isLit
         ? idx >= SEGMENT_COUNT - 4
@@ -95,9 +110,8 @@ export function BootLoader({ appReady = true, onComplete }: BootLoaderProps) {
     })
 
     if (!statusTextRef.current) return
-    const nextText = waitingForResources
-      ? 'Init System: Waiting for modules & graphics...'
-      : BOOT_STEPS[Math.min(BOOT_STEPS.length - 1, Math.floor((pct / 100) * BOOT_STEPS.length))]
+    const nextText =
+      BOOT_STEPS[Math.min(BOOT_STEPS.length - 1, Math.floor((pct / 100) * BOOT_STEPS.length))]
 
     if (statusTextRef.current.textContent !== nextText) {
       statusTextRef.current.textContent = nextText
@@ -109,19 +123,13 @@ export function BootLoader({ appReady = true, onComplete }: BootLoaderProps) {
     }
   }
 
-  // Stage 1: Deterministic boot animation from mount (0% -> 92%) regardless of slow page load
+  // Entrance + continuous glitch loop
   useGSAP(
     () => {
       if (!rootRef.current) return
       const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-      if (prefersReducedMotion) {
-        stageOneDoneRef.current = true
-        return
-      }
+      if (prefersReducedMotion) return
 
-      const progressObj = progressObjRef.current
-
-      // Continuous rectangular glitch flicker loop
       glitchTlRef.current = gsap
         .timeline({ repeat: -1, repeatRefresh: true })
         .to('.boot-glitch-rect', {
@@ -145,78 +153,58 @@ export function BootLoader({ appReady = true, onComplete }: BootLoaderProps) {
           '<'
         )
 
-      const mainTl = gsap.timeline()
-
-      mainTl
-        .from('.boot-shell', {
-          autoAlpha: 0,
-          y: 10,
-          duration: 0.25,
-          ease: 'power2.out',
-        })
-        .to(
-          progressObj,
-          {
-            value: 92,
-            duration: 1.45,
-            ease: 'power2.inOut',
-            onUpdate: () => {
-              syncVisualProgress(progressObj.value)
-            },
-            onComplete: () => {
-              stageOneDoneRef.current = true
-              if (finishingRef.current) return
-              syncVisualProgress(92, true)
-            },
-          },
-          0.08
-        )
+      gsap.from('.boot-shell', {
+        autoAlpha: 0,
+        y: 10,
+        duration: 0.25,
+        ease: 'power2.out',
+      })
     },
     { scope: rootRef }
   )
 
-  // Stage 2: Complete 92% -> 100% only when BOTH boot animation stage 1 AND all page resources are ready
+  // Single unified progress tween driven directly by real asset readiness percentage
   useEffect(() => {
-    if (!resourcesReady) return
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    const nextValue = allAssetsReady ? 100 : Math.min(99, targetPercent)
 
-    let checkTimer: number | null = null
-    const finishBoot = () => {
-      if (finishingRef.current) return
-      if (!stageOneDoneRef.current) {
-        checkTimer = window.setTimeout(finishBoot, 60)
-        return
+    if (prefersReducedMotion) {
+      progressObjRef.current.value = nextValue
+      syncVisualProgress(nextValue)
+      if (allAssetsReady) {
+        const id = requestAnimationFrame(() => setReadyToExit(true))
+        return () => cancelAnimationFrame(id)
       }
-      finishingRef.current = true
+      return
+    }
 
-      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-      if (prefersReducedMotion) {
-        setReadyToExit(true)
-        return
-      }
+    const delta = Math.max(0, nextValue - progressObjRef.current.value)
+    const duration = Math.max(0.35, Math.min(1.4, (delta / 100) * 1.4))
 
-      gsap.to(progressObjRef.current, {
-        value: 100,
-        duration: 0.35,
-        ease: 'power2.out',
-        onUpdate: () => {
-          syncVisualProgress(progressObjRef.current.value)
-        },
-        onComplete: () => {
-          syncVisualProgress(100)
+    const tween = gsap.to(progressObjRef.current, {
+      value: nextValue,
+      duration,
+      ease: 'power2.out',
+      overwrite: 'auto',
+      onUpdate: () => {
+        syncVisualProgress(progressObjRef.current.value)
+      },
+      onComplete: () => {
+        syncVisualProgress(nextValue)
+        if (allAssetsReady && nextValue >= 100) {
           requestAnimationFrame(() => {
             requestAnimationFrame(() => {
               setReadyToExit(true)
             })
           })
-        },
-      })
-    }
+        }
+      },
+    })
 
-    finishBoot()
     return () => {
-      if (checkTimer !== null) window.clearTimeout(checkTimer)
+      tween.kill()
     }
-  }, [resourcesReady])
+  }, [targetPercent, allAssetsReady])
 
   // Glitch burst + compositor shutter exit once min 2s & page assets are ready
   useGSAP(
@@ -307,7 +295,7 @@ export function BootLoader({ appReady = true, onComplete }: BootLoaderProps) {
               ref={(el) => {
                 segmentRefs.current[idx] = el
               }}
-              className="flex-1 bg-slate-800 opacity-15 transition-colors duration-75"
+              className="flex-1 bg-slate-800 opacity-15"
             />
           ))}
 

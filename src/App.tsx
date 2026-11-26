@@ -57,6 +57,9 @@ export function App() {
     ScrollTrigger.refresh()
   }, [])
 
+  const appLoadProgress =
+    (canvasReady ? 0.34 : 0) + (mainSectionsReady ? 0.33 : 0) + (contactReady ? 0.33 : 0)
+
   useEffect(() => {
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     if (prefersReducedMotion) return
@@ -182,6 +185,7 @@ export function App() {
       {/* Boot Screen: Minimalist Dark Linux Init */}
       {!bootDone && (
         <BootLoader
+          appProgress={appLoadProgress}
           appReady={canvasReady && mainSectionsReady && contactReady}
           onComplete={handleBootComplete}
         />
