@@ -103,7 +103,7 @@ export function ContactSection() {
             href="https://github.com/ladybug-me"
             target="_blank"
             rel="noopener noreferrer"
-            className="px-7 py-5 sm:px-8 sm:py-6 rounded-2xl bg-[rgba(var(--bg-secondary-rgb),0.82)] backdrop-blur-2xl border border-white/15 hover:border-cyan-400/60 hover:bg-[rgba(var(--bg-secondary-rgb),0.95)] flex items-center gap-5 text-white hover:text-cyan-300 transition-colors duration-200 group cursor-pointer"
+            className="px-7 py-5 sm:px-8 sm:py-6 rounded-2xl bg-[rgba(var(--bg-secondary-rgb),0.82)] backdrop-blur-md border border-white/15 hover:border-cyan-400/60 hover:bg-[rgba(var(--bg-secondary-rgb),0.95)] flex items-center gap-5 text-white hover:text-cyan-300 transition-colors duration-200 group cursor-pointer"
           >
             <svg
               className="w-8 h-8 sm:w-9 sm:h-9 fill-current text-slate-300 group-hover:text-cyan-300 transition-colors shrink-0"
@@ -122,7 +122,7 @@ export function ContactSection() {
             href="https://www.linkedin.com/in/rajveer-singh-2304402b6"
             target="_blank"
             rel="noopener noreferrer"
-            className="px-7 py-5 sm:px-8 sm:py-6 rounded-2xl bg-[rgba(var(--bg-secondary-rgb),0.82)] backdrop-blur-2xl border border-white/15 hover:border-cyan-400/60 hover:bg-[rgba(var(--bg-secondary-rgb),0.95)] flex items-center gap-5 text-white hover:text-cyan-300 transition-colors duration-200 group cursor-pointer"
+            className="px-7 py-5 sm:px-8 sm:py-6 rounded-2xl bg-[rgba(var(--bg-secondary-rgb),0.82)] backdrop-blur-md border border-white/15 hover:border-cyan-400/60 hover:bg-[rgba(var(--bg-secondary-rgb),0.95)] flex items-center gap-5 text-white hover:text-cyan-300 transition-colors duration-200 group cursor-pointer"
           >
             <svg
               className="w-8 h-8 sm:w-9 sm:h-9 fill-current text-slate-300 group-hover:text-cyan-300 transition-colors shrink-0"
@@ -137,7 +137,7 @@ export function ContactSection() {
             href={`${import.meta.env.BASE_URL}assets/Resume.pdf`}
             target="_blank"
             rel="noopener noreferrer"
-            className="px-7 py-5 sm:px-8 sm:py-6 rounded-2xl bg-[rgba(var(--bg-secondary-rgb),0.82)] backdrop-blur-2xl border border-white/15 hover:border-cyan-400/60 hover:bg-[rgba(var(--bg-secondary-rgb),0.95)] flex items-center gap-5 text-white hover:text-cyan-300 transition-colors duration-200 group cursor-pointer"
+            className="px-7 py-5 sm:px-8 sm:py-6 rounded-2xl bg-[rgba(var(--bg-secondary-rgb),0.82)] backdrop-blur-md border border-white/15 hover:border-cyan-400/60 hover:bg-[rgba(var(--bg-secondary-rgb),0.95)] flex items-center gap-5 text-white hover:text-cyan-300 transition-colors duration-200 group cursor-pointer"
           >
             <svg
               className="w-8 h-8 sm:w-9 sm:h-9 stroke-current fill-none text-slate-300 group-hover:text-cyan-300 transition-colors shrink-0"

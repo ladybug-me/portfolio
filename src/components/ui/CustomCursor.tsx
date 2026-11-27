@@ -28,7 +28,7 @@ export function CustomCursor() {
     let isVisible = false
     let isFastFlapping = false
     let fastFlapUntil = 0
-    let rafId: number
+    let rafId = 0
 
     // Mote positions
     const motes = [
@@ -37,6 +37,7 @@ export function CustomCursor() {
       { x: -100, y: -100 },
       { x: -100, y: -100 },
     ]
+    const moteRefs = [mote0Ref, mote1Ref, mote2Ref, mote3Ref]
 
     // Localized watery wave ripples around click point
     const spawnWateryWave = (x: number, y: number) => {
@@ -77,6 +78,12 @@ export function CustomCursor() {
       setTimeout(cleanup, 950)
     }
 
+    const startLoop = () => {
+      if (!rafId) {
+        rafId = requestAnimationFrame(renderLoop)
+      }
+    }
+
     const handlePointerMove = (e: PointerEvent) => {
       if (e.pointerType === 'touch') {
         handleMouseLeave()
@@ -94,7 +101,7 @@ export function CustomCursor() {
           m.y = mouseY
         })
         if (fireflyRef.current) fireflyRef.current.style.opacity = '1'
-        ;[mote0Ref, mote1Ref, mote2Ref, mote3Ref].forEach((ref) => {
+        moteRefs.forEach((ref) => {
           if (ref.current) ref.current.style.opacity = '0.7'
         })
       }
@@ -114,6 +121,8 @@ export function CustomCursor() {
             : `drop-shadow(0 0 8px rgba(${active.primaryRgb}, 0.85))`
         }
       }
+
+      startLoop()
     }
 
     const handlePointerDown = (e: PointerEvent) => {
@@ -125,16 +134,22 @@ export function CustomCursor() {
       isClicking = true
       fastFlapUntil = performance.now() + 650
       spawnWateryWave(e.clientX, e.clientY)
+      startLoop()
     }
 
     const handlePointerUp = () => {
       isClicking = false
+      startLoop()
     }
 
     const handleMouseLeave = () => {
       isVisible = false
+      if (rafId) {
+        cancelAnimationFrame(rafId)
+        rafId = 0
+      }
       if (fireflyRef.current) fireflyRef.current.style.opacity = '0'
-      ;[mote0Ref, mote1Ref, mote2Ref, mote3Ref].forEach((ref) => {
+      moteRefs.forEach((ref) => {
         if (ref.current) ref.current.style.opacity = '0'
       })
     }
@@ -142,87 +157,97 @@ export function CustomCursor() {
     const handleMouseEnter = () => {
       isVisible = true
       if (fireflyRef.current) fireflyRef.current.style.opacity = '1'
-      ;[mote0Ref, mote1Ref, mote2Ref, mote3Ref].forEach((ref) => {
+      moteRefs.forEach((ref) => {
         if (ref.current) ref.current.style.opacity = '0.7'
       })
+      startLoop()
     }
 
-    // Direct 60fps GPU compositor loop
+    // On-demand GPU compositor loop (sleeps automatically when cursor & motes settle)
     const renderLoop = () => {
-      if (isVisible) {
-        const prevFlyX = flyX
-        const prevFlyY = flyY
+      rafId = 0
+      if (!isVisible) return
 
-        // Smooth flight agility towards cursor
-        flyX += (mouseX - flyX) * 0.32
-        flyY += (mouseY - flyY) * 0.32
+      const prevFlyX = flyX
+      const prevFlyY = flyY
 
-        const vx = flyX - prevFlyX
-        const vy = flyY - prevFlyY
-        const speed = Math.hypot(vx, vy)
+      // Smooth flight agility towards cursor
+      flyX += (mouseX - flyX) * 0.32
+      flyY += (mouseY - flyY) * 0.32
 
-        // Banking and orientation in flight direction
-        if (speed > 0.8) {
-          const targetRot = (Math.atan2(vy, vx) * 180) / Math.PI + 90
-          let diff = (targetRot - currentRot) % 360
-          if (diff > 180) diff -= 360
-          if (diff < -180) diff += 360
-          currentRot += diff * 0.22
-        } else {
-          // Gently return towards upright when hovering
-          let diff = (0 - currentRot) % 360
-          if (diff > 180) diff -= 360
-          if (diff < -180) diff += 360
-          currentRot += diff * 0.08
-        }
+      const vx = flyX - prevFlyX
+      const vy = flyY - prevFlyY
+      const speed = Math.hypot(vx, vy)
 
-        // Wing fluttering: normally slow, fast on clicks
-        const shouldFastFlap = isClicking || performance.now() < fastFlapUntil
-        if (shouldFastFlap !== isFastFlapping) {
-          isFastFlapping = shouldFastFlap
-          if (leftWingRef.current && rightWingRef.current) {
-            leftWingRef.current.className.baseVal = isFastFlapping
-              ? 'firefly-wing-left-fast'
-              : 'firefly-wing-left'
-            rightWingRef.current.className.baseVal = isFastFlapping
-              ? 'firefly-wing-right-fast'
-              : 'firefly-wing-right'
-          }
-        }
-
-        // Render firefly sprite transform
-        if (fireflyRef.current) {
-          const baseScale = isClicking ? 0.78 : isHovering ? 1.25 : 1.0
-          fireflyRef.current.style.transform = `translate3d(${flyX}px, ${flyY}px, 0) translate(-50%, -50%) rotate(${currentRot}deg) scale(${baseScale})`
-        }
-
-        // Cascade bioluminescent spark trail
-        motes[0].x += (flyX - motes[0].x) * 0.38
-        motes[0].y += (flyY - motes[0].y) * 0.38
-        motes[1].x += (motes[0].x - motes[1].x) * 0.34
-        motes[1].y += (motes[0].y - motes[1].y) * 0.34
-        motes[2].x += (motes[1].x - motes[2].x) * 0.30
-        motes[2].y += (motes[1].y - motes[2].y) * 0.30
-        motes[3].x += (motes[2].x - motes[3].x) * 0.26
-        motes[3].y += (motes[2].y - motes[3].y) * 0.26
-
-        const moteRefs = [mote0Ref, mote1Ref, mote2Ref, mote3Ref]
-        const trailOpacityBase = Math.min(1.0, speed * 0.35 + (isHovering ? 0.6 : 0.25))
-
-        motes.forEach((m, idx) => {
-          const el = moteRefs[idx].current
-          if (el) {
-            const op = trailOpacityBase * (1.0 - idx * 0.22)
-            el.style.transform = `translate3d(${m.x}px, ${m.y}px, 0) translate(-50%, -50%)`
-            el.style.opacity = `${op}`
-          }
-        })
+      // Banking and orientation in flight direction
+      if (speed > 0.8) {
+        const targetRot = (Math.atan2(vy, vx) * 180) / Math.PI + 90
+        let diff = (targetRot - currentRot) % 360
+        if (diff > 180) diff -= 360
+        if (diff < -180) diff += 360
+        currentRot += diff * 0.22
+      } else {
+        // Gently return towards upright when hovering
+        let diff = (0 - currentRot) % 360
+        if (diff > 180) diff -= 360
+        if (diff < -180) diff += 360
+        currentRot += diff * 0.08
       }
 
-      rafId = requestAnimationFrame(renderLoop)
-    }
+      // Wing fluttering: normally slow, fast on clicks
+      const now = performance.now()
+      const shouldFastFlap = isClicking || now < fastFlapUntil
+      if (shouldFastFlap !== isFastFlapping) {
+        isFastFlapping = shouldFastFlap
+        if (leftWingRef.current && rightWingRef.current) {
+          leftWingRef.current.className.baseVal = isFastFlapping
+            ? 'firefly-wing-left-fast'
+            : 'firefly-wing-left'
+          rightWingRef.current.className.baseVal = isFastFlapping
+            ? 'firefly-wing-right-fast'
+            : 'firefly-wing-right'
+        }
+      }
 
-    rafId = requestAnimationFrame(renderLoop)
+      // Render firefly sprite transform
+      if (fireflyRef.current) {
+        const baseScale = isClicking ? 0.78 : isHovering ? 1.25 : 1.0
+        fireflyRef.current.style.transform = `translate3d(${flyX}px, ${flyY}px, 0) translate(-50%, -50%) rotate(${currentRot}deg) scale(${baseScale})`
+      }
+
+      // Cascade bioluminescent spark trail
+      motes[0].x += (flyX - motes[0].x) * 0.38
+      motes[0].y += (flyY - motes[0].y) * 0.38
+      motes[1].x += (motes[0].x - motes[1].x) * 0.34
+      motes[1].y += (motes[0].y - motes[1].y) * 0.34
+      motes[2].x += (motes[1].x - motes[2].x) * 0.30
+      motes[2].y += (motes[1].y - motes[2].y) * 0.30
+      motes[3].x += (motes[2].x - motes[3].x) * 0.26
+      motes[3].y += (motes[2].y - motes[3].y) * 0.26
+
+      const trailOpacityBase = Math.min(1.0, speed * 0.35 + (isHovering ? 0.6 : 0.25))
+
+      motes.forEach((m, idx) => {
+        const el = moteRefs[idx].current
+        if (el) {
+          const op = trailOpacityBase * (1.0 - idx * 0.22)
+          el.style.transform = `translate3d(${m.x}px, ${m.y}px, 0) translate(-50%, -50%)`
+          el.style.opacity = `${op}`
+        }
+      })
+
+      const settled =
+        Math.abs(mouseX - flyX) < 0.05 &&
+        Math.abs(mouseY - flyY) < 0.05 &&
+        Math.abs(currentRot) < 0.15 &&
+        Math.abs(flyX - motes[3].x) < 0.08 &&
+        Math.abs(flyY - motes[3].y) < 0.08 &&
+        !shouldFastFlap
+
+      if (!settled) {
+        rafId = requestAnimationFrame(renderLoop)
+      }
+    }
 
     window.addEventListener('pointermove', handlePointerMove, { passive: true })
     window.addEventListener('pointerdown', handlePointerDown, { passive: true })

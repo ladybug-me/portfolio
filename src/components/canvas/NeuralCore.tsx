@@ -173,6 +173,8 @@ export function NeuralCore() {
 
   const clickPulseVal = useRef(0)
   const clickPosVal = useRef(new THREE.Vector3(0.6, 0, 0))
+  const lastPaletteId = useRef('')
+  const lastViewportRef = useRef({ width: 0, aspect: 0, responsiveScale: 1, isMobile: false })
 
   // GSAP-scrubbed scroll coordinates
   const scrollData = useRef({
@@ -269,38 +271,49 @@ export function NeuralCore() {
 
   useFrame((state, delta) => {
     const active = getActivePalette()
-    coreUniforms.uColorPrimary.value.set(active.primary)
-    coreUniforms.uColorSecondary.value.set(active.secondary)
-    particleUniforms.uColorPrimary.value.set(active.primary)
-    particleUniforms.uColorSecondary.value.set(active.secondary)
+    if (active.id !== lastPaletteId.current) {
+      lastPaletteId.current = active.id
+      coreUniforms.uColorPrimary.value.set(active.primary)
+      coreUniforms.uColorSecondary.value.set(active.secondary)
+      particleUniforms.uColorPrimary.value.set(active.primary)
+      particleUniforms.uColorSecondary.value.set(active.secondary)
+    }
 
-    coreUniforms.uTime.value += delta
-    particleUniforms.uTime.value += delta
+    const dt = Math.min(delta, 0.05)
+    coreUniforms.uTime.value += dt
+    particleUniforms.uTime.value += dt
 
-    clickPulseVal.current = 0
-    coreUniforms.uClickPulse.value = 0
-    particleUniforms.uClickPulse.value = 0
-    particleUniforms.uClickPos.value.copy(clickPosVal.current)
+    if (clickPulseVal.current !== 0) {
+      clickPulseVal.current = 0
+      coreUniforms.uClickPulse.value = 0
+      particleUniforms.uClickPulse.value = 0
+      particleUniforms.uClickPos.value.copy(clickPosVal.current)
+    }
 
     const targetX = state.pointer.x * 0.7
     const targetY = state.pointer.y * 0.7
-    coreUniforms.uPointer.value.x += (targetX - coreUniforms.uPointer.value.x) * 0.05
-    coreUniforms.uPointer.value.y += (targetY - coreUniforms.uPointer.value.y) * 0.05
+    const lerpFactor = 1 - Math.pow(0.95, dt * 60)
+    coreUniforms.uPointer.value.x += (targetX - coreUniforms.uPointer.value.x) * lerpFactor
+    coreUniforms.uPointer.value.y += (targetY - coreUniforms.uPointer.value.y) * lerpFactor
     particleUniforms.uPointer.value.copy(coreUniforms.uPointer.value)
 
     if (groupRef.current) {
-      // Responsive viewport scaling
-      const aspect = state.viewport.aspect
-      const isMobile = aspect < 0.85
-      const isTablet = aspect >= 0.85 && aspect < 1.25
+      const { aspect, width } = state.viewport
+      const vpCache = lastViewportRef.current
+      if (vpCache.width !== width || vpCache.aspect !== aspect) {
+        const isMobile = aspect < 0.85
+        const isTablet = aspect >= 0.85 && aspect < 1.25
+        vpCache.width = width
+        vpCache.aspect = aspect
+        vpCache.isMobile = isMobile
+        vpCache.responsiveScale = isMobile
+          ? Math.min(0.62, width / 5.2)
+          : isTablet
+          ? Math.min(0.85, width / 6.5)
+          : Math.min(1.2, Math.max(0.85, width / 7.2))
+      }
 
-      // Compute base scale relative to viewport width
-      const responsiveScale = isMobile
-        ? Math.min(0.62, state.viewport.width / 5.2)
-        : isTablet
-        ? Math.min(0.85, state.viewport.width / 6.5)
-        : Math.min(1.2, Math.max(0.85, state.viewport.width / 7.2))
-
+      const { isMobile, responsiveScale } = vpCache
       const currentScale = scrollData.current.scale * responsiveScale
 
       // Responsive X offset: centered on mobile, offset to right on desktop
@@ -321,8 +334,8 @@ export function NeuralCore() {
     }
 
     if (wireframeRef.current) {
-      wireframeRef.current.rotation.y -= delta * 0.05
-      wireframeRef.current.rotation.z += delta * 0.03
+      wireframeRef.current.rotation.y -= dt * 0.05
+      wireframeRef.current.rotation.z += dt * 0.03
     }
   })
 
@@ -330,7 +343,7 @@ export function NeuralCore() {
     <group ref={groupRef} position={[0.6, 0, 0]}>
       {/* Primary Displaced Shader Core */}
       <mesh ref={meshRef}>
-        <icosahedronGeometry args={[2.0, 48]} />
+        <icosahedronGeometry args={[2.0, 32]} />
         <shaderMaterial
           vertexShader={coreVertexShader}
           fragmentShader={coreFragmentShader}

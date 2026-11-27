@@ -115,7 +115,7 @@ export function ProjectsSection() {
                 maxHeight: `calc(100dvh - max(60px, min(85px, 9vh)) - ${idx * 16}px - 16px)`,
               }}
               onWheel={handleBoundedCardWheel}
-              className={`stacked-project-card sticky glass-panel p-6 sm:p-8 lg:p-12 rounded-2xl sm:rounded-3xl border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.6)] backdrop-blur-md sm:backdrop-blur-2xl will-change-transform grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-stretch group overflow-y-auto overflow-x-hidden ${hasGallery ? 'cursor-pointer focus:outline-none' : ''
+              className={`stacked-project-card sticky glass-panel p-6 sm:p-8 lg:p-12 rounded-2xl sm:rounded-3xl border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.6)] backdrop-blur-sm sm:backdrop-blur-md [contain:layout_style] will-change-transform grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-stretch group overflow-y-auto overflow-x-hidden ${hasGallery ? 'cursor-pointer focus:outline-none' : ''
                 }`}
             >
               {/* Left: Enlarged Centered Thumb & Non-Overlapping Bottom-Left Numbering */}

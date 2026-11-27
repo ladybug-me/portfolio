@@ -76,6 +76,8 @@ const distantOrbitFragmentShader = `
 export function DistantOrbitParticles() {
   const pointsRef = useRef<THREE.Points>(null!)
   const groupRef = useRef<THREE.Group>(null!)
+  const lastPaletteId = useRef('')
+  const lastViewportRef = useRef({ width: 0, aspect: 0, responsiveScale: 1 })
 
   const uniforms = useMemo(
     () => ({
@@ -168,26 +170,46 @@ export function DistantOrbitParticles() {
     }
   }, [])
 
-  useFrame((state, delta) => {
-    uniforms.uColor.value.set(getActivePalette().primary)
-    uniforms.uTime.value += delta
+  useEffect(() => {
+    return () => {
+      geometry.dispose()
+      material.dispose()
+    }
+  }, [geometry, material])
 
-    // Pointer interpolation
+  useFrame((state, delta) => {
+    const active = getActivePalette()
+    if (active.id !== lastPaletteId.current) {
+      lastPaletteId.current = active.id
+      uniforms.uColor.value.set(active.primary)
+    }
+
+    const dt = Math.min(delta, 0.05)
+    uniforms.uTime.value += dt
+
+    // Pointer interpolation (frame-rate independent)
     const targetX = state.pointer.x * 0.5
     const targetY = state.pointer.y * 0.5
-    uniforms.uPointer.value.x += (targetX - uniforms.uPointer.value.x) * 0.05
-    uniforms.uPointer.value.y += (targetY - uniforms.uPointer.value.y) * 0.05
+    const lerpFactor = 1 - Math.pow(0.95, dt * 60)
+    uniforms.uPointer.value.x += (targetX - uniforms.uPointer.value.x) * lerpFactor
+    uniforms.uPointer.value.y += (targetY - uniforms.uPointer.value.y) * lerpFactor
 
     // Steady orbital field rotation & responsive space scaling
     if (groupRef.current) {
-      const aspect = state.viewport.aspect
-      const isMobile = aspect < 0.85
-      const responsiveScale = isMobile
-        ? Math.min(0.7, state.viewport.width / 5.0)
-        : Math.min(1.15, Math.max(0.85, state.viewport.width / 7.2))
+      const { aspect, width } = state.viewport
+      const vpCache = lastViewportRef.current
+      if (vpCache.width !== width || vpCache.aspect !== aspect) {
+        const isMobile = aspect < 0.85
+        vpCache.width = width
+        vpCache.aspect = aspect
+        vpCache.responsiveScale = isMobile
+          ? Math.min(0.7, width / 5.0)
+          : Math.min(1.15, Math.max(0.85, width / 7.2))
+        geometry.setDrawRange(0, isMobile ? 2800 : 4500)
+        groupRef.current.scale.setScalar(vpCache.responsiveScale)
+      }
 
-      groupRef.current.scale.setScalar(responsiveScale)
-      groupRef.current.rotation.y += delta * 0.012
+      groupRef.current.rotation.y += dt * 0.012
     }
   })
 

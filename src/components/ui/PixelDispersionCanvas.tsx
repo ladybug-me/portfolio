@@ -195,7 +195,15 @@ function buildCardPixelSnapshot(cardEl: HTMLDivElement, meta: PixelItemMeta): Ca
     }
   }
 
+  bgParticles.sort((a, b) => (a.energyColor < b.energyColor ? -1 : a.energyColor > b.energyColor ? 1 : 0))
+  featureParticles.sort((a, b) => (a.energyColor < b.energyColor ? -1 : a.energyColor > b.energyColor ? 1 : 0))
+
   return { width: w, height: h, particles: [...bgParticles, ...featureParticles] }
+}
+
+interface CardOffset {
+  left: number
+  top: number
 }
 
 interface PixelDispersionCanvasProps {
@@ -206,6 +214,7 @@ interface PixelDispersionCanvasProps {
   entryProgressRef: RefObject<number>
   scrollProgressRef: RefObject<number>
   needsRenderRef: RefObject<boolean>
+  scheduleRenderRef?: RefObject<(() => void) | null>
   textTimelinesRef: RefObject<(gsap.core.Timeline | null)[]>
   textPlayedRef: RefObject<boolean[]>
 }
@@ -222,18 +231,36 @@ export function PixelDispersionCanvas({
   entryProgressRef,
   scrollProgressRef,
   needsRenderRef,
+  scheduleRenderRef,
   textTimelinesRef,
   textPlayedRef,
 }: PixelDispersionCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const snapshotsRef = useRef<CardSnapshot[]>([])
+  const cardOffsetsRef = useRef<CardOffset[]>([])
+  const contWidthRef = useRef<number>(0)
+  const isInViewRef = useRef<boolean>(true)
+
+  const measureOffsets = useCallback(() => {
+    const container = containerRef.current
+    if (!container) return
+    const contRect = container.getBoundingClientRect()
+    contWidthRef.current = contRect.width
+    cardOffsetsRef.current = cardsRef.current.map((card) => {
+      if (!card) return { left: 0, top: 0 }
+      const r = card.getBoundingClientRect()
+      return { left: r.left - contRect.left, top: r.top - contRect.top }
+    })
+  }, [cardsRef, containerRef])
 
   const rebuildSnapshots = useCallback(() => {
     const cards = cardsRef.current.filter(Boolean) as HTMLDivElement[]
     if (cards.length !== items.length) return
     snapshotsRef.current = cards.map((card, idx) => buildCardPixelSnapshot(card, items[idx]))
+    measureOffsets()
     needsRenderRef.current = true
-  }, [cardsRef, items, needsRenderRef])
+    scheduleRenderRef?.current?.()
+  }, [cardsRef, items, measureOffsets, needsRenderRef, scheduleRenderRef])
 
   useEffect(() => {
     rebuildSnapshots()
@@ -292,12 +319,13 @@ export function PixelDispersionCanvas({
     const ctx = canvas.getContext('2d')
     if (!ctx) return
 
-    let animId: number
+    let animId = 0
     let lastCanvasBoxW = 0
     let lastCanvasBoxH = 0
 
     const syncCanvasSize = (force = false) => {
       const rect = container.getBoundingClientRect()
+      contWidthRef.current = rect.width
       const dpr = Math.min(window.devicePixelRatio || 1, 2)
       if (
         !force &&
@@ -315,25 +343,14 @@ export function PixelDispersionCanvas({
         canvas.width = targetW
         canvas.height = targetH
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+        measureOffsets()
         needsRenderRef.current = true
       }
     }
 
-    syncCanvasSize(true)
-    const resizeObserver = new ResizeObserver(() => syncCanvasSize(false))
-    resizeObserver.observe(container)
-    const handleCanvasResize = () => syncCanvasSize(false)
-    window.addEventListener('resize', handleCanvasResize)
-
     const render = () => {
-      animId = requestAnimationFrame(render)
-      syncCanvasSize(false)
-      if (!needsRenderRef.current) return
-
-      const contRect = container.getBoundingClientRect()
-      if (contRect.bottom < -120 || contRect.top > window.innerHeight + 120) {
-        return
-      }
+      animId = 0
+      if (!needsRenderRef.current || !isInViewRef.current) return
 
       needsRenderRef.current = false
       ctx.save()
@@ -350,7 +367,10 @@ export function PixelDispersionCanvas({
       const assembleEnd = 0.85
       const assembleProgress = Math.min(1, progress / assembleEnd)
       const totalCards = items.length
-      const isMobile = contRect.width < 768
+      const contW = contWidthRef.current || container.clientWidth
+      const isMobile = contW < 768
+      const widthScale = Math.min(1, contW / 1280)
+      let lastFillStyle = ''
 
       cardsRef.current.forEach((card, idx) => {
         if (!card) return
@@ -404,9 +424,9 @@ export function PixelDispersionCanvas({
           textTimelinesRef.current[idx]?.pause(0)
         }
 
-        const cardRect = card.getBoundingClientRect()
-        const left = cardRect.left - contRect.left
-        const top = cardRect.top - contRect.top
+        const offset = cardOffsetsRef.current[idx] ?? { left: 0, top: 0 }
+        const left = offset.left
+        const top = offset.top
         const halfW = snap.width * 0.5
         const halfH = snap.height * 0.5
         const swirlDir = idx % 2 === 0 ? 1 : -1
@@ -423,7 +443,6 @@ export function PixelDispersionCanvas({
           const easeOut = 1 - inv * inv * inv
           const invEase = 1 - easeOut
 
-          const widthScale = Math.min(1, contRect.width / 1280)
           const spaceX = 1 + invEase * (isMobile ? 0.95 : 1.85 * widthScale)
           const spaceY = 1 + invEase * (isMobile ? 0.75 : 1.35 * widthScale)
 
@@ -440,12 +459,11 @@ export function PixelDispersionCanvas({
           const px = left + halfW + rx + p.scatterDx * scatterFalloff
           const py = top + halfH + ry + p.scatterDy * scatterFalloff
 
-          if (pT < 0.48) {
-            ctx.fillStyle = p.energyColor
-          } else if (pT < 0.78) {
-            ctx.fillStyle = p.midColor
-          } else {
-            ctx.fillStyle = p.finalColor
+          const nextStyle =
+            pT < 0.48 ? p.energyColor : pT < 0.78 ? p.midColor : p.finalColor
+          if (nextStyle !== lastFillStyle) {
+            ctx.fillStyle = nextStyle
+            lastFillStyle = nextStyle
           }
 
           const drawSize =
@@ -460,10 +478,49 @@ export function PixelDispersionCanvas({
       })
     }
 
-    render()
+    const scheduleRender = () => {
+      if (animId || !isInViewRef.current) return
+      animId = requestAnimationFrame(render)
+    }
+
+    if (scheduleRenderRef) {
+      scheduleRenderRef.current = scheduleRender
+    }
+
+    syncCanvasSize(true)
+    const io = new IntersectionObserver(
+      (entries) => {
+        const visible = entries[0]?.isIntersecting ?? true
+        isInViewRef.current = visible
+        if (visible && needsRenderRef.current) {
+          scheduleRender()
+        }
+      },
+      { rootMargin: '150px 0px' }
+    )
+    io.observe(container)
+
+    const resizeObserver = new ResizeObserver(() => {
+      syncCanvasSize(false)
+      measureOffsets()
+      scheduleRender()
+    })
+    resizeObserver.observe(container)
+    const handleCanvasResize = () => {
+      syncCanvasSize(false)
+      measureOffsets()
+      scheduleRender()
+    }
+    window.addEventListener('resize', handleCanvasResize)
+
+    scheduleRender()
 
     return () => {
-      cancelAnimationFrame(animId)
+      if (scheduleRenderRef) {
+        scheduleRenderRef.current = null
+      }
+      if (animId) cancelAnimationFrame(animId)
+      io.disconnect()
       resizeObserver.disconnect()
       window.removeEventListener('resize', handleCanvasResize)
     }
@@ -472,7 +529,9 @@ export function PixelDispersionCanvas({
     containerRef,
     entryProgressRef,
     items.length,
+    measureOffsets,
     needsRenderRef,
+    scheduleRenderRef,
     scrollProgressRef,
     textPlayedRef,
     textTimelinesRef,
