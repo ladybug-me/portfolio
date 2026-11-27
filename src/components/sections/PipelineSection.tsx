@@ -46,6 +46,7 @@ export function PipelineSection() {
   const entryProgressRef = useRef<number>(0)
   const scrollProgressRef = useRef<number>(0)
   const needsRenderRef = useRef<boolean>(true)
+  const scheduleRenderRef = useRef<(() => void) | null>(null)
   const textTimelinesRef = useRef<(gsap.core.Timeline | null)[]>([])
   const textPlayedRef = useRef<boolean[]>([false, false, false, false])
 
@@ -124,10 +125,12 @@ export function PipelineSection() {
         onUpdate: (self) => {
           entryProgressRef.current = self.progress
           needsRenderRef.current = true
+          scheduleRenderRef.current?.()
         },
         onRefresh: (self) => {
           entryProgressRef.current = self.progress
           needsRenderRef.current = true
+          scheduleRenderRef.current?.()
         },
       })
 
@@ -143,6 +146,7 @@ export function PipelineSection() {
           onUpdate: (self) => {
             scrollProgressRef.current = self.progress
             needsRenderRef.current = true
+            scheduleRenderRef.current?.()
             syncPinnedOverflow(containerRef.current, innerRef.current, self.progress)
             const step = Math.min(
               MILESTONES.length - 1,
@@ -153,6 +157,7 @@ export function PipelineSection() {
           onRefresh: (self) => {
             scrollProgressRef.current = self.progress
             needsRenderRef.current = true
+            scheduleRenderRef.current?.()
             syncPinnedOverflow(containerRef.current, innerRef.current, self.progress, true)
           },
         },
@@ -185,6 +190,7 @@ export function PipelineSection() {
         entryProgressRef={entryProgressRef}
         scrollProgressRef={scrollProgressRef}
         needsRenderRef={needsRenderRef}
+        scheduleRenderRef={scheduleRenderRef}
         textTimelinesRef={textTimelinesRef}
         textPlayedRef={textPlayedRef}
       />
@@ -223,7 +229,7 @@ export function PipelineSection() {
                   ref={(el) => {
                     cardsRef.current[idx] = el
                   }}
-                  className={`relative flex flex-col p-6 rounded-2xl border bg-[rgba(var(--bg-secondary-rgb),0.92)] backdrop-blur-md sm:backdrop-blur-xl ${
+                  className={`relative flex flex-col p-6 rounded-2xl border bg-[rgba(var(--bg-secondary-rgb),0.92)] backdrop-blur-sm sm:backdrop-blur-md [contain:layout_style] ${
                     isCurrent
                       ? 'border-cyan-400 shadow-[0_0_24px_rgba(var(--accent-cyan-rgb),0.2)]'
                       : isReached

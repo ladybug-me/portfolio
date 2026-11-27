@@ -2,15 +2,12 @@ import { Suspense } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { NeuralCore } from './NeuralCore'
 import { DistantOrbitParticles } from './DistantOrbitParticles'
-import { usePalette } from '../../theme/palettes'
 
 interface HeroCanvasProps {
   onReady?: () => void
 }
 
 export function HeroCanvas({ onReady }: HeroCanvasProps) {
-  const palette = usePalette()
-
   return (
     <div className="fixed inset-x-0 top-0 w-full h-[100lvh] pointer-events-none z-0 overflow-hidden">
       <Suspense fallback={null}>
@@ -18,19 +15,17 @@ export function HeroCanvas({ onReady }: HeroCanvasProps) {
           camera={{ position: [0, 0, 5], fov: 45 }}
           dpr={[1, 1.5]}
           gl={{
-            antialias: true,
+            antialias: false,
             alpha: true,
             powerPreference: 'high-performance',
             stencil: false,
+            depth: false,
           }}
           onCreated={() => {
             requestAnimationFrame(() => onReady?.())
           }}
           className="w-full h-full"
         >
-          <ambientLight intensity={0.5} />
-          <directionalLight position={[10, 10, 5]} intensity={1.5} color={palette.primary} />
-          <pointLight position={[-10, -10, -5]} intensity={0.9} color={palette.secondary} />
           <NeuralCore />
           <DistantOrbitParticles />
         </Canvas>

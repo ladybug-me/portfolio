@@ -15,6 +15,7 @@ const coreVertexShader = `
   
   varying vec2 vUv;
   varying vec3 vNormal;
+  varying vec3 vObjNormal;
   varying vec3 vPosition;
   varying float vDisplacement;
 
@@ -64,6 +65,7 @@ const coreVertexShader = `
 
   void main() {
     vUv = uv;
+    vObjNormal = normal;
     vNormal = normalize(normalMatrix * normal);
     
     float noiseFreq = 1.2;
@@ -92,6 +94,7 @@ const coreFragmentShader = `
   uniform vec3 uColorSecondary;
   varying vec2 vUv;
   varying vec3 vNormal;
+  varying vec3 vObjNormal;
   varying vec3 vPosition;
   varying float vDisplacement;
 
@@ -103,13 +106,81 @@ const coreFragmentShader = `
     
     float blendFactor = smoothstep(-0.25, 0.35, vDisplacement);
     vec3 coreColor = mix(colorBase, uColorPrimary * 0.35, blendFactor);
+
+    // Fast GPU trig ridge-field for crawling surface lightning veins
+    vec3 p = vObjNormal * 4.2 + vec3(uTime * 0.45, -uTime * 0.35, uTime * 0.25);
+    float w1 = sin(p.x * 2.3 + sin(p.y * 3.1 + uTime * 3.2)) + cos(p.z * 2.5 - sin(p.x * 2.7 - uTime * 2.4));
+    float w2 = cos(p.y * 2.9 + sin(p.z * 3.4 - uTime * 3.8)) - sin(p.x * 2.4 + cos(p.y * 2.1 + uTime * 2.9));
+    float ridge1 = pow(clamp(1.0 - abs(w1) * 0.55, 0.0, 1.0), 18.0);
+    float ridge2 = pow(clamp(1.0 - abs(w2) * 0.55, 0.0, 1.0), 22.0);
+    float arcMask = max(ridge1, ridge2 * 0.85);
+    float surge = 0.22 + 0.78 * pow(max(0.0, sin(uTime * 2.1 + sin(uTime * 0.85) * 2.2)), 5.0);
+    float surfaceLightning = arcMask * (surge + uClickPulse * 1.1) * (0.55 + fresnel * 0.85);
+    vec3 lightningColor = mix(uColorSecondary, vec3(0.95, 0.99, 1.0), clamp(surfaceLightning * 0.65, 0.0, 1.0));
     
     vec3 finalColor = coreColor 
       + (uColorPrimary * (fresnel * 0.9 + uClickPulse * 0.5)) 
-      + (uColorSecondary * pow(fresnel, 4.5) * 0.7);
+      + (uColorSecondary * pow(fresnel, 4.5) * 0.7)
+      + (lightningColor * surfaceLightning * 0.95);
     
-    float alpha = 0.28 + fresnel * 0.22;
+    float alpha = clamp(0.28 + fresnel * 0.22 + surfaceLightning * 0.32, 0.0, 0.92);
     gl_FragColor = vec4(finalColor, alpha);
+  }
+`
+
+// GPU-computed 3D jagged lightning arc bolts (1 draw call, zero CPU updates)
+const lightningVertexShader = `
+  uniform float uTime;
+  uniform float uClickPulse;
+
+  attribute float aBoltId;
+  attribute float aProgress;
+  attribute vec3 aTangent;
+  attribute vec3 aRadial;
+
+  varying float vProgress;
+  varying float vBoltId;
+
+  float hash12(vec2 p) {
+    vec3 p3 = fract(vec3(p.xyx) * 0.1031);
+    p3 += dot(p3, p3.yzx + 33.33);
+    return fract((p3.x + p3.y) * p3.z);
+  }
+
+  void main() {
+    vProgress = aProgress;
+    vBoltId = aBoltId;
+
+    float tick = floor(uTime * 15.0 + aBoltId * 3.17);
+    float env = sin(aProgress * 3.14159265);
+    float j1 = (hash12(vec2(aProgress * 19.0 + aBoltId * 7.0, tick)) - 0.5) * 2.0;
+    float j2 = (hash12(vec2(aProgress * 31.0 + aBoltId * 13.0, tick + 5.7)) - 0.5) * 2.0;
+    float amp = (0.19 + uClickPulse * 0.11) * env;
+
+    vec3 displaced = position + aTangent * (j1 * amp) + aRadial * (j2 * amp * 0.72);
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(displaced, 1.0);
+  }
+`
+
+const lightningFragmentShader = `
+  uniform float uTime;
+  uniform float uClickPulse;
+  uniform vec3 uColorPrimary;
+  uniform vec3 uColorSecondary;
+
+  varying float vProgress;
+  varying float vBoltId;
+
+  void main() {
+    float strike = pow(max(0.0, sin(uTime * 2.4 + vBoltId * 1.73 + sin(uTime * 3.9 + vBoltId * 0.9) * 1.4)), 4.0);
+    float activeFlash = clamp(strike + uClickPulse * 0.85, 0.0, 1.0);
+    if (activeFlash < 0.03) discard;
+
+    float tipFade = sin(vProgress * 3.14159265);
+    float alpha = tipFade * activeFlash * 0.85;
+    vec3 boltColor = mix(uColorPrimary, mix(uColorSecondary, vec3(0.95, 0.99, 1.0), 0.65), activeFlash);
+
+    gl_FragColor = vec4(boltColor, alpha);
   }
 `
 
@@ -173,6 +244,8 @@ export function NeuralCore() {
 
   const clickPulseVal = useRef(0)
   const clickPosVal = useRef(new THREE.Vector3(0.6, 0, 0))
+  const lastPaletteId = useRef('')
+  const lastViewportRef = useRef({ width: 0, aspect: 0, responsiveScale: 1, isMobile: false })
 
   // GSAP-scrubbed scroll coordinates
   const scrollData = useRef({
@@ -205,6 +278,101 @@ export function NeuralCore() {
     }),
     []
   )
+
+  const lightningUniforms = useMemo(
+    () => ({
+      uTime: { value: 0 },
+      uClickPulse: { value: 0 },
+      uColorPrimary: { value: new THREE.Color('#00f2fe') },
+      uColorSecondary: { value: new THREE.Color('#00ffa3') },
+    }),
+    []
+  )
+
+  const lightningMaterial = useMemo(
+    () =>
+      new THREE.ShaderMaterial({
+        vertexShader: lightningVertexShader,
+        fragmentShader: lightningFragmentShader,
+        uniforms: lightningUniforms,
+        transparent: true,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending,
+      }),
+    [lightningUniforms]
+  )
+
+  const lightningGeometry = useMemo(() => {
+    const boltCount = 10
+    const segmentsPerBolt = 16
+    const vertexCount = boltCount * segmentsPerBolt * 2
+    const positions = new Float32Array(vertexCount * 3)
+    const tangents = new Float32Array(vertexCount * 3)
+    const radials = new Float32Array(vertexCount * 3)
+    const boltIds = new Float32Array(vertexCount)
+    const progressAttr = new Float32Array(vertexCount)
+
+    const startVec = new THREE.Vector3()
+    const endVec = new THREE.Vector3()
+    const orthoAxis = new THREE.Vector3()
+    const pt = new THREE.Vector3()
+    const tan = new THREE.Vector3()
+    const rad = new THREE.Vector3()
+
+    let vIdx = 0
+    for (let b = 0; b < boltCount; b++) {
+      // Deterministic golden-ratio distribution for balanced arc coverage
+      const y0 = 1 - ((b + 0.5) / boltCount) * 2
+      const r0 = Math.sqrt(Math.max(0, 1 - y0 * y0))
+      const theta0 = b * 2.3999632297
+      startVec.set(Math.cos(theta0) * r0, y0, Math.sin(theta0) * r0).normalize()
+
+      orthoAxis.set(Math.sin(theta0 + 1.3), Math.cos(b * 1.7), -Math.cos(theta0 + 0.7)).normalize()
+      endVec.copy(startVec).applyAxisAngle(orthoAxis, 0.95 + (b % 3) * 0.22).normalize()
+
+      for (let s = 0; s < segmentsPerBolt; s++) {
+        for (let end = 0; end < 2; end++) {
+          const t = (s + end) / segmentsPerBolt
+          pt.copy(startVec).lerp(endVec, t).normalize()
+          rad.copy(pt)
+          const radius = 2.06 + Math.sin(t * Math.PI) * 0.32
+          pt.multiplyScalar(radius)
+
+          tan.crossVectors(endVec, startVec)
+          if (tan.lengthSq() < 0.0001) tan.set(0, 1, 0)
+          tan.normalize()
+
+          positions[vIdx * 3] = pt.x
+          positions[vIdx * 3 + 1] = pt.y
+          positions[vIdx * 3 + 2] = pt.z
+          tangents[vIdx * 3] = tan.x
+          tangents[vIdx * 3 + 1] = tan.y
+          tangents[vIdx * 3 + 2] = tan.z
+          radials[vIdx * 3] = rad.x
+          radials[vIdx * 3 + 1] = rad.y
+          radials[vIdx * 3 + 2] = rad.z
+          boltIds[vIdx] = b
+          progressAttr[vIdx] = t
+          vIdx++
+        }
+      }
+    }
+
+    const geo = new THREE.BufferGeometry()
+    geo.setAttribute('position', new THREE.BufferAttribute(positions, 3))
+    geo.setAttribute('aTangent', new THREE.BufferAttribute(tangents, 3))
+    geo.setAttribute('aRadial', new THREE.BufferAttribute(radials, 3))
+    geo.setAttribute('aBoltId', new THREE.BufferAttribute(boltIds, 1))
+    geo.setAttribute('aProgress', new THREE.BufferAttribute(progressAttr, 1))
+    return geo
+  }, [])
+
+  useEffect(() => {
+    return () => {
+      lightningGeometry.dispose()
+      lightningMaterial.dispose()
+    }
+  }, [lightningGeometry, lightningMaterial])
 
   const { particlePositions, particleRandoms } = useMemo(() => {
     const count = 1500
@@ -267,40 +435,71 @@ export function NeuralCore() {
     }
   }, [])
 
+  // Trigger subtle lightning surge on pointer click
+  useEffect(() => {
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (prefersReducedMotion) return
+
+    const handlePointerDown = () => {
+      clickPulseVal.current = 1.0
+    }
+    window.addEventListener('pointerdown', handlePointerDown, { passive: true })
+    return () => window.removeEventListener('pointerdown', handlePointerDown)
+  }, [])
+
   useFrame((state, delta) => {
     const active = getActivePalette()
-    coreUniforms.uColorPrimary.value.set(active.primary)
-    coreUniforms.uColorSecondary.value.set(active.secondary)
-    particleUniforms.uColorPrimary.value.set(active.primary)
-    particleUniforms.uColorSecondary.value.set(active.secondary)
+    if (active.id !== lastPaletteId.current) {
+      lastPaletteId.current = active.id
+      coreUniforms.uColorPrimary.value.set(active.primary)
+      coreUniforms.uColorSecondary.value.set(active.secondary)
+      particleUniforms.uColorPrimary.value.set(active.primary)
+      particleUniforms.uColorSecondary.value.set(active.secondary)
+      lightningUniforms.uColorPrimary.value.set(active.primary)
+      lightningUniforms.uColorSecondary.value.set(active.secondary)
+    }
 
-    coreUniforms.uTime.value += delta
-    particleUniforms.uTime.value += delta
+    const dt = Math.min(delta, 0.05)
+    coreUniforms.uTime.value += dt
+    particleUniforms.uTime.value += dt
+    lightningUniforms.uTime.value += dt
 
-    clickPulseVal.current = 0
-    coreUniforms.uClickPulse.value = 0
-    particleUniforms.uClickPulse.value = 0
-    particleUniforms.uClickPos.value.copy(clickPosVal.current)
+    if (clickPulseVal.current > 0.001) {
+      clickPulseVal.current = Math.max(0, clickPulseVal.current - dt * 1.9)
+      coreUniforms.uClickPulse.value = clickPulseVal.current
+      particleUniforms.uClickPulse.value = clickPulseVal.current
+      lightningUniforms.uClickPulse.value = clickPulseVal.current
+      particleUniforms.uClickPos.value.copy(clickPosVal.current)
+    } else if (coreUniforms.uClickPulse.value !== 0) {
+      coreUniforms.uClickPulse.value = 0
+      particleUniforms.uClickPulse.value = 0
+      lightningUniforms.uClickPulse.value = 0
+    }
 
     const targetX = state.pointer.x * 0.7
     const targetY = state.pointer.y * 0.7
-    coreUniforms.uPointer.value.x += (targetX - coreUniforms.uPointer.value.x) * 0.05
-    coreUniforms.uPointer.value.y += (targetY - coreUniforms.uPointer.value.y) * 0.05
+    const lerpFactor = 1 - Math.pow(0.95, dt * 60)
+    coreUniforms.uPointer.value.x += (targetX - coreUniforms.uPointer.value.x) * lerpFactor
+    coreUniforms.uPointer.value.y += (targetY - coreUniforms.uPointer.value.y) * lerpFactor
     particleUniforms.uPointer.value.copy(coreUniforms.uPointer.value)
 
     if (groupRef.current) {
-      // Responsive viewport scaling
-      const aspect = state.viewport.aspect
-      const isMobile = aspect < 0.85
-      const isTablet = aspect >= 0.85 && aspect < 1.25
+      const { aspect, width } = state.viewport
+      const vpCache = lastViewportRef.current
+      if (vpCache.width !== width || vpCache.aspect !== aspect) {
+        const isMobile = aspect < 0.85
+        const isTablet = aspect >= 0.85 && aspect < 1.25
+        vpCache.width = width
+        vpCache.aspect = aspect
+        vpCache.isMobile = isMobile
+        vpCache.responsiveScale = isMobile
+          ? Math.min(0.62, width / 5.2)
+          : isTablet
+          ? Math.min(0.85, width / 6.5)
+          : Math.min(1.2, Math.max(0.85, width / 7.2))
+      }
 
-      // Compute base scale relative to viewport width
-      const responsiveScale = isMobile
-        ? Math.min(0.62, state.viewport.width / 5.2)
-        : isTablet
-        ? Math.min(0.85, state.viewport.width / 6.5)
-        : Math.min(1.2, Math.max(0.85, state.viewport.width / 7.2))
-
+      const { isMobile, responsiveScale } = vpCache
       const currentScale = scrollData.current.scale * responsiveScale
 
       // Responsive X offset: centered on mobile, offset to right on desktop
@@ -321,8 +520,8 @@ export function NeuralCore() {
     }
 
     if (wireframeRef.current) {
-      wireframeRef.current.rotation.y -= delta * 0.05
-      wireframeRef.current.rotation.z += delta * 0.03
+      wireframeRef.current.rotation.y -= dt * 0.05
+      wireframeRef.current.rotation.z += dt * 0.03
     }
   })
 
@@ -330,7 +529,7 @@ export function NeuralCore() {
     <group ref={groupRef} position={[0.6, 0, 0]}>
       {/* Primary Displaced Shader Core */}
       <mesh ref={meshRef}>
-        <icosahedronGeometry args={[2.0, 48]} />
+        <icosahedronGeometry args={[2.0, 32]} />
         <shaderMaterial
           vertexShader={coreVertexShader}
           fragmentShader={coreFragmentShader}
@@ -350,6 +549,9 @@ export function NeuralCore() {
           opacity={0.06}
         />
       </mesh>
+
+      {/* GPU-Computed 3D Lightning Arcs */}
+      <lineSegments geometry={lightningGeometry} material={lightningMaterial} />
 
       {/* Interactive Click-Responsive Particle Cloud */}
       <points>

@@ -102,6 +102,10 @@ export function SphericalPet({ onFollowingChange }: SphericalPetProps) {
   // Pre-allocated vectors to eliminate garbage collection inside 60fps useFrame loop
   const tempEyeWorld = useRef(new THREE.Vector3())
   const tempDirToTarget = useRef(new THREE.Vector3())
+  const viewportRef = useRef(viewport)
+  viewportRef.current = viewport
+  const lastShadowKey = useRef('')
+  const lastPupilEmissive = useRef(-1)
 
   // Track global pointer events across entire window
   useEffect(() => {
@@ -110,8 +114,9 @@ export function SphericalPet({ onFollowingChange }: SphericalPetProps) {
     const updateTargetFromClient = (clientX: number, clientY: number) => {
       const nx = (clientX / window.innerWidth) * 2 - 1
       const ny = -(clientY / window.innerHeight) * 2 + 1
-      const worldX = nx * (viewport.width / 2) * 0.9
-      const worldY = ny * (viewport.height / 2) * 0.85
+      const vp = viewportRef.current
+      const worldX = nx * (vp.width / 2) * 0.9
+      const worldY = ny * (vp.height / 2) * 0.85
       targetCursor.current.set(worldX, worldY, 0)
       return { worldX, worldY }
     }
@@ -212,7 +217,7 @@ export function SphericalPet({ onFollowingChange }: SphericalPetProps) {
       window.removeEventListener('pointercancel', handlePointerCancel)
       window.removeEventListener('dblclick', handleDblClick)
     }
-  }, [viewport.width, viewport.height, onFollowingChange])
+  }, [onFollowingChange])
 
   useFrame((state, delta) => {
     const dt = Math.min(delta, 0.033)
@@ -560,8 +565,11 @@ export function SphericalPet({ onFollowingChange }: SphericalPetProps) {
 
       const isPulsing = clickPulseTimer.current > 0
       const pulseEmissive = isPulsing ? 2.8 + Math.sin(time * 12) * 0.5 : isCuriousLure ? 2.2 : 1.7
-      ;(leftPupilRef.current.material as THREE.MeshStandardMaterial).emissiveIntensity = pulseEmissive
-      ;(rightPupilRef.current.material as THREE.MeshStandardMaterial).emissiveIntensity = pulseEmissive
+      if (Math.abs(pulseEmissive - lastPupilEmissive.current) > 0.01) {
+        lastPupilEmissive.current = pulseEmissive
+        ;(leftPupilRef.current.material as THREE.MeshStandardMaterial).emissiveIntensity = pulseEmissive
+        ;(rightPupilRef.current.material as THREE.MeshStandardMaterial).emissiveIntensity = pulseEmissive
+      }
     }
 
     // 11. Micro-Ecosystem: Orbiting bio-digital energy motes with acceleration trail lag
@@ -580,9 +588,15 @@ export function SphericalPet({ onFollowingChange }: SphericalPetProps) {
       }
     }
 
-    // 12. GPU Shadow Receiving Floor Height Sync
+    // 12. GPU Shadow Receiving Floor Height Sync + on-demand shadow-map updates
     if (floorReceiverRef.current) {
       floorReceiverRef.current.position.y = floorY - petRadius
+    }
+
+    const shadowKey = `${pos.current.x.toFixed(2)},${pos.current.y.toFixed(2)},${squash.current.x.toFixed(2)},${plats[0].scaleX.toFixed(2)},${plats[1].scaleX.toFixed(2)}`
+    if (shadowKey !== lastShadowKey.current) {
+      lastShadowKey.current = shadowKey
+      state.gl.shadowMap.needsUpdate = true
     }
   })
 

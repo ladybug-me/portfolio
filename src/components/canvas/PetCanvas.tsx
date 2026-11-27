@@ -28,6 +28,10 @@ export function PetCanvas() {
             stencil: false,
             depth: true,
           }}
+          onCreated={({ gl }) => {
+            gl.shadowMap.autoUpdate = false
+            gl.shadowMap.needsUpdate = true
+          }}
           style={{ pointerEvents: 'none' }}
           className="w-full h-full pointer-events-none"
         >

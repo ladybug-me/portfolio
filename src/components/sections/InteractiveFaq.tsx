@@ -85,6 +85,12 @@ export function InteractiveFaq() {
         return tl
       })
 
+      // Pre-measure answer heights once on setup/resize so scroll transitions animate maxHeight/opacity cleanly without 'auto' recalculation
+      const answerHeights = answerWrapRefs.current.map((wrap) => {
+        if (!wrap) return 0
+        return wrap.scrollHeight
+      })
+
       // Initial stacked card entry states (keep opacity at 1 on backdrop-blur cards)
       cardRefs.current.forEach((card, idx) => {
         if (!card) return
@@ -98,7 +104,7 @@ export function InteractiveFaq() {
       answerWrapRefs.current.forEach((wrap, idx) => {
         if (!wrap) return
         gsap.set(wrap, {
-          height: idx === 0 ? 'auto' : 0,
+          maxHeight: idx === 0 ? answerHeights[idx] + 32 : 0,
           opacity: idx === 0 ? 1 : 0,
         })
       })
@@ -148,16 +154,17 @@ export function InteractiveFaq() {
       const isReached = idx < activeIdx
 
       if (isCurrent) {
+        const targetMaxH = wrap.scrollHeight + 24
         gsap.to(card, {
           y: 0,
-          duration: 0.45,
+          duration: 0.4,
           ease: 'power3.out',
           overwrite: 'auto',
         })
         gsap.to(wrap, {
-          height: 'auto',
+          maxHeight: targetMaxH,
           opacity: 1,
-          duration: 0.42,
+          duration: 0.38,
           ease: 'power2.out',
           overwrite: 'auto',
         })
@@ -167,28 +174,28 @@ export function InteractiveFaq() {
       } else if (isReached) {
         gsap.to(card, {
           y: 0,
-          duration: 0.35,
+          duration: 0.32,
           ease: 'power2.out',
           overwrite: 'auto',
         })
         gsap.to(wrap, {
-          height: 0,
+          maxHeight: 0,
           opacity: 0,
-          duration: 0.3,
+          duration: 0.28,
           ease: 'power2.inOut',
           overwrite: 'auto',
         })
       } else {
         gsap.to(card, {
           y: 12,
-          duration: 0.35,
+          duration: 0.32,
           ease: 'power2.out',
           overwrite: 'auto',
         })
         gsap.to(wrap, {
-          height: 0,
+          maxHeight: 0,
           opacity: 0,
-          duration: 0.25,
+          duration: 0.24,
           ease: 'power2.inOut',
           overwrite: 'auto',
         })
@@ -228,7 +235,7 @@ export function InteractiveFaq() {
                 ref={(el) => {
                   cardRefs.current[idx] = el
                 }}
-                className={`rounded-2xl p-6 sm:p-7 border bg-[rgba(var(--bg-secondary-rgb),0.88)] backdrop-blur-md sm:backdrop-blur-2xl will-change-transform transition-[background-color,border-color,box-shadow] duration-300 ${
+                className={`rounded-2xl p-6 sm:p-7 border bg-[rgba(var(--bg-secondary-rgb),0.88)] backdrop-blur-sm sm:backdrop-blur-md [contain:layout_style] will-change-transform transition-[background-color,border-color,box-shadow] duration-300 ${
                   isCurrent
                     ? 'border-cyan-400/55 shadow-[0_20px_50px_rgba(0,0,0,0.65)]'
                     : isReached
