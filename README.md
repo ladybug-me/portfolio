@@ -1,4 +1,4 @@
-# Portfolio
+# Portfolio [![Website](https://img.shields.io/badge/Website-Live-27272a?style=flat&labelColor=09090b&logo=githubpages&logoColor=f4f4f5)](https://ladybug-me.github.io/portfolio)
 
 Interactive 3D portfolio built with React 19, Three.js, GSAP, Lenis, and Tailwind CSS v4.
 
