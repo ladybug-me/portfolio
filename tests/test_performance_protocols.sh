@@ -41,6 +41,10 @@ test_webgl_canvas_dpr_shader_and_shadow_guards() {
         "NeuralCore.tsx must not use high-vertex 48-subdivision geometry in vertex noise shader"
     assert_file_contains "$neural_core" "lastPaletteId" \
         "NeuralCore.tsx must cache palette ID instead of parsing colors every frame"
+    assert_file_contains "$neural_core" "lightningGeometry.dispose()" \
+        "NeuralCore.tsx must dispose lightning GPU geometry on unmount"
+    assert_file_contains "$neural_core" "lightningMaterial.dispose()" \
+        "NeuralCore.tsx must dispose lightning GPU material on unmount"
 
     assert_file_contains "$particles" "lastPaletteId" \
         "DistantOrbitParticles.tsx must cache palette ID instead of parsing colors every frame"
